@@ -1,0 +1,145 @@
+import 'dart:async';
+import 'package:web/services/auth/auth_service.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:web/data_structures/remote_data.dart';
+import 'package:web/models/auth.dart';
+
+class AuthenticationServiceFirebase implements AuthenticationService {
+  RemoteData<String, SignInState> userState = RemoteData.notAsked();
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final StreamController<RemoteData<String, SignInState>>
+  _userStateChangeController = StreamController.broadcast();
+  final GoogleSignIn googleSignIn = GoogleSignIn();
+
+  // TODO No err handling
+  @override
+  Future<SignInState> signInWithGoogle() async {
+    userState = RemoteData.loading();
+    _userStateChangeController.add(userState);
+
+    final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
+    if (googleSignInAccount == null) {
+      _setUserState(RemoteData.error('Google sign in exited.'));
+    }
+
+    final GoogleSignInAuthentication googleSignInAuthentication =
+    await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+    if (!user.isAnonymous) {
+      _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
+    }
+
+    final tokenResult = await user.getIdToken();
+    if (tokenResult != null) {
+      _setUserState(RemoteData.error('No id token received from logged user.'));
+    }
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    if (user.uid != currentUser.uid) {
+      _setUserState(RemoteData.error('User uid mismatch.'));
+    }
+
+    final credentials = Credentials.bearerFromToken(tokenResult.token);
+    final session = _makeUserSession(currentUser, credentials);
+    final signInState = SignInState(session);
+
+    userState = RemoteData.success(signInState);
+    _userStateChangeController.add(userState);
+
+    return signInState;
+  }
+
+  @override
+  Future<void> signOut() async {
+    if (userState.isSuccess) {
+      userState.maybeWhen(
+          success: (SignInState state) {
+            state.maybeWhen((session) async {
+              await _signOutByGivenProviderId(session.provider);
+              userState = RemoteData.success(SignInState.anonymous());
+              _userStateChangeController.add(userState);
+            }, orElse: () {});
+          },
+          orElse: () {});
+    }
+  }
+
+  @override
+  bool get isSignedIn => userState.maybeWhen(
+      success: (state) =>
+          state.maybeWhen((ignore) => true, orElse: () => false),
+      orElse: () => false);
+
+  @override
+  Stream<SignInState> get sessionChangeStream => _userStateChangeController
+      .stream
+      .where((ev) => ev.isSuccess)
+      .map((ev) => ev.maybeWhen(
+      orElse: () => SignInState.anonymous(), success: (s) => s));
+
+  @override
+  Stream<RemoteData<String, SignInState>> get userStateChangeStream =>
+      _userStateChangeController.stream;
+
+  static UserSession _makeUserSession(
+      FirebaseUser user, Credentials credentials) {
+    final splitName = user.displayName.split(' ');
+    final name = splitName[0];
+    final surname = splitName.join();
+
+    return UserSession(
+        user: User(
+          id: UserID(user.uid),
+          name: name,
+          surname: surname,
+          email: user.email,
+          imageUrl: user.photoUrl,
+        ),
+        provider: user.providerId,
+        credentials: credentials);
+  }
+
+  // TODO No err handling
+  Future<void> _signOutByGivenProviderId(String providerId) async {
+    _setUserState(RemoteData.loading());
+
+    switch (providerId) {
+      case 'firebase':
+        {
+          await googleSignIn.signOut();
+          await _auth.signOut();
+
+          _setUserState(RemoteData.success(SignInState.anonymous()));
+        }
+    }
+  }
+
+  @override
+  Future<void> init() async {
+    final FirebaseUser user = await _auth.currentUser();
+
+    if(user != null) {
+      final idToken = await user.getIdToken(refresh: true);
+      final Credentials credentials = Credentials.bearerFromToken(idToken.token);
+      final session = _makeUserSession(user, credentials);
+
+      _setUserState(RemoteData.success(SignInState(session)));
+    } else {
+      _setUserState(RemoteData.success(SignInState.anonymous()));
+    }
+  }
+
+  void _setUserState(RemoteData<String, SignInState> remoteData) {
+    userState = remoteData;
+    _userStateChangeController.add(userState);
+  }
+}
