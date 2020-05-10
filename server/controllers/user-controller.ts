@@ -1,11 +1,16 @@
 ﻿import {app} from "../server/server";
+import {User} from '../models/user';
+import {UserService} from '../services/user-service';
 
-const User = require('../models/user')
-
-class UserController {
+export class UserController {
 
     url: string = "/user";
+    userService: UserService;
 
+    constructor(userService: UserService) {
+        this.userService = userService;
+    }
+    
     init(): void {
         this.getUser();
     }
@@ -14,7 +19,7 @@ class UserController {
         app.get(this.url, (req, res) => {
             const body = JSON.parse(req.body);
 
-            User.findByPk(body.userId)
+            this.userService.getUserById(body.userId)
                 .then((user: User) => {
                     res.sendStatus(200).send(JSON.stringify(user));
                 })
@@ -27,4 +32,3 @@ class UserController {
     }
 }
 
-module.exports = UserController;

@@ -1,7 +1,12 @@
 ﻿import {app} from "./server";
 import {firebaseAdmin} from "./firebase-admin";
 
-export const authenticateRoutes = () => app.use((req, res, next) => {
+// Routes that will be authenticated
+const authenticatedRoutes: string[] = [
+    '/user*'
+];
+
+const authenticateFunction = (req: any, res:any, next:any) => { // check the types of the parameters
     if(!req.headers.authorization) {
         return res.status(401).send({message: 'Unauthorized'});
     }
@@ -12,4 +17,8 @@ export const authenticateRoutes = () => app.use((req, res, next) => {
     }).catch(error => {
         return res.status(400).send({message: error});
     })
-});
+};
+
+export const authenticateRoutes = () => {
+    authenticatedRoutes.forEach(route => app.get(route, authenticateFunction));
+}

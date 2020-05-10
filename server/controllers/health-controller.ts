@@ -1,6 +1,6 @@
 ﻿import {app} from "../server/server"
 
-class HealthController {
+export class HealthController {
     init(): void {
         this.healthCheck();
     }
@@ -11,5 +11,3 @@ class HealthController {
         });
     }
 }
-
-module.exports = HealthController;
