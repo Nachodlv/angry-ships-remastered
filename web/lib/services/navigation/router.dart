@@ -5,12 +5,32 @@ import 'package:web/ui/login/login_view.dart';
 
 import 'navigation_routes.dart';
 
-Route<dynamic> generateRoute(RouteSettings settings) {
-  switch (settings.name) {
-    case Routes.LOAD:
-      return MaterialPageRoute(builder: (context) => LoadView());
-    case Routes.LOGIN:
-      return MaterialPageRoute(builder: (context) => LoginView());
-    // TODO Default to home
+class RoutesGenerator {
+  static List<Path> paths = [
+    Path(Routes.LOAD, (context, _) => LoadView()),
+    Path(Routes.LOGIN, (context, _) => LoginView())
+  ];
+
+  static Route<dynamic> onGenerateRoute(RouteSettings settings) {
+    for (Path path in paths) {
+      final regExpPattern = RegExp(path.pattern);
+      if (regExpPattern.hasMatch(settings.name)) {
+        final firstMatch = regExpPattern.firstMatch(settings.name);
+        final match = (firstMatch.groupCount == 1) ? firstMatch.group(1) : null;
+        return MaterialPageRoute<void>(
+          builder: (context) => path.builder(context, match),
+          settings: settings,
+        );
+      }
+    }
+    // If no match is found, [WidgetsApp.onUnknownRoute] handles it.
+    return null;
   }
+}
+
+class Path {
+  final String pattern;
+  final Widget Function(BuildContext, String) builder;
+
+  Path(this.pattern, this.builder);
 }

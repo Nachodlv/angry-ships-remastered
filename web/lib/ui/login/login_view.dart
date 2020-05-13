@@ -71,7 +71,7 @@ renderLoginBox(double sizeLongestSide, {void Function() signInWithGoogle}) =>
           Padding(
             padding: const EdgeInsets.only(left: 10),
             child: Text(
-              'Sing in with Google',
+              'Sign in with Google',
               style: TextStyle(
                 fontSize: 12,
                 color: Colors.grey,

@@ -23,9 +23,9 @@ class App extends StatelessWidget {
       title: 'Angry Ships',
       color: Colors.white,
       navigatorKey: locator<NavigationService>().navigatorKey,
-      onGenerateRoute: generateRoute,
+      onGenerateRoute: RoutesGenerator.onGenerateRoute,
       initialRoute: Routes.LOAD,
-      theme: AngryShipsTheme(context),
+      theme: AngryShipsTheme(context)
     );
   }
 }
