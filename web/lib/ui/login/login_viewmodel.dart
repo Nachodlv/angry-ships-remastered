@@ -11,16 +11,24 @@ class LoginViewModel extends ChangeNotifier {
   NavigationService _navigationService = locator<NavigationService>();
   AuthenticationService _authenticationService = locator<AuthenticationService>();
 
-  init() {}
+  init() {
+    _authenticationService.userStateChangeStream
+      .listen((data) => _setUserState(data));
+  }  
 
   signInWithGoogle() async {
-    _setUserState(RemoteData.loading());
-
     try {
-      final state = await _authenticationService.signInWithGoogle();
-      _setUserState(RemoteData.success(state));
+      await _authenticationService.signInWithGoogle();
     } catch (e) {
-      _setUserState(RemoteData.error(e));
+      print(e);
+    }
+  }
+
+  signOut() {
+    try {
+      _authenticationService.signOut();
+    } catch (e) {
+      print(e);
     }
   }
 
