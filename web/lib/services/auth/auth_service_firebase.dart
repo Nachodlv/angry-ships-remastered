@@ -24,7 +24,6 @@ class AuthenticationServiceFirebase implements AuthenticationService {
     _setUserState(RemoteData.loading());
 
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    print("###################### $googleSignInAccount");
     if (googleSignInAccount == null) {
       _setUserState(RemoteData.error('Google sign in exited.'));
     }
@@ -37,17 +36,14 @@ class AuthenticationServiceFirebase implements AuthenticationService {
       idToken: googleSignInAuthentication.idToken,
     );
 
-    print("###################### $credential");
     final AuthResult authResult = await _auth.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
 
-    print("###################### $user");
     if (!user.isAnonymous) {
       _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
     }
 
     final tokenResult = await user.getIdToken();
-    print("###################### $tokenResult");
     if (tokenResult != null) {
       _setUserState(RemoteData.error('No id token received from logged user.'));
     }
@@ -61,9 +57,7 @@ class AuthenticationServiceFirebase implements AuthenticationService {
     final session = _makeUserSession(currentUser, credentials);
     final signInState = SignInState(session);
 
-    userState = RemoteData.success(signInState);
-    _userStateChangeController.add(userState);
-
+    _setUserState(RemoteData.success(signInState));
     return signInState;
   }
 

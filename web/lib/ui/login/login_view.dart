@@ -32,7 +32,7 @@ class LoginView extends StatelessWidget {
                   state.when(
                     (session) => Container(
                       child: Card(child: Text(
-                        'Credentials: ${session.credentials}\n'
+                        'Credentials: ${session.user.email}\n'
                         'Provider: ${session.provider}'
                       ))
                     ), 
