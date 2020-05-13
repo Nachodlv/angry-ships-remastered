@@ -4,8 +4,8 @@ import 'package:web/services/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:web/services/navigation/router.dart';
 
-void main() {
-  setupLocator();
+void main() async {
+  await setupLocator();
   runApp(App());
 }
 

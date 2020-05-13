@@ -12,6 +12,7 @@ dependencies:
   dartz: ^0.9.1
   stacked: ^1.4.2
   firebase_auth: ^0.16.0
+  firebase_core: ^0.4.4+3
   google_sign_in: ^4.4.4
   freezed_annotation: ^0.7.1
 
