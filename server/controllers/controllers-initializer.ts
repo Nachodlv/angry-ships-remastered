@@ -1,4 +1,4 @@
-﻿import {UserController} from '../controllers/user-controller';
+﻿﻿import {UserController} from '../controllers/user-controller';
 import {UserService} from "../services/user-service";
 import {HealthController} from '../controllers/health-controller';
 

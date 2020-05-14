@@ -11,6 +11,7 @@ services:
     volumes:
     - .:/opt/app
     - /opt/app/node_modules
+
   db:
     image: postgres
     restart: always

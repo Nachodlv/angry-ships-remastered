@@ -2,8 +2,14 @@
 import express = require('express');
 const bodyParser = require('body-parser');
 export const app: express.Application = express();
+const http = require('http').createServer(app);
 app.use(bodyParser.json());
 
+// Socket.io
+export const io = require('socket.io')(http, {origin: "localhost:*"});
+import {authenticateWebSocket} from "./ws-middleware";
+import {initializeWebsockets} from "../websockets/websockets-initializer";
+// io.use(authenticateWebSocket)
 
 // Sequelize
 const {Sequelize} = require('sequelize');
@@ -14,13 +20,13 @@ export const sequelize = new Sequelize('database', 'user', 'password', {dialect:
 require('../models/user.js');
 
 // Controllers
-const startControllers = require('./controllers-initializer.js');
+const startControllers = require('../controllers/controllers-initializer');
 
 // Middleware
-require('./middleware').authenticateRoutes();
+require('./http-middleware').authenticateRoutes();
 
 const startServer = () => {
-    app.listen(3000, function () {
+    http.listen(3000, function () {
         console.log('App is listening on port 3000!');
     });
 };
@@ -32,6 +38,7 @@ sequelize
     .then(() => {
         startServer();
         startControllers();
+        initializeWebsockets()
     }).catch((error: string) => console.log(error));
     // .then(() => User.create({
     //     name: "Nacho",
