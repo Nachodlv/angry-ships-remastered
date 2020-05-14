@@ -26,14 +26,15 @@ class LoginView extends StatelessWidget {
               ),
               SizedBox(height: 20.0,),
               renderLoginBox(sizeLongestSide, signInWithGoogle: model.signInWithGoogle),
+              SizedBox(height: 20.0,),
               model.userState.when(
                 success: (SignInState state) =>
                   state.when(
                     (session) => Container(
                       child: Card(child: Text(
-                        'Credentials: ${session.credentials}\n'
+                        'Credentials: ${session.user.email}\n'
                         'Provider: ${session.provider}'
-                      ),)
+                      ))
                     ), 
                     anonymous: () => Text('¡Not logged in!')
                   )

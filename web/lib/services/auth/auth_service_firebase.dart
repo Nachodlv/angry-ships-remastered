@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:web/services/auth/auth_service.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -8,16 +9,19 @@ import 'package:web/models/auth.dart';
 class AuthenticationServiceFirebase implements AuthenticationService {
   RemoteData<String, SignInState> userState = RemoteData.notAsked();
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseAuth _auth;
   final StreamController<RemoteData<String, SignInState>>
   _userStateChangeController = StreamController.broadcast();
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
+  AuthenticationServiceFirebase(FirebaseApp app){
+    _auth = FirebaseAuth.fromApp(app);
+  }
+
   // TODO No err handling
   @override
   Future<SignInState> signInWithGoogle() async {
-    userState = RemoteData.loading();
-    _userStateChangeController.add(userState);
+    _setUserState(RemoteData.loading());
 
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
     if (googleSignInAccount == null) {
@@ -34,6 +38,7 @@ class AuthenticationServiceFirebase implements AuthenticationService {
 
     final AuthResult authResult = await _auth.signInWithCredential(credential);
     final FirebaseUser user = authResult.user;
+
     if (!user.isAnonymous) {
       _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
     }
@@ -52,9 +57,7 @@ class AuthenticationServiceFirebase implements AuthenticationService {
     final session = _makeUserSession(currentUser, credentials);
     final signInState = SignInState(session);
 
-    userState = RemoteData.success(signInState);
-    _userStateChangeController.add(userState);
-
+    _setUserState(RemoteData.success(signInState));
     return signInState;
   }
 
