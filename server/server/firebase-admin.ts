@@ -1,22 +1,37 @@
 ﻿import * as admin from 'firebase-admin';
+import App = admin.app.App;
+const jwtDecode = require('jwt-decode');
 
 class FirebaseAdmin {
     
-    init(): void {
-        const serviceAccount = require("../credentials/serviceAccountKey.json");
-        
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount),
-            databaseURL: "https://angry-ships.firebaseio.com"
+    app: App;
+    serviceAccount = require("../credentials/serviceAccountKey.json");
+
+    constructor() {
+        this.app = admin.initializeApp({
+            credential: admin.credential.cert(this.serviceAccount),
+            databaseURL: "https://angry-ships-1589056470752.firebaseio.com"
         });
-        
-        
     }
     
+    
     getId(token: string): Promise<string> {
-        return admin.auth().verifyIdToken(token).then((decodedToken) => {
+        return this.app.auth().verifyIdToken(token).then((decodedToken) => {
             return decodedToken.uid;
         })
+        // const jwtDecoded = jwtDecode(token);
+        // const now = Date.now();
+        // if(!jwtDecoded) throw new Error('The token is not a valid jwt')
+        // if(jwtDecoded.exp < now) throw new Error('The token has expired');
+        // if(jwtDecoded.iat > now) throw new Error('The token emission should be in the past');
+        // if(jwtDecoded.aud != this.serviceAccount.project_id || 
+        //     jwtDecoded.iss != `https://securetoken.google.com/${this.serviceAccount.project_id}`) 
+        //     throw new Error('The token has no valid project id');
+        // if(!jwtDecoded.sub || jwtDecoded.sub != jwtDecoded.user_id) throw new Error('Not a valid user id');
+        // if(jwtDecoded.auth_time > now) throw new Error('The validation time is not valid');
+        
+        
+
     }
     
     getToken() {
@@ -29,4 +44,3 @@ class FirebaseAdmin {
 }
 
 export const firebaseAdmin = new FirebaseAdmin();
-firebaseAdmin.init();

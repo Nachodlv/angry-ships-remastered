@@ -1,4 +1,4 @@
-﻿﻿// Express
+﻿// Express
 import express = require('express');
 const bodyParser = require('body-parser');
 export const app: express.Application = express();
@@ -6,21 +6,17 @@ const http = require('http').createServer(app);
 app.use(bodyParser.json());
 
 // Socket.io
-export const io = require('socket.io')(http, {origin: "localhost:*"});
+export const io = require('socket.io')(http, {origin: "localhost:* chrome-extension://*"});
 import {authenticateWebSocket} from "./ws-middleware";
-import {initializeWebsockets} from "../websockets/websockets-initializer";
-// io.use(authenticateWebSocket)
+io.use(authenticateWebSocket)
 
 // Sequelize
 const {Sequelize} = require('sequelize');
 export const sequelize = new Sequelize('database', 'user', 'password', {dialect: 'postgres'});
 // export const Serializer = require('sequelize-to-json'); not required for now. https://github.com/hauru/sequelize-to-json
 
-// Models
-require('../models/user.js');
-
-// Controllers
-const startControllers = require('../controllers/controllers-initializer');
+// Controllers and websockets
+import {initialize} from "./initializer";
 
 // Middleware
 require('./http-middleware').authenticateRoutes();
@@ -37,8 +33,7 @@ sequelize
     .sync({force: false})
     .then(() => {
         startServer();
-        startControllers();
-        initializeWebsockets()
+        initialize();
     }).catch((error: string) => console.log(error));
     // .then(() => User.create({
     //     name: "Nacho",

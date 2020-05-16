@@ -42,17 +42,18 @@ class AuthenticationServiceFirebase implements AuthenticationService {
     if (!user.isAnonymous) {
       _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
     }
-
-    final tokenResult = await user.getIdToken();
-    if (tokenResult != null) {
-      _setUserState(RemoteData.error('No id token received from logged user.'));
-    }
+    
 
     final FirebaseUser currentUser = await _auth.currentUser();
     if (user.uid != currentUser.uid) {
       _setUserState(RemoteData.error('User uid mismatch.'));
     }
-
+    
+    final tokenResult = await currentUser.getIdToken(refresh: true);
+    if (tokenResult != null) {
+      _setUserState(RemoteData.error('No id token received from logged user.'));
+    }
+    
     final credentials = Credentials.bearerFromToken(tokenResult.token);
     final session = _makeUserSession(currentUser, credentials);
     final signInState = SignInState(session);

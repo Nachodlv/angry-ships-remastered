@@ -1,27 +1,42 @@
 ﻿import {io} from "../server/server";
+import {Message} from "../models/message";
+import {RoomProvider} from "../provider/room-provider";
+import {RoomService} from "../services/room-service";
 
 export class MatchMaker {
     
     namespace: any;
+    roomProvider: RoomProvider;
     
-    constructor() {
-        // io.on('connection', (socket: any) => {
-        //     console.log('User connected!');
-        //     socket.on('disconnect', () => {
-        //         console.log('user disconnected');
-        //     });
-        // })
+    constructor(roomProvider: RoomProvider) {
+        this.roomProvider = roomProvider;
         this.namespace = io.of('/');    
         this.onConnection();
     }
     
     onConnection() {
         this.namespace.on('connection', (socket: any) => {
-            console.log('User connected!')
+            const userId = this.getUserId(socket);
+            console.log(`User connected with id: ${userId}`)
             this.onMessage(socket);
-            socket.on('disconnect', () => {
-                console.log('user disconnected')
-            })
+            this.onDisconnect(socket);
+            this.onFindRoom(socket);
+        })
+    }
+    
+    onDisconnect(socket: any) {
+        socket.on('disconnect', () => {
+            const userId = this.getUserId(socket);
+
+            console.log(`User ${userId} disconnected`)
+
+            const room = this.roomProvider.removeUserFromRoom(userId);
+            if(!room) return;
+            if(room.started || room.users.length == 0) {
+                if(room.users.length > 0) io.to(room.id).emit('room closed');
+                this.roomProvider.deleteRoom(room.id);
+                console.log(`Room ${room.id} closed`);
+            }
         })
     }
     
@@ -30,8 +45,23 @@ export class MatchMaker {
             console.log(message);
         })
     } 
-}
+    
+    onFindRoom(socket: any) {
+        socket.on('find room', () => {
+            const userId = this.getUserId(socket);
+            const room = this.roomProvider.getUserARoom(userId);
+            socket.join(room.id);
+            console.log(`User ${userId} joined room ${room.id}`)
 
-class Message {
-    constructor(public text: string, public user: string) {}
+            if(room.isFull()) {
+                room.started = true;
+                io.to(room.id).emit('room opened');
+                console.log(`Room ${room.id} opened`);
+            }
+        })
+    }
+    
+    getUserId(socket: any): string {
+        return socket.handshake.query.userId;
+    }
 }

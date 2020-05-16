@@ -30,12 +30,14 @@ class LoginView extends StatelessWidget {
               model.userState.when(
                 success: (SignInState state) =>
                   state.when(
-                    (session) => Container(
+                    (UserSession session) {
+                      print(session.credentials.toAuthHeader["Authorization"]); //TODO remove later
+                      return Container(
                       child: Card(child: Text(
                         'Credentials: ${session.user.email}\n'
-                        'Provider: ${session.provider}'
+                        'Provider: ${session.provider}\n'
                       ))
-                    ), 
+                    );}, 
                     anonymous: () => Text('¡Not logged in!')
                   )
                 ,
@@ -50,7 +52,7 @@ class LoginView extends StatelessWidget {
     );
   }
 }
-            
+
 renderLoginBox(double sizeLongestSide, {void Function() signInWithGoogle}) =>
   RaisedButton(
     color: Colors.white,
