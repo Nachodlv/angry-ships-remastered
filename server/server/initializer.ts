@@ -6,8 +6,7 @@ import {RoomProvider} from "../provider/room-provider";
 import {MatchMaker} from "../websockets/match-maker";
 import {UserProvider} from "../provider/user-provider";
 import {RoomController} from "../controllers/room-controller";
-
-
+import {WsConnection} from "../websockets/ws-connection";
 
 export const initialize = () => {
     
@@ -20,7 +19,10 @@ export const initialize = () => {
     const userProvider = new UserProvider(userService);
 
     // Websockets
-    new MatchMaker(roomProvider);
+    const wsConnection = new WsConnection();
+    wsConnection.connect(socket => {
+        new MatchMaker(roomProvider, socket);
+    })
 
     //Controllers
     const userController = new UserController(userProvider);
