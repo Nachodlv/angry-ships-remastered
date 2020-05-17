@@ -13,7 +13,6 @@ io.use(authenticateWebSocket)
 // Sequelize
 const {Sequelize} = require('sequelize');
 export const sequelize = new Sequelize('database', 'user', 'password', {dialect: 'postgres'});
-// export const Serializer = require('sequelize-to-json'); not required for now. https://github.com/hauru/sequelize-to-json
 
 // Controllers and websockets
 import {initialize} from "./initializer";
@@ -35,11 +34,4 @@ sequelize
         startServer();
         initialize();
     }).catch((error: string) => console.log(error));
-    // .then(() => User.create({
-    //     name: "Nacho",
-    //     id: "123"
-    // }))
-    // .catch((error: string) => {
-    //     console.log(error);
-    // })
 

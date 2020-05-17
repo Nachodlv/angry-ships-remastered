@@ -1,7 +1,6 @@
 ﻿import * as admin from 'firebase-admin';
 import App = admin.app.App;
 import {UserFirebase} from "../models/user-firebase";
-const jwtDecode = require('jwt-decode');
 
 class FirebaseAdmin {
     

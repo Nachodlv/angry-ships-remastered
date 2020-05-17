@@ -9,4 +9,3 @@ DatabaseUser.init({
     id: { type: DataTypes.STRING, primaryKey: true }
 }, {sequelize, modelName: 'user'});
 
-// module.exports = User;

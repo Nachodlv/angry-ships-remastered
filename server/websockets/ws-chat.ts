@@ -1,7 +1,6 @@
 ﻿import {RoomProvider} from "../provider/room-provider";
 import {Message} from "../models/websocket/message";
 import {WsConnection} from "./ws-connection";
-import {io} from "../server/server";
 
 export class WsChat {
     roomProvider: RoomProvider;
