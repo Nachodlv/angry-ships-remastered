@@ -35,7 +35,7 @@ export class UserController {
             
             this.userProvider.getUserById(id)
                 .then(user => {
-                    res.status(200).send(JSON.stringify(user));
+                    res.status(200).send(user);
                 })
                 .catch((error: string) => {
                     res.status(404).send({

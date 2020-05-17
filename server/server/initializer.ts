@@ -5,6 +5,7 @@ import {RoomService} from "../services/room-service";
 import {RoomProvider} from "../provider/room-provider";
 import {MatchMaker} from "../websockets/match-maker";
 import {UserProvider} from "../provider/user-provider";
+import {RoomController} from "../controllers/room-controller";
 
 
 
@@ -24,6 +25,8 @@ export const initialize = () => {
     //Controllers
     const userController = new UserController(userProvider);
     userController.init();
+    const roomController = new RoomController(roomProvider);
+    roomController.init();
     const healthController = new HealthController();
     healthController.init();
 }

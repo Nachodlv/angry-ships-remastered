@@ -6,15 +6,7 @@ export class RoomService{
     rooms: Room[] = [];
     
     getAvailableRoom(): Room | undefined {
-        let availableRoom: Room | undefined = undefined;
-        this.rooms.some((room) => {
-            if(!room.isFull()) {
-                availableRoom = room;
-                return true;
-            }
-            return false;
-        });
-        return availableRoom;
+        return this.getRoom(room => !room.isFull());
     }
     
     createRoom(user: string): Room {
@@ -38,9 +30,18 @@ export class RoomService{
     }
     
     getRoomByUserId(userId: string): Room | undefined {
+        return this.getRoom(room => room.users.some(user => user == userId));
+    }
+    
+    
+    getRoomById(roomId: string): Room | undefined {
+        return this.getRoom(room => room.id == roomId);
+    }
+    
+    private getRoom(callback: (room: Room) => boolean): Room | undefined {
         let returnRoom: Room | undefined = undefined;
         this.rooms.some(room => {
-            if(room.users.some(user => user == userId)) {
+            if(callback(room)) {
                 returnRoom = room;
                 return true;
             }
