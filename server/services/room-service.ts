@@ -1,4 +1,5 @@
-﻿import {Room} from "../models/room";
+﻿import {Room} from "../models/websocket/room";
+
 const { v4: uuidv4 } = require('uuid');
 
 export class RoomService{

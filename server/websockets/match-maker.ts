@@ -1,7 +1,6 @@
 ﻿import {io} from "../server/server";
-import {Message} from "../models/message";
 import {RoomProvider} from "../provider/room-provider";
-import {RoomService} from "../services/room-service";
+import {Message} from "../models/websocket/message";
 
 export class MatchMaker {
     

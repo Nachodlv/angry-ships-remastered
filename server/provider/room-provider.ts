@@ -1,7 +1,6 @@
 ﻿import {RoomService} from "../services/room-service";
 import {UserService} from "../services/user-service";
-import {User} from "../models/user";
-import {Room} from "../models/room";
+import {Room} from "../models/websocket/room";
 
 export class RoomProvider {
     roomService: RoomService;

@@ -30,7 +30,7 @@ const startServer = () => {
 
 // Example, remove in the future
 sequelize
-    .sync({force: false})
+    .sync({force: true})
     .then(() => {
         startServer();
         initialize();

@@ -1,23 +1,20 @@
-﻿import {Model, DataTypes} from 'sequelize';
-import {sequelize} from '../server/server';
+﻿import {DatabaseUser} from "./database/databaseUser";
+import {UserFirebase} from "./user-firebase";
 
-export class User extends Model {}
+export class User {
+    constructor(
+        public id: string,
+        public name: string | undefined,
+        public email: string | undefined,
+        public imageUrl: string | undefined) {
+    }
 
-User.init({
-    id: { type: DataTypes.STRING, primaryKey: true },
-    name: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    surname: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false
-    },
-    imageUrl: DataTypes.STRING,
-}, {sequelize, modelName: 'user'});
+    static FromFirebaseAndDatabase(userFirebase: UserFirebase, databaseUser: DatabaseUser): User {
+        return new User(
+            userFirebase.id, 
+            userFirebase.name, 
+            userFirebase.email, 
+            userFirebase.imageUrl);
+    }
 
-// module.exports = User;
+}

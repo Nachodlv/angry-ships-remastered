@@ -1,15 +1,15 @@
-﻿import {User} from '../models/user';
+﻿import {DatabaseUser} from "../models/database/databaseUser";
 
 export class UserService {
     
     usersWithNoRooms: string[] = [];
     
-    getUserById(id: string): Promise<User> {
-        return User.findByPk(id);
+    getUserById(id: string): Promise<DatabaseUser> {
+        return DatabaseUser.findByPk(id);
     }
     
-    createUser(user: User): Promise<User> {
-        return User.create(user);
+    createUser(user: DatabaseUser): Promise<DatabaseUser> {
+        return user.save();
     }
     
     addUserWithNoRoom(user: string) {
