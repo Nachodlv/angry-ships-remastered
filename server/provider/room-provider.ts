@@ -15,6 +15,10 @@ export class RoomProvider {
         return this.roomService.getRoomById(roomId);
     }
     
+    getRoomByUserId(userId: string): Room | undefined {
+        return this.roomService.getRoomByUserId(userId);
+    }
+    
     getUserARoom(userId: string): Room {
         let room = this.roomService.getAvailableRoom();
         if(room) {

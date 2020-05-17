@@ -7,6 +7,7 @@ import {MatchMaker} from "../websockets/match-maker";
 import {UserProvider} from "../provider/user-provider";
 import {RoomController} from "../controllers/room-controller";
 import {WsConnection} from "../websockets/ws-connection";
+import {WsChat} from "../websockets/ws-chat";
 
 export const initialize = () => {
     
@@ -22,6 +23,7 @@ export const initialize = () => {
     const wsConnection = new WsConnection();
     wsConnection.connect(socket => {
         new MatchMaker(roomProvider, socket);
+        new WsChat(roomProvider, socket);
     })
 
     //Controllers

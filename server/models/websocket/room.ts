@@ -2,11 +2,12 @@
 
 export class Room {
     static MAXIMUM_USERS: number = 2;
-
-    messages: Message[] = [];
-    started: boolean = false;
     
-    constructor(public id: string, public users: string[]) {
+    constructor(
+        public id: string, 
+        public users: string[], 
+        public messages: Message[] = [], 
+        public started = false) {
     }
     
     isFull(): boolean {
