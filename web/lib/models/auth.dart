@@ -9,20 +9,26 @@ part 'auth.freezed.dart';
 class User {
   final UserID id;
   final String name;
-  final String surname;
   final String imageUrl;
   final String email;
 
   User({
     @required this.id,
     @required this.name,
-    @required this.surname,
     @required this.imageUrl,
     @required this.email,
   });
 
   // TODO why have both a named and unnamed constructor? Let's decide which one to use
-  User.constructor(this.id, this.name, this.surname, this.imageUrl, this.email);
+  User.constructor(this.id, this.name, this.imageUrl, this.email);
+
+  factory User.fromJson(Map<String, dynamic> json) {
+    return User(
+        id: UserID(json['id']),
+        name: json['name'],
+        imageUrl: json['imageUrl'],
+        email: json['email']);
+  }
 }
 
 @immutable
@@ -33,8 +39,8 @@ class UserSession {
 
   UserSession(
       {@required this.user,
-        @required this.provider,
-        @required this.credentials});
+      @required this.provider,
+      @required this.credentials});
 
   UserSession.constructor(this.user, this.provider, this.credentials);
 }

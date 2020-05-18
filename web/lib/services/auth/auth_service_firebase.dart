@@ -96,15 +96,11 @@ class AuthenticationServiceFirebase implements AuthenticationService {
 
   static UserSession _makeUserSession(
       FirebaseUser user, Credentials credentials) {
-    final splitName = user.displayName.split(' ');
-    final name = splitName[0];
-    final surname = splitName.join();
 
     return UserSession(
         user: User(
           id: UserID(user.uid),
-          name: name,
-          surname: surname,
+          name: user.displayName,
           email: user.email,
           imageUrl: user.photoUrl,
         ),
