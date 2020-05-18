@@ -21,7 +21,10 @@ export class UserController {
             const userId = req.body.userId;
             this.userProvider.createUser(userId).then(user => {
                 return res.status(200).send({id: user.id})
-            }).catch((error: string) => {
+            }).catch((error: any) => {
+                if(error.name == 'SequelizeUniqueConstraintError') {
+                    return res.status(409).send({message: "User with that id already exists"})
+                }
                 return res.status(400).send({
                     message: error
                 })
