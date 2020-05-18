@@ -1,9 +1,11 @@
 ﻿// Express
 import express = require('express');
 const bodyParser = require('body-parser');
+const cors = require('cors');
 export const app: express.Application = express();
 const http = require('http').createServer(app);
 app.use(bodyParser.json());
+app.use(cors());
 
 // Socket.io
 export const io = require('socket.io')(http, {origin: "localhost:* chrome-extension://*"});
