@@ -1,10 +1,12 @@
 import 'package:web/global.dart';
+import 'package:web/models/message.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:web/services/navigation/router.dart';
 import 'package:web/services/room/room_service.dart';
 import 'package:web/services/user/user_service.dart';
+import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
 
@@ -52,18 +54,21 @@ class App extends StatelessWidget {
 
   // Example code, delete later
   testWebSocket() async {
-    final token = "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImY1YzlhZWJlMjM0ZGE2MDE2YmQ3Yjk0OTE2OGI4Y2Q1YjRlYzllZWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vYW5ncnktc2hpcHMtMTU4OTA1NjQ3MDc1MiIsImF1ZCI6ImFuZ3J5LXNoaXBzLTE1ODkwNTY0NzA3NTIiLCJhdXRoX3RpbWUiOjE1ODk4NDM3MzksInVzZXJfaWQiOiJJRlRqZHdMU1ZaUkhKeFJTa3A4S2FSeTVmYkIzIiwic3ViIjoiSUZUamR3TFNWWlJISnhSU2twOEthUnk1ZmJCMyIsImlhdCI6MTU4OTg0MzczOSwiZXhwIjoxNTg5ODQ3MzM5LCJlbWFpbCI6InRlc3RAdGVzLmNvbSIsImVtYWlsX3ZlcmlmaWVkIjpmYWxzZSwiZmlyZWJhc2UiOnsiaWRlbnRpdGllcyI6eyJlbWFpbCI6WyJ0ZXN0QHRlcy5jb20iXX0sInNpZ25faW5fcHJvdmlkZXIiOiJwYXNzd29yZCJ9fQ.eFtb4pYOE7PnxWuyXmQXXMkinEUKc_9bkaYDGG0qab7qI1fNDEAYe6V0Deu50byYK9QRMIhiKjwR5l1NmzyFffKzbVT-CQJDYRofEDI9vEq1Ms-1622vGEtXgOnivkNG0Qxb9iOL5PYYJaafdg5UhJMVXMh7b7xWDW50eGkfZNhvYJ9i3g9lY_SBOX1a3iCv8e8nEycEAxjsvKo1oAMVFN5z_EEdlpB4mT2W_GHxqhcCbR7VnZOrRdep9lyo-bXvRDibik4_BUNZVVHnnmgJbx8T3u0R6H4_59pT4Bb61PAhYe6UYLA0gl7twtyvCtUnWugLyUs2HT4hAoVj1krpEw";
+    final token = "Bearer eyJhbGciOiJSUzI1NiIsImtpZCI6ImY1YzlhZWJlMjM0ZGE2MDE2YmQ3Yjk0OTE2OGI4Y2Q1YjRlYzllZWIiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJodHRwczovL3NlY3VyZXRva2VuLmdvb2dsZS5jb20vYW5ncnktc2hpcHMtMTU4OTA1NjQ3MDc1MiIsImF1ZCI6ImFuZ3J5LXNoaXBzLTE1ODkwNTY0NzA3NTIiLCJhdXRoX3RpbWUiOjE1ODk5MDc2MDIsInVzZXJfaWQiOiJXYmhDNlo1eXhZVjdMdU9SaTZZZUZrbFJqOVEyIiwic3ViIjoiV2JoQzZaNXl4WVY3THVPUmk2WWVGa2xSajlRMiIsImlhdCI6MTU4OTkwNzYwMiwiZXhwIjoxNTg5OTExMjAyLCJlbWFpbCI6InRlc3RAdGVzdC5jb20iLCJlbWFpbF92ZXJpZmllZCI6ZmFsc2UsImZpcmViYXNlIjp7ImlkZW50aXRpZXMiOnsiZW1haWwiOlsidGVzdEB0ZXN0LmNvbSJdfSwic2lnbl9pbl9wcm92aWRlciI6InBhc3N3b3JkIn19.jdUfwHIhD2igIf5XeZ6VJpgXc7OrL3xzD1QSXR60HdRyXx0oT8t4F-GXx5V6nyskAfV_7jXxWinmCJVrcnZJMk0iQaRIabIo3UDp4mp1hxFGi8ZnVnnXUAicy5xdp30EQp_OANf0LLIDjERJqaDhMnS2Rd0fIWu1jqIIFE8D5_tCs7zhiaKAY8WgyR7NWfV3JVLJ7K2fw63Z-kI9BerxYo25cbSguwEfgZMfip4WYa-GcSHCNnAFiXyjDnTV3b4zVYLPLWdZ_PDaoT48uIuAs7gxovtW9sjwUY1AOlk3i1JEz8HS6phP-EtRWqjXWI29LggjrHqiNXXrBecGWYXYjg";
     final url = "http://localhost:3000";
 
     final socketManager = new SocketManager(url);
     final roomWsService = new RoomWsService();
+    final chatWsService = new ChatWsService();
 
     final socket = await socketManager.connect(token);
     
     roomWsService.findRoom(socket);
+    chatWsService.startListeningToMessages(socket);
 
     roomWsService.onRoomOpened.listen((roomId) {
       print('Room opened with id: $roomId');
+      chatWsService.sendMessage(socket, Message(text: "Hello!", userId: '123'));
     });
 
     roomWsService.onRoomClosed.listen((_) {
@@ -73,6 +78,10 @@ class App extends StatelessWidget {
     socketManager.onError.listen((errorMessage) {
       print('Error: $errorMessage');
      });
+
+    chatWsService.onMessage.listen((message) {
+      print('Message [${message.userId}]: ${message.text}');
+    });
     
   }
 }
