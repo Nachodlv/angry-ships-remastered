@@ -32,7 +32,7 @@ class RoomView extends StatelessWidget {
             children: [
               Row(
                 children: [
-                  Container(
+                  Expanded(
                     child: TextField(
                       controller: model.textInputController,
                     ) 

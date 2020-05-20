@@ -26,15 +26,34 @@ class HomeView extends StatelessWidget {
         body: Container(
           child: Center(
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                FlatButton(
-                  child: Text('Play!'),
-                  onPressed: model.play,
-                ),
-              ],)
+                model.roomData.when(
+                  success: (_) => Container(), 
+                  error: (err) => Column(children: [
+                    playButton(model.play),
+                    Text(err)]
+                  ), 
+                  loading: () => Center(child: CircularProgressIndicator()), 
+                  notAsked: () => playButton(model.play)
+                )]
+              )
           ),
         ),
       ),
     );
   }
+
+  Widget playButton(Function play) => 
+    FlatButton(
+      child: Text('Play!',
+        style: TextStyle(
+          fontSize: 30,
+          color: Colors.white,
+          fontWeight: FontWeight.bold,
+          backgroundColor: Colors.yellow
+        ),
+      ),
+      onPressed: play,
+    );
 }
