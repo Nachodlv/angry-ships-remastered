@@ -12,7 +12,7 @@ import 'package:web/services/websockets/socket_manager.dart';
 final locator = GetIt.instance;
 
 Future<void> setupLocator() async {
-  final url = 'http://localhost:3000/';
+  final url = 'http://localhost:3000';
   final app = await FirebaseApp.configure(
     name: "Angry Ships", 
     options: FirebaseOptions(

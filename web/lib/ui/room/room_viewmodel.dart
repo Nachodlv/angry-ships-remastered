@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/global.dart';
@@ -19,7 +21,10 @@ class RoomViewModel extends ChangeNotifier {
 
   Socket socket;
   Room room;
-  List<Message> messages;
+  StreamSubscription<void> onRoomClosedSub;
+  StreamSubscription<String> onErrorSocketSub;
+  StreamSubscription<Message> onMessageSub;
+  List<Message> messages = [];
 
   NavigationService _navigationService = locator<NavigationService>();
   RoomService _roomService = locator<RoomService>();
@@ -27,16 +32,17 @@ class RoomViewModel extends ChangeNotifier {
   ChatWsService _chatWsService = locator<ChatWsService>();
   SocketManager _socketManager = locator<SocketManager>();
 
+
   RoomViewModel(this.roomId, this.credentials, this.userId);
   
   init() async {
-    _roomWsService.onRoomClosed.listen(
+    onRoomClosedSub = _roomWsService.onRoomClosed.listen(
       (_) {
         _navigationService.navigateTo(Routes.HOME);
       }
     );
 
-    _socketManager.onError.listen((errorMsg) {
+    onErrorSocketSub = _socketManager.onError.listen((errorMsg) {
       print('Oops! $errorMsg');
     });
 
@@ -45,7 +51,7 @@ class RoomViewModel extends ChangeNotifier {
 
     _chatWsService.startListeningToMessages(socket);
 
-    _chatWsService.onMessage.listen((message) {
+    onMessageSub = _chatWsService.onMessage.listen((message) {
       messages.add(message);
       notifyListeners();
     });
