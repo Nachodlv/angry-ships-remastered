@@ -13,6 +13,7 @@ import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
+import 'package:web/ui/home/home_view.dart';
 
 
 class RoomViewModel extends ChangeNotifier {
@@ -42,7 +43,7 @@ class RoomViewModel extends ChangeNotifier {
   init() async {
     onRoomClosedSub = _roomWsService.onRoomClosed.listen(
       (_) {
-        _navigationService.navigateTo(Routes.HOME);
+        _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(credentials, userId));
       }
     );
 
