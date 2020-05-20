@@ -33,7 +33,7 @@ class RoomViewModel extends ChangeNotifier {
   SocketManager _socketManager = locator<SocketManager>();
 
 
-  RoomViewModel(this.roomId, this.credentials, this.userId);
+  RoomViewModel(this.socket, this.roomId, this.credentials, this.userId);
   
   init() async {
     onRoomClosedSub = _roomWsService.onRoomClosed.listen(

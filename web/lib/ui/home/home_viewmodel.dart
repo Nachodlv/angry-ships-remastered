@@ -25,8 +25,7 @@ class HomeViewModel extends ChangeNotifier {
 
     _roomWsService.onRoomOpened.listen(
       (roomId) {
-        print('OAA');
-        _navigationService.navigateTo(Routes.ROOM, arguments: RoomViewArguments(roomId, this.credentials, this.userId));
+        _navigationService.navigateTo(Routes.ROOM, arguments: RoomViewArguments(socket, roomId, this.credentials, this.userId));
       }
     );
 

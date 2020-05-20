@@ -1,17 +1,18 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
-import 'package:web/models/message.dart';
 import 'package:web/ui/room/room_viewmodel.dart';
 
 @immutable
 class RoomViewArguments {
   final String id;
+  final Socket socket;
   final String userId;
   final Credentials userCredentials;
 
-  RoomViewArguments(this.id, this.userCredentials, this.userId);
+  RoomViewArguments(this.socket, this.id, this.userCredentials, this.userId);
 }
 
 class RoomView extends StatelessWidget {
@@ -22,7 +23,7 @@ class RoomView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<RoomViewModel>.reactive(
-      viewModelBuilder: () => RoomViewModel(this.arguments.id, this.arguments.userCredentials, this.arguments.userId),
+      viewModelBuilder: () => RoomViewModel(this.arguments.socket, this.arguments.id, this.arguments.userCredentials, this.arguments.userId),
       onModelReady: (model) => model.init(),
       builder: (context, model, child) => Scaffold(
         body: Container(
