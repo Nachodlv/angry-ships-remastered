@@ -32,8 +32,12 @@ class RoomView extends StatelessWidget {
             itemCount: model.messages.length,
             itemBuilder: (context, index) {
               final msg = model.messages[index];
-              return Card(
-                child: Text('${msg.userId} said: ${msg.text}')
+              return ListTile(
+                title: Text(msg.text),
+                subtitle: model.isMessageFromUser(msg)
+                ? Text(model.user.name)
+                : Text(model.opponent.name)
+                ,
               );
           }),
         ),

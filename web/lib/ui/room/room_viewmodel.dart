@@ -9,6 +9,7 @@ import 'package:web/models/room.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/room/room_service.dart';
+import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
@@ -19,6 +20,8 @@ class RoomViewModel extends ChangeNotifier {
   final Credentials credentials;
   final String userId;
 
+  User user;
+  User opponent;
   Socket socket;
   Room room;
   StreamSubscription<void> onRoomClosedSub;
@@ -28,6 +31,7 @@ class RoomViewModel extends ChangeNotifier {
 
   NavigationService _navigationService = locator<NavigationService>();
   RoomService _roomService = locator<RoomService>();
+  UserService _userService = locator<UserService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
   SocketManager _socketManager = locator<SocketManager>();
@@ -49,6 +53,10 @@ class RoomViewModel extends ChangeNotifier {
     room = await _roomService.getRoomById(roomId, credentials.token);
     messages = room.messages; // Initial messages; Is this info always duplicated? What's the purpose of this field in room?
 
+    user = await _userService.getUser(userId, credentials.token);
+    final opponentId = room.users.firstWhere((id) => id != userId);
+    opponent = await _userService.getUser(opponentId, credentials.token);
+    
     _chatWsService.startListeningToMessages(socket);
 
     onMessageSub = _chatWsService.onMessage.listen((message) {
@@ -57,5 +65,5 @@ class RoomViewModel extends ChangeNotifier {
     });
   }
 
-
+  isMessageFromUser(Message msg) => userId == msg.userId;
 }
