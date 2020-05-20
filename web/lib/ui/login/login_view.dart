@@ -28,7 +28,7 @@ class LoginView extends StatelessWidget {
               renderLoginBox(sizeLongestSide, signInWithGoogle: model.signInWithGoogle),
               SizedBox(height: 20.0,),
               model.userState.when(
-                success: (SignInState state) =>
+                success: (state) =>
                   state.when(
                     (UserSession session) {
                       print(session.credentials.toAuthHeader["Authorization"]); //TODO remove later

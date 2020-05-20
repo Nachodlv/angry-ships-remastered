@@ -3,10 +3,16 @@ import 'package:web/services/auth/auth_service.dart';
 import 'package:web/services/auth/auth_service_firebase.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:get_it/get_it.dart';
+import 'package:web/services/room/room_service.dart';
+import 'package:web/services/user/user_service.dart';
+import 'package:web/services/websockets/chat_ws_service.dart';
+import 'package:web/services/websockets/room_ws_service.dart';
+import 'package:web/services/websockets/socket_manager.dart';
 
 final locator = GetIt.instance;
 
 Future<void> setupLocator() async {
+  final url = 'http://localhost:3000/';
   final app = await FirebaseApp.configure(
     name: "Angry Ships", 
     options: FirebaseOptions(
@@ -17,5 +23,11 @@ Future<void> setupLocator() async {
     ));
   
   locator.registerSingleton<NavigationService>(NavigationService());
-  locator.registerSingleton<AuthenticationService>(AuthenticationServiceFirebase(app)); 
+  locator.registerSingleton<AuthenticationService>(AuthenticationServiceFirebase(app));
+  locator.registerSingleton<SocketManager>(SocketManager(url));
+  locator.registerSingleton<RoomService>(RoomService(url));
+  locator.registerSingleton<UserService>(UserService(url));
+  
+  locator.registerSingleton<ChatWsService>(ChatWsService()); 
+  locator.registerSingleton<RoomWsService>(RoomWsService());
 }
