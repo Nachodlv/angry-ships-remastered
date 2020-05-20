@@ -76,5 +76,8 @@ class RoomViewModel extends ChangeNotifier {
     final input = textInputController.text;
     final message = Message(text: input, userId: user.id.id);
     _chatWsService.sendMessage(socket, message);
+    messages.add(message);
+    textInputController.clear();
+    notifyListeners();
   }
 }
