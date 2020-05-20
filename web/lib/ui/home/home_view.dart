@@ -45,13 +45,14 @@ class HomeView extends StatelessWidget {
   }
 
   Widget playButton(Function play) => 
-    FlatButton(
+    RaisedButton(
+      padding: EdgeInsets.all(8),
+      color: Colors.yellow,
       child: Text('Play!',
         style: TextStyle(
           fontSize: 30,
-          color: Colors.white,
+          color: Colors.black,
           fontWeight: FontWeight.bold,
-          backgroundColor: Colors.yellow
         ),
       ),
       onPressed: play,
