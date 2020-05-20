@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
@@ -37,8 +38,11 @@ class RoomViewModel extends ChangeNotifier {
   ChatWsService _chatWsService = locator<ChatWsService>();
   SocketManager _socketManager = locator<SocketManager>();
 
+  TextEditingController textInputController;
 
-  RoomViewModel(this.socket, this.roomId, this.credentials, this.userId);
+  RoomViewModel(this.socket, this.roomId, this.credentials, this.userId) {
+    textInputController = TextEditingController();
+  }
   
   init() async {
     onRoomClosedSub = _roomWsService.onRoomClosed.listen(
@@ -67,4 +71,10 @@ class RoomViewModel extends ChangeNotifier {
   }
 
   isMessageFromUser(Message msg) => userId == msg.userId;
+
+  void sendMessage() {
+    final input = textInputController.text;
+    final message = Message(text: input, userId: user.id.id);
+    _chatWsService.sendMessage(socket, message);
+  }
 }

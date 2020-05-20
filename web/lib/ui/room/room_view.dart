@@ -27,19 +27,41 @@ class RoomView extends StatelessWidget {
       onModelReady: (model) => model.init(),
       builder: (context, model, child) => Scaffold(
         body: Container(
-          padding: EdgeInsets.all(10.0),
-          child: ListView.builder(
-            itemCount: model.messages.length,
-            itemBuilder: (context, index) {
-              final msg = model.messages[index];
-              return ListTile(
-                title: Text(msg.text),
-                subtitle: model.isMessageFromUser(msg)
-                ? Text(model.user.name)
-                : Text(model.opponent.name)
-                ,
-              );
-          }),
+          padding: EdgeInsets.all(20.0),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    child: TextField(
+                      controller: model.textInputController,
+                    ) 
+                  ),
+                  IconButton(
+                    icon: Icon(Icons.send),
+                    onPressed: model.sendMessage)
+                ]
+              ),
+              ListView.builder(
+                itemCount: model.messages.length,
+                itemBuilder: (context, index) {
+                  final msg = model.messages[index];
+                  final isMessageFromUser = model.isMessageFromUser(msg);
+                  final userData = isMessageFromUser
+                    ? model.user
+                    : model.opponent;
+                  return Align(
+                    alignment: isMessageFromUser
+                    ? Alignment.centerRight
+                    : Alignment.centerLeft,
+                    child: ListTile(
+                      title: Text(msg.text),
+                      subtitle: Text(userData.name),
+                      selected: isMessageFromUser, // Hacky display of contrast
+                    ));
+              }),
+            ],
+          ),
         ),
       ),
     );
