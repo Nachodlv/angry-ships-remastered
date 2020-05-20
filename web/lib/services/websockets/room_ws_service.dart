@@ -3,19 +3,12 @@ import 'dart:async';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 
 class RoomWsService {
-  
-  Stream<String> onRoomOpened;
   StreamController<String> _roomOpenedController;
-
-  Stream<void> onRoomClosed;
   StreamController<void> _roomClosedController;
 
   RoomWsService() {
       _roomOpenedController = new StreamController();
-      onRoomOpened = _roomOpenedController.stream;
-      
       _roomClosedController = new StreamController();
-      onRoomClosed = _roomClosedController.stream;
   }
 
   void findRoom(IO.Socket socket) {
@@ -35,4 +28,7 @@ class RoomWsService {
       _roomClosedController.add("Room closed");
     });
   }
+
+  Stream<String> get onRoomOpened => _roomOpenedController.stream;
+  Stream<void> get onRoomClosed => _roomClosedController.stream;
 }

@@ -1,5 +1,11 @@
 # Web
 
+First of all, you should enable Flutter for web development with this command 👇🏼
+```
+flutter config --enable-web
+```
+
+We use freezed package, so you need to build some models with this command 👇🏼
 ```
 flutter pub run build_runner watch --delete-conflicting-outputs
 ```
