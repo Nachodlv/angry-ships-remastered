@@ -30,36 +30,42 @@ class RoomView extends StatelessWidget {
           padding: EdgeInsets.all(20.0),
           child: Column(
             children: [
-              Row(
-                children: [
-                  Expanded(
-                    child: TextField(
-                      controller: model.textInputController,
-                    ) 
-                  ),
-                  IconButton(
-                    icon: Icon(Icons.send),
-                    onPressed: model.sendMessage)
-                ]
+              Expanded(
+                flex: 1,
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: model.textInputController,
+                      ) 
+                    ),
+                    IconButton(
+                      icon: Icon(Icons.send),
+                      onPressed: model.sendMessage)
+                  ]
+                ),
               ),
-              ListView.builder(
-                itemCount: model.messages.length,
-                itemBuilder: (context, index) {
-                  final msg = model.messages[index];
-                  final isMessageFromUser = model.isMessageFromUser(msg);
-                  final userData = isMessageFromUser
-                    ? model.user
-                    : model.opponent;
-                  return Align(
-                    alignment: isMessageFromUser
-                    ? Alignment.centerRight
-                    : Alignment.centerLeft,
-                    child: ListTile(
-                      title: Text(msg.text),
-                      subtitle: Text(userData.name),
-                      selected: isMessageFromUser, // Hacky display of contrast
-                    ));
-              }),
+              Expanded(
+                flex: 9,
+                child: ListView.builder(
+                  itemCount: model.messages.length,
+                  itemBuilder: (context, index) {
+                    final msg = model.messages[index];
+                    final isMessageFromUser = model.isMessageFromUser(msg);
+                    final userData = isMessageFromUser
+                      ? model.user
+                      : model.opponent;
+                    return Align(
+                      alignment: isMessageFromUser
+                      ? Alignment.centerRight
+                      : Alignment.centerLeft,
+                      child: ListTile(
+                        title: Text(msg.text),
+                        subtitle: Text(userData.name),
+                        selected: isMessageFromUser, // Hacky display of contrast
+                      ));
+                }),
+              ),
             ],
           ),
         ),
