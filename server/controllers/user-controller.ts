@@ -1,14 +1,13 @@
 ﻿import {app} from "../server/server";
-import {DatabaseUser} from "../models/database/databaseUser";
-import {UserProvider} from "../provider/user-provider";
+import {UserService} from "../services/user-service";
 
 export class UserController {
 
     url: string = "/user";
-    userProvider: UserProvider;
+    userService: UserService;
 
-    constructor(userProvider: UserProvider) {
-        this.userProvider = userProvider;
+    constructor(userProvider: UserService) {
+        this.userService = userProvider;
     }
     
     init(): void {
@@ -19,7 +18,7 @@ export class UserController {
     postUser() {
         app.post(this.url, (req, res) => {
             const userId = req.body.userId;
-            this.userProvider.createUser(userId).then(user => {
+            this.userService.createUser(userId).then(user => {
                 return res.status(200).send({id: user.id})
             }).catch((error: any) => {
                 if(error.name == 'SequelizeUniqueConstraintError') {
@@ -36,7 +35,7 @@ export class UserController {
         app.get(`${this.url}/:id`, (req, res) => {
             const id = req.params.id;
             
-            this.userProvider.getUserById(id)
+            this.userService.getUserById(id)
                 .then(user => {
                     res.status(200).send(user);
                 })

@@ -1,11 +1,11 @@
-﻿import {RoomProvider} from "../provider/room-provider";
-import {Message} from "../models/websocket/message";
+﻿import {Message} from "../models/websocket/message";
 import {WsConnection} from "./ws-connection";
+import {RoomService} from "../services/room-service";
 
 export class WsChat {
-    roomProvider: RoomProvider;
+    roomProvider: RoomService;
     
-    constructor(roomProvider: RoomProvider, socket: any) {
+    constructor(roomProvider: RoomService, socket: any) {
         this.roomProvider = roomProvider;
         this.onMessage(socket);
     }

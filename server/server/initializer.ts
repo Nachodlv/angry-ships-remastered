@@ -1,35 +1,35 @@
-﻿import {UserService} from "../services/user-service";
-import {UserController} from "../controllers/user-controller";
+﻿import {UserController} from "../controllers/user-controller";
 import {HealthController} from "../controllers/health-controller";
-import {RoomService} from "../services/room-service";
-import {RoomProvider} from "../provider/room-provider";
 import {MatchMaker} from "../websockets/match-maker";
-import {UserProvider} from "../provider/user-provider";
 import {RoomController} from "../controllers/room-controller";
 import {WsConnection} from "../websockets/ws-connection";
 import {WsChat} from "../websockets/ws-chat";
+import {RoomService} from "../services/room-service";
+import {UserService} from "../services/user-service";
+import {UserProvider} from "../providers/user-provider";
+import {RoomProvider} from "../providers/room-provider";
 
 export const initialize = () => {
     
     // Services
-    const userService = new UserService();
-    const roomService = new RoomService();
+    const userProvider = new UserProvider();
+    const roomProvider = new RoomProvider();
     
     // Providers
-    const roomProvider = new RoomProvider(roomService, userService);
-    const userProvider = new UserProvider(userService);
+    const roomService = new RoomService(roomProvider, userProvider);
+    const userService = new UserService(userProvider);
 
     // Websockets
     const wsConnection = new WsConnection();
     wsConnection.connect(socket => {
-        new MatchMaker(roomProvider, socket);
-        new WsChat(roomProvider, socket);
+        new MatchMaker(roomService, socket);
+        new WsChat(roomService, socket);
     })
 
     //Controllers
-    const userController = new UserController(userProvider);
+    const userController = new UserController(userService);
     userController.init();
-    const roomController = new RoomController(roomProvider);
+    const roomController = new RoomController(roomService);
     roomController.init();
     const healthController = new HealthController();
     healthController.init();

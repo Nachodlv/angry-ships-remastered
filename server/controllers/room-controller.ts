@@ -1,13 +1,13 @@
-﻿import {RoomProvider} from "../provider/room-provider";
-import {app} from "../server/server";
+﻿import {app} from "../server/server";
+import {RoomService} from "../services/room-service";
 
 export class RoomController {
     
-    roomProvider: RoomProvider;
+    roomService: RoomService;
     url: string = "/room";
     
-    constructor(roomProvider: RoomProvider) {
-        this.roomProvider = roomProvider;
+    constructor(roomProvider: RoomService) {
+        this.roomService = roomProvider;
     }
     
     init() {
@@ -18,7 +18,7 @@ export class RoomController {
         app.get(`${this.url}/:id`, (req, res) => {
             const id = req.params.id;
 
-            const room = this.roomProvider.getRoomById(id);
+            const room = this.roomService.getRoomById(id);
             if(room) {
                 return res.status(200).send(room)
             } else {
