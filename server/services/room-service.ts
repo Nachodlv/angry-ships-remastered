@@ -1,13 +1,10 @@
 ﻿import {Room} from "../models/websocket/room";
 import {RoomProvider} from "../providers/room-provider";
-import {UserProvider} from "../providers/user-provider";
 
 export class RoomService {
     roomProvider: RoomProvider;
-    userProvider: UserProvider;
     
-    constructor(roomProvider: RoomProvider, userProvider: UserProvider) {
-        this.userProvider = userProvider;
+    constructor(roomProvider: RoomProvider) {
         this.roomProvider = roomProvider;
     }
     

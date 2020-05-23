@@ -1,20 +1,32 @@
-﻿import {Point} from "./point";
-import {Boat} from "./boat";
-import {BoatChecker} from "./room";
+﻿import {Boat} from "./boat";
+import {BoatChecker} from "./board-checker";
+import {Point} from "./point";
 
-class UserBoard { //TODO create when room is created
+export class UserBoard {
     static MAX_ROWS = 10;
     static MAX_COLUMNS = 10;
 
+    public boats: Boat[] = [];
+    public shoots: Point[] = [];
+    public state: UserBoardState = UserBoardState.PLACING_BOATS;
+
     constructor(
-        public shoots: Point[],
-        public boats: Boat[],
         public userId: string,
         public roomId: string) {
     }
 
-    placeBoat(boat: Boat): boolean { // TODO check if the points are continuous, place all boats at the same time, check overlapping
-        if (BoatChecker.isBoardValid([...this.boats, boat]) && this.isBoatInsideBoard(boat)) {
+    placeBoats(boats: Boat[]): Boat[] {
+        if (!BoatChecker.areBoatTypesValid(boats)) return boats;
+        const boatsNotPlaced: Boat[] = [];
+        boats.forEach(boat => {
+            if(!this.tryToPlaceBoat(boat)) boatsNotPlaced.push(boat);
+        })
+        return boatsNotPlaced;
+    }
+
+    private tryToPlaceBoat(boat: Boat): boolean {
+        if (this.isBoatPlacementCorrect(boat) &&
+            this.arePointsNeighbours(boat.points)) {
             this.boats.push(boat);
             return true;
         }
@@ -41,11 +53,33 @@ class UserBoard { //TODO create when room is created
         return false;
     }
 
-    private isBoatInsideBoard(boat: Boat): boolean {
+    private isBoatPlacementCorrect(boat: Boat): boolean {
         for (const boatPoints of boat.points) {
             if (boatPoints.column < 0 || boatPoints.column >= UserBoard.MAX_COLUMNS ||
                 boatPoints.row < 0 || boatPoints.row >= UserBoard.MAX_ROWS) return false;
+            if (this.isPointOverlappingAnotherShip(boatPoints)) return false;
         }
         return true;
     }
+
+    private arePointsNeighbours(points: Point[]) {
+        for (let i = 1; i < points.length; i++) {
+            if (!points[i].isNeighbour(points[i - 1])) return false;
+        }
+        return true;
+    }
+
+    private isPointOverlappingAnotherShip(boatPoint: Point): boolean {
+        for (let boatPlaced of this.boats) {
+            for (let point of boatPlaced.points) {
+                if (boatPoint.equals(point)) return true;
+            }
+        }
+        return false;
+    }
+}
+
+export enum UserBoardState {
+    PLACING_BOATS,
+    READY
 }

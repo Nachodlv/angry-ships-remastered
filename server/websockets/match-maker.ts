@@ -1,13 +1,16 @@
 ﻿import {io} from "../server/server";
 import {WsConnection} from "./ws-connection";
 import {RoomService} from "../services/room-service";
+import {UserBoardService} from "../services/user-board-service";
 
 export class MatchMaker {
     
     roomService: RoomService;
+    userBoardService: UserBoardService;
     
-    constructor(roomProvider: RoomService, socket: any) {
+    constructor(roomProvider: RoomService, userBoardService: UserBoardService, socket: any) {
         this.roomService = roomProvider;
+        this.userBoardService = userBoardService;
         this.onDisconnect(socket);
         this.onFindRoom(socket);
     }
@@ -21,7 +24,8 @@ export class MatchMaker {
             const room = this.roomService.removeUserFromRoom(userId);
             if(!room) return;
             if(room.started || room.users.length == 0) {
-                if(room.users.length > 0) io.to(room.id).emit('room closed');
+                if(room.started) this.userBoardService.deleteUserBoardsByRoomId(room.id);
+                io.to(room.id).emit('room closed');
                 this.roomService.deleteRoom(room.id);
                 console.log(`Room ${room.id} closed`);
             }
@@ -37,6 +41,7 @@ export class MatchMaker {
 
             if(room.isFull()) {
                 room.started = true;
+                this.userBoardService.createUserBoards(room.users, room.id);
                 io.to(room.id).emit('room opened', room.id);
                 console.log(`Room ${room.id} opened`);
             }

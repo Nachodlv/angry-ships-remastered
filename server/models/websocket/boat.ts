@@ -11,14 +11,18 @@ export class Boat {
     ) {
     }
 
+    static fromJson(json: any): Boat {
+        return new Boat(json.pivot, json.points.map((point: any) => new Point(point.row, point.column)), json.boatType);
+    }
+    
     addShoot() {
-        this.shoots ++;
+        this.shoots++;
         this.sunken = this.shoots >= this.points.length;
     }
 }
 
 export enum BoatType {
-    AIRPORT,
+    EXTRA_BIG,
     BIG,
     NORMAL,
     SMALL,
