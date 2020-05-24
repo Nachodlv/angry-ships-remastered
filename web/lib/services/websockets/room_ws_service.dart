@@ -7,8 +7,8 @@ class RoomWsService {
   StreamController<void> _roomClosedController;
 
   RoomWsService() {
-      _roomOpenedController = new StreamController();
-      _roomClosedController = new StreamController();
+      _roomOpenedController = StreamController.broadcast();
+      _roomClosedController = StreamController.broadcast();
   }
 
   void findRoom(IO.Socket socket) {

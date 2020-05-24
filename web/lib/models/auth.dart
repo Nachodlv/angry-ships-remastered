@@ -64,6 +64,8 @@ class Credentials {
 
   static Credentials Function(String tokenString) bearerFromToken =
       (token) => Credentials._constructor("Bearer $token");
+  
+  String get token => _token;
 }
 
 @freezed

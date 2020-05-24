@@ -8,7 +8,7 @@ class SocketManager {
   StreamController<String> _errorController;
 
   SocketManager(String url) : this._url = '$url/' {
-    _errorController = new StreamController();
+    _errorController = StreamController.broadcast();
   }
 
   Future<IO.Socket> connect(String token) async {

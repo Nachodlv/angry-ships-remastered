@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
 import 'package:stacked/stacked.dart';
 import 'package:web/ui/load/load_viewmodel.dart';
 
@@ -9,7 +10,7 @@ class LoadView extends StatelessWidget {
       viewModelBuilder: () => LoadViewModel(),
       onModelReady: (model) => model.init(),
       builder: (context, model, child) => Center(
-        child: Text("This is a big test."),
+        child: CircularProgressIndicator()
       ),
     );
   }

@@ -8,7 +8,7 @@ class ChatWsService {
   StreamController<Message> _messageController;
 
   ChatWsService() {
-    _messageController = new StreamController();
+    _messageController = StreamController.broadcast();
   }
 
   void startListeningToMessages(IO.Socket socket) {
