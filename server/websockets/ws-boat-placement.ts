@@ -11,8 +11,8 @@ export class WsBoatPlacement {
     }
     
     onPlaceBoats(socket: any) {
-        socket.on('place boats', (reqBoats: any[], ack: (boats: Boat[], message: string) => void) => {
-            const boats = reqBoats.map((boat: any) => Boat.fromJson(boat));
+        socket.on('place boats', (reqBoats: any, ack: (boats: Boat[], message: string) => void) => {
+            const boats = reqBoats.boats.map((boat: any) => Boat.fromJson(boat));
             const userId = WsConnection.getUserId(socket);
             const userBoard = this.userBoardService.getUserBoardByUserId(userId);
             let message: string;
