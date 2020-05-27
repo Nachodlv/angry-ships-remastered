@@ -2,6 +2,7 @@
 
 export class WsConnection {
     
+
     connect(callback: (socket: any) => void) {
         const namespace = io.of('/');
         namespace.on('connection', (socket: any) => {
