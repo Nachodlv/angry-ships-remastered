@@ -15,8 +15,8 @@ export class UserBoard {
         public roomId: string) {
     }
 
-    placeBoats(boats: Boat[]): Boat[] {
-        if (!BoatChecker.areBoatTypesValid(boats)) return boats;
+    placeBoats(boats: Boat[], allBoats: boolean): Boat[] {
+        if (!BoatChecker.areBoatTypesValid(boats, allBoats)) return boats;
         const boatsNotPlaced: Boat[] = [];
         boats.forEach(boat => {
             if(!this.tryToPlaceBoat(boat)) boatsNotPlaced.push(boat);
@@ -55,8 +55,7 @@ export class UserBoard {
 
     private isBoatPlacementCorrect(boat: Boat): boolean {
         for (const boatPoints of boat.points) {
-            if (boatPoints.column < 0 || boatPoints.column >= UserBoard.MAX_COLUMNS ||
-                boatPoints.row < 0 || boatPoints.row >= UserBoard.MAX_ROWS) return false;
+            if (this.isPointInsideBoard(boatPoints))return false;
             if (this.isPointOverlappingAnotherShip(boatPoints)) return false;
         }
         return true;
@@ -69,13 +68,18 @@ export class UserBoard {
         return true;
     }
 
-    private isPointOverlappingAnotherShip(boatPoint: Point): boolean {
+    public isPointOverlappingAnotherShip(boatPoint: Point): boolean {
         for (let boatPlaced of this.boats) {
             for (let point of boatPlaced.points) {
                 if (boatPoint.equals(point)) return true;
             }
         }
         return false;
+    }
+    
+    public isPointInsideBoard(point: Point): boolean {
+        return point.column < 0 || point.column >= UserBoard.MAX_COLUMNS ||
+            point.row < 0 || point.row >= UserBoard.MAX_ROWS
     }
 }
 

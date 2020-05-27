@@ -4,12 +4,13 @@ import {WsConnection} from "./ws-connection";
 
 export class WsBoatPlacement {
     userBoardService: UserBoardService;
-    
+
     constructor(userBoardService: UserBoardService, socket: any) {
         this.userBoardService = userBoardService;
         this.onPlaceBoats(socket);
+        this.onRandomPlaceBoats(socket);
     }
-    
+
     onPlaceBoats(socket: any) {
         socket.on('place boats', (reqBoats: any, ack: (boats: Boat[], message: string) => void) => {
             const boats = reqBoats.boats.map((boat: any) => Boat.fromJson(boat));
@@ -30,6 +31,25 @@ export class WsBoatPlacement {
             }
             
             if(ack) ack(boatsNotPlaced, message);
+        })
+    }
+
+    onRandomPlaceBoats(socket: any) {
+        socket.on('place boats randomly', (reqBoats: any, ack: (boatsWithErrors: Boat[], boats: Boat[]) => void) => {
+            const boats = reqBoats.boats.map((boat: any) => Boat.fromJson(boat));
+            const userId = WsConnection.getUserId(socket);
+            const userBoard = this.userBoardService.getUserBoardByUserId(userId);
+            let newBoats: Boat[] = [];
+            let boatsWithErrors: Boat[] = [];
+            if(userBoard) {
+                boatsWithErrors = this.userBoardService.placeBoats(userBoard, boats, false);
+                newBoats = this.userBoardService.placeRandomBoats(userBoard);
+                console.log(`User ${userId} placed ${newBoats.length} boats randomly`)
+            } else {
+                console.log(`User ${userId} not in a room`);
+            }
+            
+            if(ack) ack(boatsWithErrors, newBoats);
         })
     }
 }

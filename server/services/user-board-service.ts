@@ -1,6 +1,7 @@
 ﻿import {UserBoardProvider} from "../providers/user-board-provider";
 import {UserBoard} from "../models/websocket/user-board";
 import {Boat} from "../models/websocket/boat";
+import {RandomBoatGenerator} from "./random-boat-generator";
 
 export class UserBoardService {
     private userBoarProvider: UserBoardProvider;
@@ -25,7 +26,14 @@ export class UserBoardService {
         this.userBoarProvider.deleteUserBoardByRoomId(roomId);
     }
     
-    placeBoats(userBoard: UserBoard, boats: Boat[]): Boat[] {
-        return userBoard.placeBoats(boats);
+    placeBoats(userBoard: UserBoard, boats: Boat[], allBoats: boolean = true): Boat[] {
+        userBoard.boats = [];
+        return userBoard.placeBoats(boats, allBoats);
+    }
+    
+    placeRandomBoats(userBoard: UserBoard): Boat[] {
+        const boats = new RandomBoatGenerator().getRandomBoats(userBoard);
+        boats.forEach(boat => userBoard.boats.push(boat));
+        return boats;
     }
 }
