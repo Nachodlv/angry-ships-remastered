@@ -12,7 +12,7 @@ class RoomViewArguments {
   final String userId;
   final Credentials userCredentials;
 
-  RoomViewArguments(this.socket, this.id, this.userCredentials, this.userId);
+  RoomViewArguments({this.socket, this.id, this.userCredentials, this.userId}) {print("Room view arguments constructed");}
 }
 
 class RoomView extends StatelessWidget {
@@ -23,8 +23,13 @@ class RoomView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<RoomViewModel>.reactive(
-      viewModelBuilder: () => RoomViewModel(this.arguments.socket, this.arguments.id, this.arguments.userCredentials, this.arguments.userId),
-      onModelReady: (model) => model.init(),
+      viewModelBuilder: () => 
+          RoomViewModel(
+              socket: this.arguments.socket, 
+              roomId: this.arguments.id, 
+              credentials: this.arguments.userCredentials, 
+              userId: this.arguments.userId),
+      onModelReady: (model) {print("Init model"); model.init();},
       builder: (context, model, child) => Scaffold(
         body: Container(
           padding: EdgeInsets.all(20.0),

@@ -11,8 +11,8 @@ class RoutesGenerator {
   static List<Path> paths = [
     Path(Routes.LOAD, (context, _, __) => LoadView()),
     Path(Routes.LOGIN, (context, _, __) => LoginView()),
-    Path(Routes.HOME, (context, _, arguments) => HomeView(arguments as HomeViewArguments)),
-    Path(Routes.ROOM, (context, _, arguments) => RoomView(arguments as RoomViewArguments)),
+    Path(Routes.HOME, (context, _, arguments) => HomeView(HomeViewArguments(userCredentials: arguments?.userCredentials, userId: arguments?.userId))),
+    Path(Routes.ROOM, (context, _, arguments) => RoomView(RoomViewArguments(socket: arguments?.socket, id: arguments?.id, userCredentials: arguments?.userCredentials, userId: arguments?.userId))),
   ];
 
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -22,7 +22,9 @@ class RoutesGenerator {
         final firstMatch = regExpPattern.firstMatch(settings.name);
         final match = (firstMatch.groupCount == 1) ? firstMatch.group(1) : null;
         return MaterialPageRoute<void>(
-          builder: (context) => path.builder(context, match, settings.arguments),
+          builder: (context) { 
+            return path.builder(context, match, settings.arguments);
+          },
           settings: settings,
         );
       }

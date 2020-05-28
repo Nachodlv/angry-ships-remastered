@@ -17,49 +17,20 @@ class AuthenticationServiceFirebase implements AuthenticationService {
   AuthenticationServiceFirebase(FirebaseApp app){
     _auth = FirebaseAuth.fromApp(app);
   }
+  
+  @override
+  Future<SignInState> signInSilentlyWithGoogle() async {
+    _setUserState(RemoteData.loading());
+    GoogleSignInAccount signInAccount = await googleSignIn.signInSilently(suppressErrors: true);
+    return await _login(signInAccount, suppressErrors: true);
+  }
 
   // TODO No err handling
   @override
   Future<SignInState> signInWithGoogle() async {
     _setUserState(RemoteData.loading());
-
     final GoogleSignInAccount googleSignInAccount = await googleSignIn.signIn();
-    if (googleSignInAccount == null) {
-      _setUserState(RemoteData.error('Google sign in exited.'));
-    }
-
-    final GoogleSignInAuthentication googleSignInAuthentication =
-    await googleSignInAccount.authentication;
-
-    final AuthCredential credential = GoogleAuthProvider.getCredential(
-      accessToken: googleSignInAuthentication.accessToken,
-      idToken: googleSignInAuthentication.idToken,
-    );
-
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
-    final FirebaseUser user = authResult.user;
-
-    if (!user.isAnonymous) {
-      _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
-    }
-    
-
-    final FirebaseUser currentUser = await _auth.currentUser();
-    if (user.uid != currentUser.uid) {
-      _setUserState(RemoteData.error('User uid mismatch.'));
-    }
-    
-    final tokenResult = await currentUser.getIdToken(refresh: true);
-    if (tokenResult != null) {
-      _setUserState(RemoteData.error('No id token received from logged user.'));
-    }
-    
-    final credentials = Credentials.bearerFromToken(tokenResult.token);
-    final session = _makeUserSession(currentUser, credentials);
-    final signInState = SignInState(session);
-
-    _setUserState(RemoteData.success(signInState));
-    return signInState;
+    return await _login(googleSignInAccount);
   }
 
   @override
@@ -94,6 +65,48 @@ class AuthenticationServiceFirebase implements AuthenticationService {
   Stream<RemoteData<String, SignInState>> get userStateChangeStream =>
       _userStateChangeController.stream;
 
+  Future<SignInState> _login(GoogleSignInAccount googleSignInAccount, {bool suppressErrors = false}) async {
+    if (googleSignInAccount == null) {
+      if(suppressErrors) {
+        _setUserState(RemoteData.notAsked());
+        return SignInState.anonymous();
+      }
+      else _setUserState(RemoteData.error('Google sign in exited.'));
+    }
+
+    final GoogleSignInAuthentication googleSignInAuthentication =
+        await googleSignInAccount.authentication;
+
+    final AuthCredential credential = GoogleAuthProvider.getCredential(
+      accessToken: googleSignInAuthentication.accessToken,
+      idToken: googleSignInAuthentication.idToken,
+    );
+
+    final AuthResult authResult = await _auth.signInWithCredential(credential);
+    final FirebaseUser user = authResult.user;
+
+    if (!user.isAnonymous) {
+      _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
+    }
+
+    final FirebaseUser currentUser = await _auth.currentUser();
+    if (user.uid != currentUser.uid) {
+      _setUserState(RemoteData.error('User uid mismatch.'));
+    }
+
+    final tokenResult = await currentUser.getIdToken(refresh: true);
+    if (tokenResult != null) {
+      _setUserState(RemoteData.error('No id token received from logged user.'));
+    }
+
+    final credentials = Credentials.bearerFromToken(tokenResult.token);
+    final session = _makeUserSession(currentUser, credentials);
+    final signInState = SignInState(session);
+
+    _setUserState(RemoteData.success(signInState));
+    return signInState;
+  }
+  
   static UserSession _makeUserSession(
       FirebaseUser user, Credentials credentials) {
 
@@ -116,6 +129,7 @@ class AuthenticationServiceFirebase implements AuthenticationService {
       case 'firebase':
         {
           await googleSignIn.signOut();
+          await googleSignIn.disconnect();
           await _auth.signOut();
 
           _setUserState(RemoteData.success(SignInState.anonymous()));

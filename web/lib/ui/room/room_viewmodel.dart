@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
@@ -40,14 +41,25 @@ class RoomViewModel extends ChangeNotifier {
 
   TextEditingController textInputController;
 
-  RoomViewModel(this.socket, this.roomId, this.credentials, this.userId) {
+  RoomViewModel({this.socket, this.roomId, this.credentials, this.userId}) {
     textInputController = TextEditingController();
   }
   
   init() async {
+    if(credentials == null || userId == null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) => _navigationService.navigateTo(Routes.LOAD));
+      return;
+    }
+    else if(socket == null || roomId == null) {
+      _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(
+          userCredentials: credentials, userId: userId));
+      return;
+    }
+
+
     onRoomClosedSub = _roomWsService.onRoomClosed.listen(
       (_) {
-        _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(credentials, userId));
+        _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: credentials, userId: userId));
       }
     );
 
