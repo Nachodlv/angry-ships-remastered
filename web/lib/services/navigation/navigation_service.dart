@@ -6,8 +6,13 @@ class NavigationService {
   @override
   Future navigateTo(String routeName, {arguments}) {
     return _navigatorKey.currentState
-        .pushNamed(routeName, arguments: arguments);
+        .pushReplacementNamed(routeName, arguments: arguments);
   }
+
+//  Future navigateTo(String routeName, {arguments}) {
+//    return _navigatorKey.currentState
+//        .pushNamed(routeName, arguments: arguments);
+//  }
 
   @override
   bool goBack() {
