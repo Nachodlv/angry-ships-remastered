@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:socket_io_client/socket_io_client.dart';
@@ -21,6 +23,9 @@ class HomeViewModel extends ChangeNotifier {
 
   Socket socket;
 
+  StreamSubscription<String> _onRoomOpenedSub;
+  StreamSubscription<String> _onErrorSub;
+  
   NavigationService _navigationService = locator<NavigationService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   SocketManager _socketManager = locator<SocketManager>();
@@ -35,19 +40,18 @@ class HomeViewModel extends ChangeNotifier {
     } 
     socket = await _socketManager.connect(credentials.token);
 
-    _roomWsService.onRoomOpened.listen(
-            (roomId) {
-          _setRoomData(RemoteData.success(unit));
-          _navigationService.navigateTo(Routes.ROOM, arguments: RoomViewArguments(socket: socket, id: roomId, userCredentials: this.credentials, userId: this.userId));
+    _onRoomOpenedSub = _roomWsService.onRoomOpened.listen(
+            (roomId) async {
+              await _onRoomOpenedSub.cancel();
+              _setRoomData(RemoteData.success(unit));
+              _navigationService.navigateTo(Routes.ROOM, arguments: RoomViewArguments(socket: socket, id: roomId, userCredentials: this.credentials, userId: this.userId));
         }
     );
 
-    _socketManager.onError.listen((errorMsg) {
+    _onErrorSub = _socketManager.onError.listen((errorMsg) {
       _setRoomData(RemoteData.error(errorMsg));
       print('Oops! $errorMsg');
     });
-    
-    
   }
   
   navigateToLoad() async {
@@ -74,5 +78,12 @@ class HomeViewModel extends ChangeNotifier {
   _setRoomData(RemoteData<String, Unit> data) {
     roomData = data;
     notifyListeners();
+  }
+  
+  @override
+  void dispose() {
+    _onRoomOpenedSub.cancel();
+    _onErrorSub.cancel();
+    super.dispose();
   }
 }

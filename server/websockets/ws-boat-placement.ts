@@ -1,12 +1,17 @@
 ﻿import {UserBoardService} from "../services/user-board-service";
 import {Boat} from "../models/websocket/boat";
 import {WsConnection} from "./ws-connection";
+import {UserBoardState} from "../models/websocket/user-board";
+import {RoomService} from "../services/room-service";
+import {io} from "../server/server";
 
 export class WsBoatPlacement {
     userBoardService: UserBoardService;
+    roomService: RoomService;
 
-    constructor(userBoardService: UserBoardService, socket: any) {
+    constructor(userBoardService: UserBoardService, roomService: RoomService, socket: any) {
         this.userBoardService = userBoardService;
+        this.roomService = roomService;
         this.onPlaceBoats(socket);
         this.onRandomPlaceBoats(socket);
     }
@@ -19,10 +24,13 @@ export class WsBoatPlacement {
             let message: string;
             let boatsNotPlaced: Boat[] = [];
             
-            if(userBoard) {
+            if(userBoard && userBoard.state == UserBoardState.PLACING_BOATS) {
                 boatsNotPlaced = this.userBoardService.placeBoats(userBoard, boats);
                 if(boatsNotPlaced.length == 0) {
+                    userBoard.state = UserBoardState.READY;
+                    const roomId = userBoard.roomId;
                     socket.broadcast.to(userBoard.roomId).emit('opponent placed boats');
+                    if(this.userBoardService.areAllUserBoardsReady(roomId)) this.initializeRoom(roomId);
                     message = "All boats placed correctly";
                 } else message = "Some boats could not be placed";
                 console.log(`User ${userId} placed ${boats.length - boatsNotPlaced.length} boats. Boats with errors: ${boatsNotPlaced.length}`);
@@ -41,9 +49,10 @@ export class WsBoatPlacement {
             const userBoard = this.userBoardService.getUserBoardByUserId(userId);
             let newBoats: Boat[] = [];
             let boatsWithErrors: Boat[] = [];
-            if(userBoard) {
+            if(userBoard && userBoard.state == UserBoardState.PLACING_BOATS) {
                 boatsWithErrors = this.userBoardService.placeBoats(userBoard, boats, false);
                 newBoats = this.userBoardService.placeRandomBoats(userBoard);
+                userBoard.state = UserBoardState.READY;
                 console.log(`User ${userId} placed ${newBoats.length} boats randomly`)
             } else {
                 console.log(`User ${userId} not in a room`);
@@ -51,5 +60,12 @@ export class WsBoatPlacement {
             
             if(ack) ack(boatsWithErrors, newBoats);
         })
+    }
+    
+    private initializeRoom(roomId: string) {
+        const room = this.roomService.markRoomAsPlaying(roomId);
+        if(!room) return;
+        io.to(roomId).emit('room ready', {firstUser: room.users[0]});
+        console.log(`Room ${roomId} started playing`);
     }
 }

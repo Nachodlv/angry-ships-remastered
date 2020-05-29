@@ -1,4 +1,4 @@
-﻿import {Room} from "../models/websocket/room";
+﻿import {Room, RoomState} from "../models/websocket/room";
 import {RoomProvider} from "../providers/room-provider";
 
 export class RoomService {
@@ -37,4 +37,15 @@ export class RoomService {
     deleteRoom(roomId: string) {
         this.roomProvider.deleteRoom(roomId);
     }
+    
+    markRoomAsPlaying(roomId: string): Room | undefined {
+        const room = this.roomProvider.getRoomById(roomId);
+        if(room && room.roomState == RoomState.PLACING_BOATS) {
+            room.users.sort(() => Math.random() - 0.5);
+            room.roomState = RoomState.PLAYING;
+            return room;
+        }
+        return undefined;
+    }
+    
 }

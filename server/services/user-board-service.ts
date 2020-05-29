@@ -1,5 +1,5 @@
 ﻿import {UserBoardProvider} from "../providers/user-board-provider";
-import {UserBoard} from "../models/websocket/user-board";
+import {UserBoard, UserBoardState} from "../models/websocket/user-board";
 import {Boat} from "../models/websocket/boat";
 import {RandomBoatGenerator} from "./random-boat-generator";
 
@@ -35,5 +35,16 @@ export class UserBoardService {
         const boats = new RandomBoatGenerator().getRandomBoats(userBoard);
         boats.forEach(boat => userBoard.boats.push(boat));
         return boats;
+    }
+    
+    areAllUserBoardsReady(roomId: string): boolean {
+        return this.userBoarProvider.getUserBoardsByRoomId(roomId).every(board => board.state == UserBoardState.READY);
+    }
+    
+    getRandomUserBoardFromRoomId(roomId: string): UserBoard | undefined {
+        const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
+        if(userBoards.length == 0) return undefined;
+        const randomIndex = Math.floor(Math.random() * userBoards.length);
+        return userBoards[randomIndex];
     }
 }

@@ -4,14 +4,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart';
+import 'package:web/get_boats.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/models/message.dart';
 import 'package:web/models/room.dart';
+import 'package:web/models/websocket/room_ready_response.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/room/room_service.dart';
 import 'package:web/services/user/user_service.dart';
+import 'package:web/services/websockets/boat_placement_ws_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
@@ -30,6 +33,7 @@ class RoomViewModel extends ChangeNotifier {
   StreamSubscription<void> onRoomClosedSub;
   StreamSubscription<String> onErrorSocketSub;
   StreamSubscription<Message> onMessageSub;
+  StreamSubscription<RoomReadyResponse> onRoomReadySub;
   List<Message> messages = [];
 
   NavigationService _navigationService = locator<NavigationService>();
@@ -37,7 +41,9 @@ class RoomViewModel extends ChangeNotifier {
   UserService _userService = locator<UserService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
+  BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
   SocketManager _socketManager = locator<SocketManager>();
+  
 
   TextEditingController textInputController;
 
@@ -56,9 +62,9 @@ class RoomViewModel extends ChangeNotifier {
       return;
     }
 
-
     onRoomClosedSub = _roomWsService.onRoomClosed.listen(
-      (_) {
+      (_) async {
+        await onRoomClosedSub.cancel();
         _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: credentials, userId: userId));
       }
     );
@@ -80,6 +86,13 @@ class RoomViewModel extends ChangeNotifier {
       messages.add(message);
       notifyListeners();
     });
+
+    placeBoats();
+    
+    onRoomReadySub = _roomWsService.onRoomReady.listen((roomReady) {
+      if(roomReady.firstUser == userId) print("I start playing!");
+      else print("I don't start :(");
+    });
   }
 
   isMessageFromUser(Message msg) => userId == msg.userId;
@@ -91,5 +104,20 @@ class RoomViewModel extends ChangeNotifier {
     messages.add(message);
     textInputController.clear();
     notifyListeners();
+  }
+  
+  void placeBoats() async {
+    final boatsWithErrors = await _boatPlacementWsService.placeBoats(getBoats(), socket);
+    print("Boats with errors: ${boatsWithErrors.length}");
+  }
+  
+  @override
+  void dispose() {
+    print("disposing");
+    onRoomClosedSub.cancel();
+    onErrorSocketSub.cancel();
+    onMessageSub.cancel();
+    onRoomReadySub.cancel();
+    super.dispose();
   }
 }
