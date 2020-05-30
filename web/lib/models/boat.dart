@@ -1,23 +1,25 @@
 ﻿import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
+import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:web/models/point.dart';
 
-class Boat {
-  final int shoots;
-  final bool sunken;
-  final Point pivot;
-  final List<Point> points;
-  final BoatType boatType;
+part 'boat.freezed.dart';
 
-  Boat(
-      {this.shoots = 0,
-      this.sunken = false,
-      @required this.pivot,
-      @required this.points,
-      @required this.boatType});
+@freezed
+abstract class Boat with _$Boat {
+
+  factory Boat({
+    int shoots,
+    int rotationIndex,
+    bool sunken,
+    Point pivot,
+    List<Point> points,
+    BoatType boatType}) = _Boat;
 
   factory Boat.fromJson(Map<String, dynamic> json) {
     return Boat(
         shoots: json['shoots'],
+        rotationIndex: json['rotationIndex'],
         sunken: json['sunken'],
         pivot: Point.fromJson(json['pivot']),
         points:
@@ -25,8 +27,9 @@ class Boat {
         boatType: BoatType.values[json['boatType']]);
   }
   
-  Map toJson() => {
+  Map<String, dynamic> toJson() => {
     'shoots': shoots,
+    'rotationIndex': rotationIndex,
     'sunken': sunken,
     'pivot': pivot.toJson(),
     'points': points.map((e) => e.toJson()).toList(),
@@ -35,4 +38,4 @@ class Boat {
     
 }
 
-enum BoatType { EXTRA_BIG, BIG, NORMAL, SMALL }
+enum BoatType { SMALL, NORMAL, BIG, EXTRA_BIG }

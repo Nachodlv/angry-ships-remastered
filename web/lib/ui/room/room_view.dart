@@ -5,6 +5,8 @@ import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/ui/room/room_viewmodel.dart';
 
+import 'battle_view.dart';
+
 @immutable
 class RoomViewArguments {
   final String id;
@@ -28,48 +30,65 @@ class RoomView extends StatelessWidget {
       builder: (context, model, child) => Scaffold(
         body: Container(
           padding: EdgeInsets.all(20.0),
-          child: Column(
+          child: Row(
             children: [
               Expanded(
-                flex: 1,
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: model.textInputController,
-                      ) 
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: model.sendMessage)
-                  ]
-                ),
+                flex: 9,
+                child: battle(context, model),
               ),
               Expanded(
-                flex: 9,
-                child: ListView.builder(
-                  itemCount: model.messages.length,
-                  itemBuilder: (context, index) {
-                    final msg = model.messages[index];
-                    final isMessageFromUser = model.isMessageFromUser(msg);
-                    final userData = isMessageFromUser
-                      ? model.user
-                      : model.opponent;
-                    return Align(
-                      alignment: isMessageFromUser
-                      ? Alignment.centerRight
-                      : Alignment.centerLeft,
-                      child: ListTile(
-                        title: Text(msg.text),
-                        subtitle: Text(userData.name),
-                        selected: isMessageFromUser, // Hacky display of contrast
-                      ));
-                }),
-              ),
+                flex: 1,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: chat(model),
+                ),
+              )
             ],
-          ),
+          ), 
         ),
-      ),
+      )
     );
   }
+
+  Widget chat(RoomViewModel model) =>
+    Column(
+      children: [
+        Expanded(
+          flex: 1,
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: model.textInputController,
+                ) 
+              ),
+              IconButton(
+                icon: Icon(Icons.send),
+                onPressed: model.sendMessage)
+            ]
+          ),
+        ),
+        Expanded(
+          flex: 9,
+          child: ListView.builder(
+            itemCount: model.messages.length,
+            itemBuilder: (context, index) {
+              final msg = model.messages[index];
+              final isMessageFromUser = model.isMessageFromUser(msg);
+              final userData = isMessageFromUser
+                ? model.user
+                : model.opponent;
+              return Align(
+                alignment: isMessageFromUser
+                ? Alignment.centerRight
+                : Alignment.centerLeft,
+                child: ListTile(
+                  title: Text(msg.text),
+                  subtitle: Text(userData.name),
+                  selected: isMessageFromUser, // Hacky display of contrast
+                ));
+          }),
+        ),
+      ],
+    );
 }

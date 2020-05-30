@@ -17,6 +17,7 @@ dependencies:
   freezed_annotation: ^0.7.1
   http: ^0.12.1
   socket_io_client: ^0.9.10
+  extended_math: ^0.0.29+1
 
 dev_dependencies:
   build_runner: ^1.9.0

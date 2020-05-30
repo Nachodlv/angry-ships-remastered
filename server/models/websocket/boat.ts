@@ -6,13 +6,18 @@ export class Boat {
 
     constructor(public pivot: Point,
                 public points: Point[],
+                private rotationIndex: number = 0, // Restrict to 0, 1, 2 or 3
                 // public rotation: number, 
                 public boatType: BoatType
     ) {
     }
 
     static fromJson(json: any): Boat {
-        return new Boat(json.pivot, json.points.map((point: any) => new Point(point.row, point.column)), json.boatType);
+        return new Boat(
+            json.pivot, 
+            json.points.map((point: any) => new Point(point.row, point.column)), 
+            json.rotationIndex,
+            json.boatType);
     }
     
     addShoot() {
@@ -22,8 +27,8 @@ export class Boat {
 }
 
 export enum BoatType {
-    EXTRA_BIG,
-    BIG,
-    NORMAL,
     SMALL,
+    NORMAL,
+    BIG,
+    EXTRA_BIG,
 }
