@@ -2,6 +2,7 @@
 import {WsConnection} from "./ws-connection";
 import {RoomService} from "../services/room-service";
 import {UserBoardService} from "../services/user-board-service";
+import {Room} from "../models/websocket/room";
 
 export class MatchMaker {
     
@@ -43,14 +44,14 @@ export class MatchMaker {
                 socket.disconnect();
                 return;
             }
-            const room = this.roomService.getUserARoom(userId);
+            const room = this.roomService.getUserARoom(userId, socket.id);
             socket.join(room.id);
             console.log(`User ${userId} joined room ${room.id}`)
             if(ack) ack({startFinding: true, message: "User started looking for a room"});
 
             if(room.isFull()) {
                 room.started = true;
-                this.userBoardService.createUserBoards(room.users, room.id);
+                this.userBoardService.createUserBoards(room.users.map(user => user.userId), room.id);
                 io.to(room.id).emit('room opened', room.id);
                 console.log(`Room ${room.id} opened`);
             }

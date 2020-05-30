@@ -8,6 +8,7 @@ import 'package:web/get_boats.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/models/message.dart';
+import 'package:web/models/point.dart';
 import 'package:web/models/room.dart';
 import 'package:web/models/websocket/room_ready_response.dart';
 import 'package:web/services/navigation/navigation_service.dart';
@@ -17,6 +18,7 @@ import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/boat_placement_ws_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
+import 'package:web/services/websockets/shoot_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
 import 'package:web/ui/home/home_view.dart';
 
@@ -34,6 +36,8 @@ class RoomViewModel extends ChangeNotifier {
   StreamSubscription<String> onErrorSocketSub;
   StreamSubscription<Message> onMessageSub;
   StreamSubscription<RoomReadyResponse> onRoomReadySub;
+  StreamSubscription<Point> onOpponentShoot;
+  StreamSubscription<void> onTurnStart;
   List<Message> messages = [];
 
   NavigationService _navigationService = locator<NavigationService>();
@@ -42,6 +46,7 @@ class RoomViewModel extends ChangeNotifier {
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
   BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
+  ShootWsService _shootWsService = locator<ShootWsService>();
   SocketManager _socketManager = locator<SocketManager>();
   
 
@@ -87,12 +92,21 @@ class RoomViewModel extends ChangeNotifier {
       notifyListeners();
     });
 
+    // TODO DELETE
     placeBoats();
+    _shootWsService.startListeningToOpponentShoots(socket);
+    _shootWsService.startListeningToTurnStart(socket);
     
     onRoomReadySub = _roomWsService.onRoomReady.listen((roomReady) {
-      if(roomReady.firstUser == userId) print("I start playing!");
-      else print("I don't start :(");
+      if(roomReady.firstUser == userId) {
+        print("I start playing!");
+        _shootWsService.makeShoot(socket, Point(1,1)).then((result) => print('Shoot made: ${result.toString()}'));
+      } else print("I don't start :(");
     });
+
+    onOpponentShoot = _shootWsService.onOpponentShoot.listen((point) => print('Opponent shot at ${point.toString()}'));
+    
+    onTurnStart = _shootWsService.onTurnStart.listen((_) => print('It is my turn!'));
   }
 
   isMessageFromUser(Message msg) => userId == msg.userId;

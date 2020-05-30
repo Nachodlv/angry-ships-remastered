@@ -16,7 +16,7 @@ class Room {
   factory Room.fromJson(Map<String, dynamic> json) {
     return Room(
         id: json['id'],
-        users: new List<String>.from(json['users']),
+        users: new List<dynamic>.from(json['users']).map<String>((e) => e['userId']).toList(),
         messages: new List<dynamic>.from(json['messages'])
             .map((e) => Message.fromJson(e)).toList(),
         started: json['started']);

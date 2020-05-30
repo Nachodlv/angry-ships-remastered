@@ -60,7 +60,7 @@ export class RandomBoatGenerator {
                     newPoint = new Point(point.row, point.column + i);
                     break;
             }
-            if(!userBoard.isPointInsideBoard(newPoint) || userBoard.isPointOverlappingAnotherShip(newPoint)) {
+            if(!userBoard.isPointOutsideBoard(newPoint) || userBoard.isPointOverlappingAnotherShip(newPoint)) {
                 return [];
             }
             points.push(newPoint);

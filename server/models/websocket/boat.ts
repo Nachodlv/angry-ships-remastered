@@ -12,7 +12,7 @@ export class Boat {
     }
 
     static fromJson(json: any): Boat {
-        return new Boat(json.pivot, json.points.map((point: any) => new Point(point.row, point.column)), json.boatType);
+        return new Boat(json.pivot, json.points.map((point: any) => Point.fromJson(point)), json.boatType);
     }
     
     addShoot() {

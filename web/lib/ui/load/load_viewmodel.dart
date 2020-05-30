@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/foundation.dart';
 import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
@@ -11,13 +13,15 @@ import 'package:web/ui/home/home_view.dart';
 class LoadViewModel extends ChangeNotifier {
   RemoteData<String, SignInState> userState = RemoteData.notAsked();
 
+  StreamSubscription<RemoteData<String, SignInState>> onUserStateChange;
+  
   NavigationService _navigationService = locator<NavigationService>();
   AuthenticationService _authenticationService =
       locator<AuthenticationService>();
   UserService _userService = locator<UserService>();
 
   init() {
-    _authenticationService.userStateChangeStream.listen((data) {
+    onUserStateChange = _authenticationService.userStateChangeStream.listen((data) {
       _setUserState(data);
       data.maybeWhen(
           success: (state) =>
@@ -57,5 +61,11 @@ class LoadViewModel extends ChangeNotifier {
     _navigationService.navigateTo(Routes.HOME,
         arguments: HomeViewArguments(
             userCredentials: session.credentials, userId: user.id.id));
+  }
+  
+  @override
+  void dispose() {
+    onUserStateChange.cancel();
+    super.dispose();
   }
 }

@@ -1,4 +1,4 @@
-﻿import {Room, RoomState} from "../models/websocket/room";
+﻿import {Room, RoomState, UserInRoom} from "../models/websocket/room";
 import {RoomProvider} from "../providers/room-provider";
 
 export class RoomService {
@@ -16,20 +16,20 @@ export class RoomService {
         return this.roomProvider.getRoomByUserId(userId);
     }
     
-    getUserARoom(userId: string): Room {
+    getUserARoom(userId: string, socketId: string): Room {
         let room = this.roomProvider.getAvailableRoom();
         if(room) {
-            room.users.push(userId);
+            room.users.push(new UserInRoom(userId, socketId));
             return room;
         } else {
-            return this.roomProvider.createRoom(userId);
+            return this.roomProvider.createRoom(userId, socketId);
         }
     }
     
     removeUserFromRoom(userId: string): Room | undefined {
         const room = this.roomProvider.getRoomByUserId(userId);
         if(room) {
-            room.users = room.users.filter(user => user != userId);
+            room.users = room.users.filter(user => user.userId != userId);
         }
         return room;
     }
@@ -46,6 +46,15 @@ export class RoomService {
             return room;
         }
         return undefined;
+    }
+    
+    isUserTurn(room: Room, userId: string): boolean {
+        return room.roomState == RoomState.PLAYING &&  room.users[room.currentTurn].userId == userId;
+    }
+    
+    nextTurn(room: Room): UserInRoom {
+        room.currentTurn = (room.currentTurn + 1) % room.users.length;
+        return room.users[room.currentTurn];
     }
     
 }
