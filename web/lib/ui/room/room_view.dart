@@ -14,7 +14,7 @@ class RoomViewArguments {
   final String userId;
   final Credentials userCredentials;
 
-  RoomViewArguments(this.socket, this.id, this.userCredentials, this.userId);
+  RoomViewArguments({this.socket, this.id, this.userCredentials, this.userId}) {print("Room view arguments constructed");}
 }
 
 class RoomView extends StatelessWidget {
@@ -25,28 +25,33 @@ class RoomView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<RoomViewModel>.reactive(
-      viewModelBuilder: () => RoomViewModel(this.arguments.socket, this.arguments.id, this.arguments.userCredentials, this.arguments.userId),
-      onModelReady: (model) => model.init(),
-      builder: (context, model, child) => Scaffold(
-        body: Container(
-          padding: EdgeInsets.all(20.0),
-          child: Row(
-            children: [
-              Expanded(
-                flex: 9,
-                child: battle(context, model),
+      viewModelBuilder: () => 
+          RoomViewModel(
+            socket: this.arguments.socket, 
+            roomId: this.arguments.id, 
+            credentials: this.arguments.userCredentials, 
+            userId: this.arguments.userId),
+            onModelReady: (model) => model.init(),
+            builder: (context, model, child) => Scaffold(
+              body: Container(
+                padding: EdgeInsets.all(20.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      flex: 9,
+                      child: battle(context, model),
+                    ),
+                    Expanded(
+                      flex: 1,
+                      child: Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: chat(model),
+                      ),
+                    )
+                  ],
+                ), 
               ),
-              Expanded(
-                flex: 1,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: chat(model),
-                ),
-              )
-            ],
-          ), 
-        ),
-      )
+            )
     );
   }
 

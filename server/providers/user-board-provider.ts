@@ -22,7 +22,10 @@ export class UserBoardProvider {
         for (let board of this.userBoards) {
             if(board.userId == userId) return board;
         }
-        
         return undefined;
+    }
+    
+    getUserBoardsByRoomId(roomId: string): UserBoard[] {
+        return this.userBoards.filter(board => board.roomId == roomId);
     }
 }

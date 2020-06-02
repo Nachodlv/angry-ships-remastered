@@ -1,6 +1,8 @@
 ﻿import {UserBoardProvider} from "../providers/user-board-provider";
-import {UserBoard} from "../models/websocket/user-board";
+import {ShootResult, UserBoard, UserBoardState} from "../models/websocket/user-board";
 import {Boat} from "../models/websocket/boat";
+import {RandomBoatGenerator} from "./random-boat-generator";
+import {Point} from "../models/websocket/point";
 
 export class UserBoardService {
     private userBoarProvider: UserBoardProvider;
@@ -25,7 +27,26 @@ export class UserBoardService {
         this.userBoarProvider.deleteUserBoardByRoomId(roomId);
     }
     
-    placeBoats(userBoard: UserBoard, boats: Boat[]): Boat[] {
-        return userBoard.placeBoats(boats);
+    placeBoats(userBoard: UserBoard, boats: Boat[], allBoats: boolean = true): Boat[] {
+        userBoard.boats = [];
+        return userBoard.placeBoats(boats, allBoats);
+    }
+    
+    placeRandomBoats(userBoard: UserBoard): Boat[] {
+        const boats = new RandomBoatGenerator().getRandomBoats(userBoard);
+        boats.forEach(boat => userBoard.boats.push(boat));
+        return boats;
+    }
+    
+    areAllUserBoardsReady(roomId: string): boolean {
+        return this.userBoarProvider.getUserBoardsByRoomId(roomId).every(board => board.state == UserBoardState.READY);
+    }
+    
+    makeShoot(roomId: string, userId: string, shoot: Point): ShootResult {
+        const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
+        for (let userBoard of userBoards) {
+            if(userBoard.userId != userId) return userBoard.addShoot(shoot);
+        }
+        return new ShootResult(false);
     }
 }

@@ -2,7 +2,6 @@ import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/services/auth/auth_service.dart';
-import 'package:web/services/exceptions/exceptions.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:flutter/foundation.dart';
@@ -28,7 +27,7 @@ class LoginViewModel extends ChangeNotifier {
             orElse: () {}
           );
         });
-  }  
+  }
 
   signInWithGoogle() async {
     try {
@@ -37,16 +36,6 @@ class LoginViewModel extends ChangeNotifier {
       print(e);
     }
   }
-
-  signOut() {
-    try {
-      _authenticationService.signOut();
-    } catch (e) {
-      print(e);
-    }
-  }
-
-  
 
   void _setUserState(RemoteData<String, SignInState> state) {
     userState = state;
@@ -61,6 +50,6 @@ class LoginViewModel extends ChangeNotifier {
     }
 
     final user = await _userService.getUser(session.user.id.id, session.credentials.token);
-    _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(session.credentials, user.id.id));
+    _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: session.credentials, userId: user.id.id));
   }
 }

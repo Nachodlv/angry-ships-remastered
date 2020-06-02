@@ -9,7 +9,7 @@ class HomeViewArguments {
   final Credentials userCredentials;
   final String userId;
 
-  HomeViewArguments(this.userCredentials, this.userId);
+  HomeViewArguments({this.userCredentials, this.userId});
 }
 
 class HomeView extends StatelessWidget {
@@ -20,7 +20,7 @@ class HomeView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ViewModelBuilder<HomeViewModel>.reactive(
-      viewModelBuilder: () => HomeViewModel(this.arguments.userCredentials, this.arguments.userId),
+      viewModelBuilder: () => HomeViewModel(credentials: this.arguments.userCredentials, userId: this.arguments.userId),
       onModelReady: (model) => model.init(),
       builder: (context, model, child) => Scaffold(
         body: Container(
@@ -35,7 +35,11 @@ class HomeView extends StatelessWidget {
                     Text(err)]
                   ), 
                   loading: () => Center(child: CircularProgressIndicator()), 
-                  notAsked: () => playButton(model.play)
+                  notAsked: () => 
+                      Column(children: [
+                        playButton(model.play),
+                        _logoutButton(model.signOut)
+                      ])
                 )]
               )
           ),
@@ -43,6 +47,12 @@ class HomeView extends StatelessWidget {
       ),
     );
   }
+  
+  Widget _logoutButton(Function signOut) => 
+    RaisedButton(
+      padding: EdgeInsets.all(8), 
+      child: Text('Sign Out', style: TextStyle(fontSize: 20),), 
+      onPressed: signOut,);
 
   Widget playButton(Function play) => 
     RaisedButton(

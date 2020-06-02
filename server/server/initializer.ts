@@ -11,6 +11,7 @@ import {RoomProvider} from "../providers/room-provider";
 import {UserBoardProvider} from "../providers/user-board-provider";
 import {UserBoardService} from "../services/user-board-service";
 import {WsBoatPlacement} from "../websockets/ws-boat-placement";
+import {WsShoot} from "../websockets/ws-shoot";
 
 export const initialize = () => {
     
@@ -29,7 +30,8 @@ export const initialize = () => {
     wsConnection.connect(socket => {
         new MatchMaker(roomService, userBoardService, socket);
         new WsChat(roomService, socket);
-        new WsBoatPlacement(userBoardService, socket);
+        new WsBoatPlacement(userBoardService, roomService, socket);
+        new WsShoot(roomService, userBoardService, socket);
     })
 
     //Controllers

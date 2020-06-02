@@ -8,8 +8,9 @@ part 'boat.freezed.dart';
 @freezed
 abstract class Boat with _$Boat {
 
-  factory Boat({
-    int shoots,
+  factory Boat(
+    BoatID id,
+    {int shoots,
     int rotationIndex,
     bool sunken,
     Point pivot,
@@ -18,13 +19,14 @@ abstract class Boat with _$Boat {
 
   factory Boat.fromJson(Map<String, dynamic> json) {
     return Boat(
-        shoots: json['shoots'],
-        rotationIndex: json['rotationIndex'],
-        sunken: json['sunken'],
-        pivot: Point.fromJson(json['pivot']),
-        points:
-            List<dynamic>.from(json['points']).map((p) => Point.fromJson(p)).toList(),
-        boatType: BoatType.values[json['boatType']]);
+      BoatID(json['id']),
+      shoots: json['shoots'],
+      rotationIndex: json['rotationIndex'],
+      sunken: json['sunken'],
+      pivot: Point.fromJson(json['pivot']),
+      points:
+          List<dynamic>.from(json['points']).map((p) => Point.fromJson(p)).toList(),
+      boatType: BoatType.values[json['boatType']]);
   }
   
   Map<String, dynamic> toJson() => {
@@ -36,6 +38,11 @@ abstract class Boat with _$Boat {
     'boatType': boatType.index
   };
     
+}
+
+@freezed
+abstract class BoatID with _$BoatID {
+  factory BoatID(String id) = _BoatID;
 }
 
 enum BoatType { SMALL, NORMAL, BIG, EXTRA_BIG }

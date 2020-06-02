@@ -12,7 +12,7 @@ T _$identity<T>(T value) => value;
 class _$BoatTearOff {
   const _$BoatTearOff();
 
-  _Boat call(
+  _Boat call(BoatID id,
       {int shoots,
       int rotationIndex,
       bool sunken,
@@ -20,6 +20,7 @@ class _$BoatTearOff {
       List<Point> points,
       BoatType boatType}) {
     return _Boat(
+      id,
       shoots: shoots,
       rotationIndex: rotationIndex,
       sunken: sunken,
@@ -34,6 +35,7 @@ class _$BoatTearOff {
 const $Boat = _$BoatTearOff();
 
 mixin _$Boat {
+  BoatID get id;
   int get shoots;
   int get rotationIndex;
   bool get sunken;
@@ -49,12 +51,15 @@ abstract class $BoatCopyWith<$Res> {
   factory $BoatCopyWith(Boat value, $Res Function(Boat) then) =
       _$BoatCopyWithImpl<$Res>;
   $Res call(
-      {int shoots,
+      {BoatID id,
+      int shoots,
       int rotationIndex,
       bool sunken,
       Point pivot,
       List<Point> points,
       BoatType boatType});
+
+  $BoatIDCopyWith<$Res> get id;
 }
 
 class _$BoatCopyWithImpl<$Res> implements $BoatCopyWith<$Res> {
@@ -66,6 +71,7 @@ class _$BoatCopyWithImpl<$Res> implements $BoatCopyWith<$Res> {
 
   @override
   $Res call({
+    Object id = freezed,
     Object shoots = freezed,
     Object rotationIndex = freezed,
     Object sunken = freezed,
@@ -74,6 +80,7 @@ class _$BoatCopyWithImpl<$Res> implements $BoatCopyWith<$Res> {
     Object boatType = freezed,
   }) {
     return _then(_value.copyWith(
+      id: id == freezed ? _value.id : id as BoatID,
       shoots: shoots == freezed ? _value.shoots : shoots as int,
       rotationIndex: rotationIndex == freezed
           ? _value.rotationIndex
@@ -84,6 +91,16 @@ class _$BoatCopyWithImpl<$Res> implements $BoatCopyWith<$Res> {
       boatType: boatType == freezed ? _value.boatType : boatType as BoatType,
     ));
   }
+
+  @override
+  $BoatIDCopyWith<$Res> get id {
+    if (_value.id == null) {
+      return null;
+    }
+    return $BoatIDCopyWith<$Res>(_value.id, (value) {
+      return _then(_value.copyWith(id: value));
+    });
+  }
 }
 
 abstract class _$BoatCopyWith<$Res> implements $BoatCopyWith<$Res> {
@@ -91,12 +108,16 @@ abstract class _$BoatCopyWith<$Res> implements $BoatCopyWith<$Res> {
       __$BoatCopyWithImpl<$Res>;
   @override
   $Res call(
-      {int shoots,
+      {BoatID id,
+      int shoots,
       int rotationIndex,
       bool sunken,
       Point pivot,
       List<Point> points,
       BoatType boatType});
+
+  @override
+  $BoatIDCopyWith<$Res> get id;
 }
 
 class __$BoatCopyWithImpl<$Res> extends _$BoatCopyWithImpl<$Res>
@@ -109,6 +130,7 @@ class __$BoatCopyWithImpl<$Res> extends _$BoatCopyWithImpl<$Res>
 
   @override
   $Res call({
+    Object id = freezed,
     Object shoots = freezed,
     Object rotationIndex = freezed,
     Object sunken = freezed,
@@ -117,6 +139,7 @@ class __$BoatCopyWithImpl<$Res> extends _$BoatCopyWithImpl<$Res>
     Object boatType = freezed,
   }) {
     return _then(_Boat(
+      id == freezed ? _value.id : id as BoatID,
       shoots: shoots == freezed ? _value.shoots : shoots as int,
       rotationIndex: rotationIndex == freezed
           ? _value.rotationIndex
@@ -131,14 +154,17 @@ class __$BoatCopyWithImpl<$Res> extends _$BoatCopyWithImpl<$Res>
 
 @JsonSerializable()
 class _$_Boat with DiagnosticableTreeMixin implements _Boat {
-  _$_Boat(
+  _$_Boat(this.id,
       {this.shoots,
       this.rotationIndex,
       this.sunken,
       this.pivot,
       this.points,
-      this.boatType});
+      this.boatType})
+      : assert(id != null);
 
+  @override
+  final BoatID id;
   @override
   final int shoots;
   @override
@@ -154,7 +180,7 @@ class _$_Boat with DiagnosticableTreeMixin implements _Boat {
 
   @override
   String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'Boat(shoots: $shoots, rotationIndex: $rotationIndex, sunken: $sunken, pivot: $pivot, points: $points, boatType: $boatType)';
+    return 'Boat(id: $id, shoots: $shoots, rotationIndex: $rotationIndex, sunken: $sunken, pivot: $pivot, points: $points, boatType: $boatType)';
   }
 
   @override
@@ -162,6 +188,7 @@ class _$_Boat with DiagnosticableTreeMixin implements _Boat {
     super.debugFillProperties(properties);
     properties
       ..add(DiagnosticsProperty('type', 'Boat'))
+      ..add(DiagnosticsProperty('id', id))
       ..add(DiagnosticsProperty('shoots', shoots))
       ..add(DiagnosticsProperty('rotationIndex', rotationIndex))
       ..add(DiagnosticsProperty('sunken', sunken))
@@ -174,6 +201,8 @@ class _$_Boat with DiagnosticableTreeMixin implements _Boat {
   bool operator ==(dynamic other) {
     return identical(this, other) ||
         (other is _Boat &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)) &&
             (identical(other.shoots, shoots) ||
                 const DeepCollectionEquality().equals(other.shoots, shoots)) &&
             (identical(other.rotationIndex, rotationIndex) ||
@@ -193,6 +222,7 @@ class _$_Boat with DiagnosticableTreeMixin implements _Boat {
   @override
   int get hashCode =>
       runtimeType.hashCode ^
+      const DeepCollectionEquality().hash(id) ^
       const DeepCollectionEquality().hash(shoots) ^
       const DeepCollectionEquality().hash(rotationIndex) ^
       const DeepCollectionEquality().hash(sunken) ^
@@ -212,7 +242,7 @@ class _$_Boat with DiagnosticableTreeMixin implements _Boat {
 }
 
 abstract class _Boat implements Boat {
-  factory _Boat(
+  factory _Boat(BoatID id,
       {int shoots,
       int rotationIndex,
       bool sunken,
@@ -220,6 +250,8 @@ abstract class _Boat implements Boat {
       List<Point> points,
       BoatType boatType}) = _$_Boat;
 
+  @override
+  BoatID get id;
   @override
   int get shoots;
   @override
@@ -234,4 +266,116 @@ abstract class _Boat implements Boat {
   BoatType get boatType;
   @override
   _$BoatCopyWith<_Boat> get copyWith;
+}
+
+class _$BoatIDTearOff {
+  const _$BoatIDTearOff();
+
+  _BoatID call(String id) {
+    return _BoatID(
+      id,
+    );
+  }
+}
+
+// ignore: unused_element
+const $BoatID = _$BoatIDTearOff();
+
+mixin _$BoatID {
+  String get id;
+
+  $BoatIDCopyWith<BoatID> get copyWith;
+}
+
+abstract class $BoatIDCopyWith<$Res> {
+  factory $BoatIDCopyWith(BoatID value, $Res Function(BoatID) then) =
+      _$BoatIDCopyWithImpl<$Res>;
+  $Res call({String id});
+}
+
+class _$BoatIDCopyWithImpl<$Res> implements $BoatIDCopyWith<$Res> {
+  _$BoatIDCopyWithImpl(this._value, this._then);
+
+  final BoatID _value;
+  // ignore: unused_field
+  final $Res Function(BoatID) _then;
+
+  @override
+  $Res call({
+    Object id = freezed,
+  }) {
+    return _then(_value.copyWith(
+      id: id == freezed ? _value.id : id as String,
+    ));
+  }
+}
+
+abstract class _$BoatIDCopyWith<$Res> implements $BoatIDCopyWith<$Res> {
+  factory _$BoatIDCopyWith(_BoatID value, $Res Function(_BoatID) then) =
+      __$BoatIDCopyWithImpl<$Res>;
+  @override
+  $Res call({String id});
+}
+
+class __$BoatIDCopyWithImpl<$Res> extends _$BoatIDCopyWithImpl<$Res>
+    implements _$BoatIDCopyWith<$Res> {
+  __$BoatIDCopyWithImpl(_BoatID _value, $Res Function(_BoatID) _then)
+      : super(_value, (v) => _then(v as _BoatID));
+
+  @override
+  _BoatID get _value => super._value as _BoatID;
+
+  @override
+  $Res call({
+    Object id = freezed,
+  }) {
+    return _then(_BoatID(
+      id == freezed ? _value.id : id as String,
+    ));
+  }
+}
+
+class _$_BoatID with DiagnosticableTreeMixin implements _BoatID {
+  _$_BoatID(this.id) : assert(id != null);
+
+  @override
+  final String id;
+
+  @override
+  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
+    return 'BoatID(id: $id)';
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty('type', 'BoatID'))
+      ..add(DiagnosticsProperty('id', id));
+  }
+
+  @override
+  bool operator ==(dynamic other) {
+    return identical(this, other) ||
+        (other is _BoatID &&
+            (identical(other.id, id) ||
+                const DeepCollectionEquality().equals(other.id, id)));
+  }
+
+  @override
+  int get hashCode =>
+      runtimeType.hashCode ^ const DeepCollectionEquality().hash(id);
+
+  @override
+  _$BoatIDCopyWith<_BoatID> get copyWith =>
+      __$BoatIDCopyWithImpl<_BoatID>(this, _$identity);
+}
+
+abstract class _BoatID implements BoatID {
+  factory _BoatID(String id) = _$_BoatID;
+
+  @override
+  String get id;
+  @override
+  _$BoatIDCopyWith<_BoatID> get copyWith;
 }

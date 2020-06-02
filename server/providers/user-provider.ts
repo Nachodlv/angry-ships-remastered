@@ -12,6 +12,10 @@ export class UserProvider {
         return user.save();
     }
     
+    updateUser(user: DatabaseUser): Promise<DatabaseUser> {
+        return user.save();
+    }
+    
     addUserWithNoRoom(user: string) {
         this.usersWithNoRooms.push(user);
     }

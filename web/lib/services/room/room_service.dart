@@ -1,11 +1,14 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:extended_math/extended_math.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/models/point.dart';
 import 'package:web/models/room.dart';
 import 'package:http/http.dart' as http;
 import 'package:web/services/exceptions/exceptions.dart';
+
+import '../../utils.dart';
 
 class RoomService {
   final String url;
@@ -23,6 +26,7 @@ class RoomService {
 
   static _startingBoatByType(BoatType type) {
     final baseBoat = Boat(
+      BoatID(generateRandomId()),
       shoots: 0,
       rotationIndex: 0,
       sunken: false
