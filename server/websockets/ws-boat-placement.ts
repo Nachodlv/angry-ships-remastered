@@ -4,14 +4,17 @@ import {WsConnection} from "./ws-connection";
 import {UserBoardState} from "../models/websocket/user-board";
 import {RoomService} from "../services/room-service";
 import {io} from "../server/server";
+import {WsShoot} from "./ws-shoot";
 
 export class WsBoatPlacement {
     userBoardService: UserBoardService;
     roomService: RoomService;
+    wsShoot: WsShoot;
 
-    constructor(userBoardService: UserBoardService, roomService: RoomService, socket: any) {
+    constructor(userBoardService: UserBoardService, roomService: RoomService, wsShoot: WsShoot, socket: any) {
         this.userBoardService = userBoardService;
         this.roomService = roomService;
+        this.wsShoot = wsShoot;
         this.onPlaceBoats(socket);
         this.onRandomPlaceBoats(socket);
     }
@@ -65,7 +68,7 @@ export class WsBoatPlacement {
     private initializeRoom(roomId: string) {
         const room = this.roomService.markRoomAsPlaying(roomId);
         if(!room) return;
-        io.to(roomId).emit('room ready', {firstUser: room.users[0].userId});
+        this.wsShoot.emitTurn(room, room.users[0]);
         console.log(`Room ${roomId} started playing`);
     }
 }

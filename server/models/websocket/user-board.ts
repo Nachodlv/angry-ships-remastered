@@ -9,6 +9,7 @@ export class UserBoard {
     public boats: Boat[] = [];
     public shoots: Point[] = [];
     public state: UserBoardState = UserBoardState.PLACING_BOATS;
+    public turnTimeout: NodeJS.Timeout | undefined = undefined;
 
     constructor(
         public userId: string,
@@ -23,6 +24,43 @@ export class UserBoard {
         })
         return boatsNotPlaced;
     }
+    
+    addRandomShoot(): ShootResult {
+        const row =  Math.floor(Math.random() * UserBoard.MAX_ROWS);
+        const column =  Math.floor(Math.random() * UserBoard.MAX_COLUMNS);
+        const point = new Point(row, column);
+        if(this.isShootOverlapping(point)) return this.addRandomShoot();
+        return this.addValidShoot(point);
+    }
+
+    addShoot(point: Point): ShootResult {
+        if (this.isPointOutsideBoard(point)) return new ShootResult(false, point);
+        if(this.isShootOverlapping(point)) return new ShootResult(false, point);
+        return this.addValidShoot(point);
+    }
+
+    isPointOverlappingAnotherShip(boatPoint: Point): boolean {
+        for (let boatPlaced of this.boats) {
+            for (let point of boatPlaced.getGlobalPoints()) {
+                if (boatPoint.equals(point)) return true;
+            }
+        }
+        return false;
+    }
+
+    isPointOutsideBoard(point: Point): boolean {
+        return point.column < 0 || point.column >= UserBoard.MAX_COLUMNS ||
+            point.row < 0 || point.row >= UserBoard.MAX_ROWS
+    }
+    
+    private addValidShoot(point: Point): ShootResult {
+        this.shoots.push(point);
+        for (const boat of this.boats) {
+            if (UserBoard.isBoatShoot(boat, point))
+                return new ShootResult(true, point, boat);
+        }
+        return new ShootResult(true, point);
+    }
 
     private tryToPlaceBoat(boat: Boat): boolean {
         if (this.isBoatPlacementCorrect(boat) &&
@@ -31,19 +69,6 @@ export class UserBoard {
             return true;
         }
         return false;
-    }
-
-    addShoot(point: Point): ShootResult {
-
-        if (this.isPointOutsideBoard(point)) return new ShootResult(false);
-        for (const shoot of this.shoots) if (point.equals(shoot)) return new ShootResult(false);
-
-        this.shoots.push(point);
-        for (const boat of this.boats) {
-            if (UserBoard.isBoatShoot(boat, point))
-                return new ShootResult(true, boat);
-        }
-        return new ShootResult(true);
     }
 
     private static isBoatShoot(boat: Boat, point: Point): boolean {
@@ -71,23 +96,16 @@ export class UserBoard {
         return true;
     }
 
-    public isPointOverlappingAnotherShip(boatPoint: Point): boolean {
-        for (let boatPlaced of this.boats) {
-            for (let point of boatPlaced.getGlobalPoints()) {
-                if (boatPoint.equals(point)) return true;
-            }
-        }
+    private isShootOverlapping(point: Point): boolean {
+        for (const shoot of this.shoots) 
+            if (point.equals(shoot)) return true;
         return false;
     }
-
-    public isPointOutsideBoard(point: Point): boolean {
-        return point.column < 0 || point.column >= UserBoard.MAX_COLUMNS ||
-            point.row < 0 || point.row >= UserBoard.MAX_ROWS
-    }
+    
 }
 
 export class ShootResult {
-    constructor(public isValid: boolean, public boatShoot: Boat | undefined = undefined) {
+    constructor(public isValid: boolean, public point: Point, public boatShoot: Boat | undefined = undefined) {
     }
 
     toString(): string {

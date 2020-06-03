@@ -30,8 +30,8 @@ export const initialize = () => {
     wsConnection.connect(socket => {
         new MatchMaker(roomService, userBoardService, socket);
         new WsChat(roomService, socket);
-        new WsBoatPlacement(userBoardService, roomService, socket);
-        new WsShoot(roomService, userBoardService, socket);
+        const wsShoot = new WsShoot(roomService, userBoardService, socket);
+        new WsBoatPlacement(userBoardService, roomService, wsShoot, socket);
     })
 
     //Controllers

@@ -15,7 +15,13 @@ export class UserBoardProvider {
     }
     
     deleteUserBoardByRoomId(roomId: string) {
-        this.userBoards = this.userBoards.filter(board => board.roomId != roomId);
+        this.userBoards = this.userBoards.filter(board => {
+            if(board.roomId != roomId) return true;
+            else {
+                if(board.turnTimeout) clearTimeout(board.turnTimeout);
+                return false;
+            }
+        });
     }
     
     getUserBoardByUserId(userId: string): UserBoard | undefined {

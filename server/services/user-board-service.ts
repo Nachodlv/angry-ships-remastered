@@ -46,7 +46,16 @@ export class UserBoardService {
         const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
         for (let userBoard of userBoards) {
             if(userBoard.userId != userId) return userBoard.addShoot(shoot);
+            else if(userBoard.turnTimeout) clearTimeout(userBoard.turnTimeout);
         }
-        return new ShootResult(false);
+        return new ShootResult(false, shoot);
+    }
+    
+    makeRandomShoot(userId: string): ShootResult {
+        const userBoard = this.userBoarProvider.getUserBoardByUserId(userId);
+        if(userBoard) {
+            return userBoard.addRandomShoot();
+        }
+        return new ShootResult(false, new Point(0, 0));
     }
 }
