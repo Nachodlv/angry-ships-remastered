@@ -43,17 +43,12 @@ class RoomViewModel extends ChangeNotifier {
   TextEditingController textInputController;
 
   List<Message> messages = [];
-  List<Boat> placedBoats = [];
-  RemoteData<String, Unit> opponentReadyData = RemoteData.notAsked();
-  RemoteData<String, Unit> boatsPlacedData = RemoteData.notAsked();
-  List<Boat> userBoats = RoomService.startingBoats;
-
+ 
   NavigationService _navigationService = locator<NavigationService>();
   RoomService _roomService = locator<RoomService>();
   UserService _userService = locator<UserService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
-  BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
   ShootWsService _shootWsService = locator<ShootWsService>();
   SocketManager _socketManager = locator<SocketManager>();
   
@@ -97,12 +92,6 @@ class RoomViewModel extends ChangeNotifier {
       notifyListeners();
     });
 
-    _boatPlacementWsService.startListeningToOpponentPlaced(socket);
-    _setOpponentReadyData(RemoteData.loading());
-            
-    _boatPlacementWsService.onOpponentPlacedBoats.listen((_) => 
-      _setOpponentReadyData(RemoteData<String, Unit>.success(unit)));
-
     _shootWsService.startListeningToOpponentShoots(socket);
     _shootWsService.startListeningToTurnStart(socket);
     
@@ -135,72 +124,13 @@ class RoomViewModel extends ChangeNotifier {
     onErrorSocketSub.cancel();
     onMessageSub.cancel();
     onRoomReadySub.cancel();
+    onTurnStart.cancel();
+    onOpponentShoot.cancel();
     super.dispose();
   }
-
-  void _setOpponentReadyData(RemoteData<String, Unit> remoteData) {
-    opponentReadyData = remoteData;
-    notifyListeners();
-  }
-
-  void onAcceptBoatInGrid(Boat boat, Point point) {
-    final placedBoat = boat.copyWith(pivot: point);
-    placedBoats.add(placedBoat);
-    userBoats.removeWhere((b) => b.id == boat.id);
-    print('On ${point.row}, ${point.column}: Placed $boat!!!!!!');
-    notifyListeners();
-  }
-
-  void onAcceptBoatInBucket(Boat boat) {
-    placedBoats.removeWhere((b) => b.id == boat.id);
-    userBoats.add(
-      boat.copyWith(
-        pivot: Point(0,0)
-      )
-    );
-    notifyListeners();
-  }
-
-  bool isBoatAcceptableInBucket(Boat boat) =>
-    placedBoats.where((b) => b.id == boat.id).isNotEmpty;
-
-  bool isBoatAcceptableInGrid(Boat boat) =>
-    userBoats.where((b) => b.id == boat.id).isNotEmpty;
   
-  void placeAllBoats() {
-    if(userBoats.length != 0) {
-      boatsPlacedData = RemoteData.error("Place all boats first");
-      notifyListeners();
-      return;
-    }
-    boatsPlacedData = RemoteData.loading();
-    _boatPlacementWsService.placeBoats(placedBoats, socket).then((boats) {
-      if(boats.length == 0) boatsPlacedData = RemoteData.success(unit);
-      else {
-        boatsPlacedData = RemoteData.error("Boats not placed correctly");
-        boats.forEach((boat) { placedBoats.removeWhere((element) => boat.id == element.id); });
-        userBoats.addAll(boats);
-      }
-      notifyListeners();
-    }).catchError((String errorMessage) {
-      boatsPlacedData = RemoteData.error(errorMessage);
-      notifyListeners();
-    });
-    notifyListeners();
+  finishPlacement() {
+    print("Boats placed");
   }
-  
-  void placeBoatsRandomly() {
-    boatsPlacedData = RemoteData.loading();
-    _boatPlacementWsService.placeBoatsRandomly(placedBoats, socket).then((res) {
-      res.boatsWithErrors.forEach((boat) => placedBoats.removeWhere((element) => element.id == boat.id));
-      placedBoats.addAll(res.boats);
-      userBoats = [];
-      boatsPlacedData = RemoteData.success(unit);
-      notifyListeners();
-    }).catchError((errorMessage) {
-      boatsPlacedData = RemoteData.error(errorMessage);
-      notifyListeners();
-    });
-    notifyListeners();
-  }
+
 }
