@@ -2,6 +2,7 @@
 import 'dart:convert';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:web/models/boat.dart';
+import 'package:web/models/websocket/random_boats_response.dart';
 
 class BoatPlacementWsService {
   final StreamController<void> _opponentPlacedController;
@@ -19,10 +20,24 @@ class BoatPlacementWsService {
     final completer = Completer<List<Boat>>();
     socket.emitWithAck('place boats', {'boats': boats},
         ack: (response) {
-              completer.complete(List<dynamic>.from(response[0]).map((boat) => Boat.fromJson(boat)).toList());
+              completer.complete(_getBoatListFromDynamic(response[0]));
             });
     return completer.future;
   }
+  
+  Future<RandomBoatsResponse> placeBoatsRandomly(List<Boat> alreadyPlacedBoats, IO.Socket socket) {
+    final completer = Completer<RandomBoatsResponse>();
+    socket.emitWithAck('place boats randomly', {'boats': alreadyPlacedBoats}, ack: (res) =>
+      completer.complete(RandomBoatsResponse(
+          _getBoatListFromDynamic(res[0]), 
+          _getBoatListFromDynamic(res[1])))
+    );
+    return completer.future;
+  }
+  
+  List<Boat> _getBoatListFromDynamic(dynamic data) =>
+    List<dynamic>.from(data).map((boat) => Boat.fromJson(boat)).toList();
+  
 
   Stream<void> get onOpponentPlacedBoats => _opponentPlacedController.stream;
 }

@@ -11,12 +11,15 @@ export class RandomBoatGenerator {
             const boatsPlaced = userBoard.boats.filter(boat => boat.boatType == boatType[0]).length;
             for (let i = 0; i < boatType[1].quantity - boatsPlaced; i++) {
                 let neighbours: Point[] = [];
+                let rotation = 0;
                 let point: Point = new Point(0, 0);
                 while(neighbours.length == 0) {
                     point = this.getValidRandomPoint(userBoard);
-                    neighbours = this.getValidNeighbourPoints(point, boatType[1].height - 1, userBoard);
+                    const result = this.getValidNeighbourPoints(point, boatType[1].height - 1, userBoard);
+                    neighbours = result.points;
+                    rotation = result.rotationIndex;
                 }
-                boats.push(new Boat(point, [point, ...neighbours], 0, boatType[0]))
+                boats.push(new Boat(this.randomRange(0, 100000).toString(), point, neighbours, rotation, boatType[0]))
             }
             
         }
@@ -31,36 +34,36 @@ export class RandomBoatGenerator {
         return point;
     }
 
-    getValidNeighbourPoints(point: Point, quantity: number, userBoard: UserBoard): Point[] {
+    getValidNeighbourPoints(point: Point, quantity: number, userBoard: UserBoard): {points: Point[], rotationIndex: number} {
         const rotations = [0, 1, 2, 3];
         rotations.sort(() => Math.random() - 0.5);
         let points: Point[] = [];
         for (let rotation of rotations) {
             points = this.generatePoints(point, quantity, userBoard, rotation);
-            if(points.length > 0) return points;
+            if(points.length > 0) return {points: points, rotationIndex: rotation};
         }
-        return [];
+        return {points: [], rotationIndex: 0};
     }
 
-    generatePoints(point: Point, quantity: number, userBoard: UserBoard, rotation: number): Point[] {
+    generatePoints(pivot: Point, quantity: number, userBoard: UserBoard, rotation: number): Point[] {
         let points: Point[] = [];
-        for(let i = 1; i <= quantity; i++) {
+        for(let i = 0; i <= quantity; i++) {
             let newPoint: Point = new Point(0,0);
             switch (rotation) {
                 case 0:
-                    newPoint = new Point(point.row - i, point.column);
+                    newPoint = new Point(i, 0);
                     break;
                 case 1:
-                    newPoint = new Point(point.row, point.column - i);
+                    newPoint = new Point(0,   i);
                     break;
                 case 2:
-                    newPoint = new Point(point.row + i, point.column);
+                    newPoint = new Point(-i, 0);
                     break;
                 case 3:
-                    newPoint = new Point(point.row, point.column + i);
+                    newPoint = new Point(0, - i);
                     break;
             }
-            if(!userBoard.isPointOutsideBoard(newPoint) || userBoard.isPointOverlappingAnotherShip(newPoint)) {
+            if(userBoard.isPointOutsideBoard(newPoint.add(pivot)) || userBoard.isPointOverlappingAnotherShip(newPoint.add(pivot))) {
                 return [];
             }
             points.push(newPoint);

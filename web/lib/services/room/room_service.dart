@@ -26,10 +26,7 @@ class RoomService {
 
   static _startingBoatByType(BoatType type) {
     final baseBoat = Boat(
-      BoatID(generateRandomId()),
-      shoots: 0,
-      rotationIndex: 0,
-      sunken: false
+      id: generateRandomId(),
     );
 
     final smallTypePivot = Point(0, 0);

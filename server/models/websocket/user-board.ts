@@ -47,7 +47,7 @@ export class UserBoard {
     }
 
     private static isBoatShoot(boat: Boat, point: Point): boolean {
-        for (const boatPoints of boat.points) {
+        for (const boatPoints of boat.getGlobalPoints()) {
             if (point.equals(boatPoints)) {
                 boat.addShoot();
                 return true;
@@ -57,7 +57,7 @@ export class UserBoard {
     }
 
     private isBoatPlacementCorrect(boat: Boat): boolean {
-        for (const boatPoints of boat.points) {
+        for (const boatPoints of boat.getGlobalPoints()) {
             if (this.isPointOutsideBoard(boatPoints)) return false;
             if (this.isPointOverlappingAnotherShip(boatPoints)) return false;
         }
@@ -73,7 +73,7 @@ export class UserBoard {
 
     public isPointOverlappingAnotherShip(boatPoint: Point): boolean {
         for (let boatPlaced of this.boats) {
-            for (let point of boatPlaced.points) {
+            for (let point of boatPlaced.getGlobalPoints()) {
                 if (boatPoint.equals(point)) return true;
             }
         }

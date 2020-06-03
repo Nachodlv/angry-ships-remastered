@@ -19,5 +19,9 @@
     static fromJson(json: any): Point {
         return new Point(json.row, json.column);
     }
+
+    add(point: Point): Point {
+        return new Point(point.row + this.row, point.column + this.column);
+    }
 }
 
