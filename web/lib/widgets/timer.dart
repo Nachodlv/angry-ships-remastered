@@ -2,34 +2,64 @@
 
 import 'package:flutter/cupertino.dart';
 
-class Countdown extends StatefulWidget {
-  final Duration duration;
-  final Function onFinish;
+class CountDownController {
+  _CountdownState countdownState;
   
-  Countdown({@required this.duration, this.onFinish});
-  
-  @override
-  State<StatefulWidget> createState() {
-    return _CountdownState();
+  resetCountdown() {
+    countdownState?.resetCountdown();
   }
 }
 
-class _CountdownState extends State<Countdown> {
-  Duration currentDuration;
+class Countdown extends StatefulWidget {
+  final Duration duration;
+  final Function onFinish;
+  final CountDownController controller;
   
+  Countdown({@required this.duration, this.onFinish, CountDownController controller}): 
+        controller = controller ?? CountDownController();
+  
+  @override
+  State<StatefulWidget> createState() {
+    return _CountdownState(controller);
+  }
+  
+}
+
+class _CountdownState extends State<Countdown> {
+  Duration _currentDuration;
+  Timer _timer;
+  final CountDownController controller;
+  
+  _CountdownState(this.controller) {
+    controller.countdownState = this;
+  }
   
   @override
   void initState() {
     super.initState();
-    print("Duration: ${widget.duration.toString()}");
-    currentDuration = widget.duration;
-    int lastCall = DateTime.now().millisecondsSinceEpoch;
-    Timer.periodic(Duration(seconds: 1), (timer) { 
-      int deltaTime = DateTime.now().millisecondsSinceEpoch - lastCall;
-      currentDuration -= Duration(milliseconds: deltaTime);
-      if(currentDuration.inSeconds <= 0) {
+    _startCountdown();
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Text(_currentDuration.inSeconds.toString());
+  }
+  
+  resetCountdown() {
+    _startCountdown();
+  }
+  
+  _startCountdown() {
+    _currentDuration = widget.duration;
+    int lastCall = DateTime.now().microsecondsSinceEpoch;
+    final interval = Duration(seconds: 1);
+    _timer = Timer.periodic(interval, (timer) {
+      int deltaTime = DateTime.now().microsecondsSinceEpoch - lastCall;
+      print('Last call: $lastCall, Delta time: $deltaTime');
+      _currentDuration -= interval;
+      if(_currentDuration.inSeconds <= 0) {
         timer.cancel();
-        currentDuration = Duration(seconds: 0);
+        _currentDuration = Duration(seconds: 0);
         widget.onFinish?.call();
       }
       setState(() {
@@ -38,8 +68,10 @@ class _CountdownState extends State<Countdown> {
   }
   
   @override
-  Widget build(BuildContext context) {
-    return Text(currentDuration.inSeconds.toString());
+  void dispose() {
+    controller.countdownState = null;
+    _timer?.cancel();
+    super.dispose();
   }
   
 }

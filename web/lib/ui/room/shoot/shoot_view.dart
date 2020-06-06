@@ -31,8 +31,12 @@ class ShootView extends StatelessWidget {
             child: Column(
               children: [
                 Text("Time to shoot!"),
-                Countdown(duration: ShootViewModel.TURN_DURATION),
-                _randomShootSection(model),
+                if(model.myTurn) ...[
+                  Countdown(
+                    duration: ShootViewModel.TURN_DURATION, 
+                    controller: model.countdownController,), 
+                  _randomShootSection(model)
+                ]
               ],
             )
           )

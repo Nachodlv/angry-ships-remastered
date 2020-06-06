@@ -6,12 +6,14 @@ import 'package:web/data_structures/remote_data.dart';
 import 'package:web/models/point.dart';
 import 'package:web/models/websocket/shoot_response.dart';
 import 'package:web/services/websockets/shoot_ws_service.dart';
+import 'package:web/widgets/timer.dart';
 
 import '../../../global.dart';
 
 class ShootViewModel extends ChangeNotifier {
   static const TURN_DURATION = Duration(seconds: 5);
   final Socket socket;
+  final CountDownController countdownController = CountDownController();
   
   bool myTurn = false;
   
@@ -23,7 +25,8 @@ class ShootViewModel extends ChangeNotifier {
 
   RemoteData<String, Point> onShoot = RemoteData.notAsked();
 
-  ShootViewModel({@required this.socket, @required bool firstTurn}): myTurn = firstTurn;
+  ShootViewModel({@required this.socket, @required bool firstTurn}): 
+        myTurn = firstTurn;
   
   init() {
     _shootWsService.startListeningToOpponentShoots(socket);
@@ -36,6 +39,7 @@ class ShootViewModel extends ChangeNotifier {
     onTurnStart =
         _shootWsService.onTurnStart.listen((_) {
           myTurn = true;
+          countdownController.resetCountdown();
           notifyListeners();
         });
     
@@ -78,6 +82,7 @@ class ShootViewModel extends ChangeNotifier {
   void dispose() {
     onOpponentShoot.cancel();
     onTurnStart.cancel();
+    onTurnTimeout.cancel();
     super.dispose();
   }
 }
