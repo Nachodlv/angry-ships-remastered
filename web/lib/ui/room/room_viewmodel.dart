@@ -1,26 +1,20 @@
 import 'dart:async';
 
-import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart';
-import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
-import 'package:web/models/boat.dart';
 import 'package:web/models/message.dart';
-import 'package:web/models/point.dart';
 import 'package:web/models/room.dart';
 import 'package:web/models/websocket/room_ready_response.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/room/room_service.dart';
 import 'package:web/services/user/user_service.dart';
-import 'package:web/services/websockets/boat_placement_ws_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
-import 'package:web/services/websockets/shoot_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
 import 'package:web/ui/home/home_view.dart';
 
@@ -34,12 +28,13 @@ class RoomViewModel extends ChangeNotifier {
   User opponent;
   Socket socket;
   Room room;
+  bool boatsPlaced = false;
+  bool firstTurn = false;
+  
   StreamSubscription<void> onRoomClosedSub;
   StreamSubscription<String> onErrorSocketSub;
   StreamSubscription<Message> onMessageSub;
   StreamSubscription<RoomReadyResponse> onRoomReadySub;
-  StreamSubscription<Point> onOpponentShoot;
-  StreamSubscription<void> onTurnStart;
   TextEditingController textInputController;
 
   List<Message> messages = [];
@@ -49,7 +44,6 @@ class RoomViewModel extends ChangeNotifier {
   UserService _userService = locator<UserService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
-  ShootWsService _shootWsService = locator<ShootWsService>();
   SocketManager _socketManager = locator<SocketManager>();
   
   RoomViewModel({this.socket, this.roomId, this.credentials, this.userId}) {
@@ -92,19 +86,11 @@ class RoomViewModel extends ChangeNotifier {
       notifyListeners();
     });
 
-    _shootWsService.startListeningToOpponentShoots(socket);
-    _shootWsService.startListeningToTurnStart(socket);
-    
     onRoomReadySub = _roomWsService.onRoomReady.listen((roomReady) {
-      if(roomReady.firstUser == userId) {
-        print("I start playing!");
-        _shootWsService.makeShoot(socket, Point(1,1)).then((result) => print('Shoot made: ${result.toString()}'));
-      } else print("I don't start :(");
+      boatsPlaced = true;
+      firstTurn = roomReady.firstUser == userId;
+      notifyListeners();
     });
-
-    onOpponentShoot = _shootWsService.onOpponentShoot.listen((point) => print('Opponent shot at ${point.toString()}'));
-    
-    onTurnStart = _shootWsService.onTurnStart.listen((_) => print('It is my turn!'));
   }
     
   isMessageFromUser(Message msg) => userId == msg.userId;
@@ -123,14 +109,7 @@ class RoomViewModel extends ChangeNotifier {
     onRoomClosedSub.cancel();
     onErrorSocketSub.cancel();
     onMessageSub.cancel();
-    onRoomReadySub.cancel();
-    onTurnStart.cancel();
-    onOpponentShoot.cancel();
     super.dispose();
-  }
-  
-  finishPlacement() {
-    print("Boats placed");
   }
 
 }

@@ -9,6 +9,7 @@ import 'package:web/ui/room/boat_placement/boat_placement_view.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_viewmodel.dart';
 import 'package:web/ui/room/grid_view.dart';
 import 'package:web/ui/room/room_viewmodel.dart';
+import 'package:web/ui/room/shoot/shoot_view.dart';
 
 
 @immutable
@@ -43,11 +44,15 @@ class RoomView extends StatelessWidget {
                   children: [
                     Expanded(
                     flex: 9,
-                      child: BoatPlacementView(boatPlacementArgument: 
-                      BoatPlacementArgument(
-                          socket: model.socket, 
-                          finishBoatPlacement: model.finishPlacement),
-                      ),
+                      child: 
+                          model.boatsPlaced ?
+                              ShootView(arguments: ShootViewArguments(
+                                  socket: model.socket, 
+                                  firstTurn: model.firstTurn)) :
+                              BoatPlacementView(boatPlacementArgument: 
+                                BoatPlacementArgument(
+                                    socket: model.socket),
+                                ),
                     ),
                     Expanded(
                       flex: 1,

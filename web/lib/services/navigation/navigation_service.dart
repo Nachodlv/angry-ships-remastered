@@ -5,8 +5,10 @@ class NavigationService {
 
   @override
   Future navigateTo(String routeName, {arguments}) {
-    return _navigatorKey.currentState
-        .pushReplacementNamed(routeName, arguments: arguments);
+    if(_navigatorKey.currentState.canPop())
+      return _navigatorKey.currentState
+          .pushReplacementNamed(routeName, arguments: arguments);
+    else return _navigatorKey.currentState.pushNamed(routeName, arguments: arguments);
   }
 
 //  Future navigateTo(String routeName, {arguments}) {

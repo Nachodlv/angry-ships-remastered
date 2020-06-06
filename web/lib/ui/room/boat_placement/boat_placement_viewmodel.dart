@@ -1,4 +1,6 @@
-﻿import 'package:dartz/dartz.dart';
+﻿import 'dart:async';
+
+import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/data_structures/remote_data.dart';
@@ -9,25 +11,26 @@ import 'package:web/services/room/room_service.dart';
 import 'package:web/services/websockets/boat_placement_ws_service.dart';
 
 class BoatPlacementViewModel extends ChangeNotifier{
-  final Function finishBoatPlacement;
   final Socket socket;
 
   BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
-  RoomService _roomService = locator<RoomService>();
+  
+  StreamSubscription<void> _onOpponentPlacedBoats;
   
   RemoteData<String, Unit> opponentReadyData = RemoteData.notAsked();
   RemoteData<String, Unit> boatsPlacedData = RemoteData.notAsked();
   List<Boat> placedBoats = [];
   List<Boat> userBoats = RoomService.startingBoats;
   
-  BoatPlacementViewModel({@required this.finishBoatPlacement, @required this.socket});
+  BoatPlacementViewModel({@required this.socket});
   
   init() {
     _boatPlacementWsService.startListeningToOpponentPlaced(socket);
     _setOpponentReadyData(RemoteData.loading());
 
-    _boatPlacementWsService.onOpponentPlacedBoats.listen((_) =>
-        _setOpponentReadyData(RemoteData<String, Unit>.success(unit)));
+    _onOpponentPlacedBoats = _boatPlacementWsService.onOpponentPlacedBoats.listen((_) {
+        _setOpponentReadyData(RemoteData<String, Unit>.success(unit));
+    });
   }
 
   void _setOpponentReadyData(RemoteData<String, Unit> remoteData) {
@@ -43,7 +46,9 @@ class BoatPlacementViewModel extends ChangeNotifier{
     }
     boatsPlacedData = RemoteData.loading();
     _boatPlacementWsService.placeBoats(placedBoats, socket).then((boats) {
-      if(boats.length == 0) boatsPlacedData = RemoteData.success(unit);
+      if(boats.length == 0) {
+        boatsPlacedData = RemoteData.success(unit);
+      }
       else {
         boatsPlacedData = RemoteData.error("Boats not placed correctly");
         boats.forEach((boat) { placedBoats.removeWhere((element) => boat.id == element.id); });
@@ -96,10 +101,11 @@ class BoatPlacementViewModel extends ChangeNotifier{
     });
     notifyListeners();
   }
+  
 
   @override
   void dispose() {
-    
+    _onOpponentPlacedBoats.cancel();
     super.dispose();
   }
 

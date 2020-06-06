@@ -7,10 +7,9 @@ import 'package:web/ui/room/grid_view.dart';
 @immutable
 class BoatPlacementArgument {
   final Socket socket;
-  final Function finishBoatPlacement;
 
   BoatPlacementArgument(
-      {@required this.socket, @required this.finishBoatPlacement});
+      {@required this.socket});
 }
 
 class BoatPlacementView extends StatelessWidget {
@@ -22,9 +21,7 @@ class BoatPlacementView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<BoatPlacementViewModel>.reactive(
         viewModelBuilder: () => BoatPlacementViewModel(
-            socket: this.boatPlacementArgument.socket,
-            finishBoatPlacement:
-                this.boatPlacementArgument.finishBoatPlacement),
+            socket: this.boatPlacementArgument.socket),
         onModelReady: (model) => model.init(),
         builder: (context, model, child) => 
             Column(

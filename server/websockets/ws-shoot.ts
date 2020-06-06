@@ -32,7 +32,7 @@ export class WsShoot {
     }
     
     onRandomShootMade(socket: any) {
-        socket.on('random shoot', (_: any, ack: (shooResult: ShootResult) => void) => {
+        socket.on('random shoot', (ack: (shooResult: ShootResult) => void) => {
             const userId = WsConnection.getUserId(socket);
             const room = this.roomService.getRoomByUserId(userId);
             if(room) {
@@ -50,7 +50,7 @@ export class WsShoot {
     emitTurn(room: Room, user: UserInRoom) {
         const userBoard = this.userBoardService.getUserBoardByUserId(user.userId);
         if(userBoard) {
-            userBoard.turnTimeout = setTimeout(() => this.turnTimeOut(room, user), Room.SECONDS_PER_TURN)
+            userBoard.turnTimeout = setTimeout(() => this.turnTimeOut(room, user), Room.SECONDS_PER_TURN * 1000)
         }
         console.log(`User ${user.userId} turn`)
         io.to(user.socketId).emit('start turn');
@@ -59,7 +59,10 @@ export class WsShoot {
     private turnTimeOut(room: Room, user: UserInRoom) {
         const shootResult = this.makeRandomShoot(room, user.userId);
         if(shootResult) {
+            console.log(`User ${user.userId} shoot. ${shootResult.toString()}`)
+            console.log(`User ${user.userId} turn timeout`)
             io.to(user.socketId).emit('turn timeout', shootResult);
+            this.emitTurn(room, this.roomService.nextTurn(room));
         }
     }
     
