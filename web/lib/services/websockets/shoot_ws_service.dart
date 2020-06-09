@@ -5,7 +5,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:web/models/websocket/shoot_response.dart';
 
 class ShootWsService {
-  final StreamController<Point> _opponentShootController;
+  final StreamController<ShootResponse> _opponentShootController;
   final StreamController<void> _startTurnController;
   final StreamController<ShootResponse> _timeoutTurnController;
 
@@ -16,7 +16,7 @@ class ShootWsService {
 
   void startListeningToOpponentShoots(IO.Socket socket) {
     socket.on('opponent shoot',
-        (shoot) => _opponentShootController.add(Point.fromJson(shoot)));
+        (shoot) => _opponentShootController.add(ShootResponse.fromJson(shoot)));
   }
 
   void startListeningToTurnStart(IO.Socket socket) {
@@ -45,7 +45,7 @@ class ShootWsService {
     return completer.future;
   }
 
-  Stream<Point> get onOpponentShoot => _opponentShootController.stream;
+  Stream<ShootResponse> get onOpponentShoot => _opponentShootController.stream;
   Stream<void> get onTurnStart => _startTurnController.stream;
   Stream<ShootResponse> get onTimeoutTurn => _timeoutTurnController.stream;
 }

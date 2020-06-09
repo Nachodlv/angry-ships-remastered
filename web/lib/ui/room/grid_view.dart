@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:dartz/dartz.dart';
 import 'package:extended_math/extended_math.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,6 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:web/global.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/models/point.dart';
+import 'package:web/models/shoot.dart';
+import 'package:web/models/websocket/shoot_response.dart';
 import 'package:web/widgets/boat_draggable.dart';
 
 class BoatBucket extends StatelessWidget {
@@ -62,28 +65,40 @@ class BoatBucket extends StatelessWidget {
 
 class Grid extends StatelessWidget {
   final List<Boat> placedBoats;
+  final List<Boat> sunkenBoats;
+  final List<ShootResponse> shoots;
   final bool Function(Boat, Point) isBoatAcceptableInGrid;
   final Function(Boat, Point) onAcceptBoatInGrid;
+  final Function(Point) onGridClicked;
   final double tileSize;
   final double gridSize;
 
   Grid(
       {this.placedBoats = const [],
+        this.shoots = const [],
+        this.sunkenBoats = const [],
       @required this.tileSize,
-      @required this.isBoatAcceptableInGrid,
-      @required this.onAcceptBoatInGrid})
-      : gridSize = tileSize * kTilesPerRow;
+      bool Function(Boat, Point) isBoatAcceptableInGrid,
+      Function(Boat, Point) onAcceptBoatInGrid,
+      Function(Point) onGridClicked})
+      : gridSize = tileSize * kTilesPerRow, 
+        isBoatAcceptableInGrid = isBoatAcceptableInGrid ?? ((_, __) => true), 
+        onAcceptBoatInGrid = onAcceptBoatInGrid ?? ((_, __) => Unit), 
+        onGridClicked = onGridClicked ?? ((_) => Unit);
 
   @override
   Widget build(BuildContext context) {
     final dragTargetFromPoint = (Point point) => DragTarget<Boat>(
-          builder: (context, candidateData, rejectedData) => Container(
-            decoration: BoxDecoration(
-                border: Border.all(
-                  color: Colors.black,
-                  width: 1,
-                ),
-                color: Colors.blue),
+          builder: (context, candidateData, rejectedData) => GestureDetector(
+            onTap: () => onGridClicked(point),
+            child: Container(
+              decoration: BoxDecoration(
+                  border: Border.all(
+                    color: Colors.black,
+                    width: 1,
+                  ),
+                  color: Colors.blue),
+            ),
           ),
           onAccept: (boat) => onAcceptBoatInGrid(boat, point),
           onWillAccept: (boat) => isBoatAcceptableInGrid(boat, point),
@@ -102,27 +117,49 @@ class Grid extends StatelessWidget {
       children: targets,
     );
 
-    final placedBoatsLayer = placedBoats.map((boat) {
-      return Positioned(
-          child: boat.asWidget(tileSize),
-          left: tileSize * boat.pivot.column,
-          top: tileSize * boat.pivot.row);
-    });
 
-    return Padding(
-        padding: EdgeInsets.all(30),
-        child: Container(
+    return Container(
           height: gridSize,
           width: gridSize,
           child: Stack(
             children: [
               Container(
                   height: gridSize, width: gridSize, child: dragTargetsLayer),
-              ...placedBoatsLayer,
-              // TODO Paint to-be-placed boats
+              ..._getPlacedBoats(placedBoats, Colors.red),
+              ..._getPlacedBoats(sunkenBoats, Colors.red[900]),
+              ..._getShoots()
             ],
           ),
-        ));
+        );
+  }
+  
+  Iterable<Widget> _getPlacedBoats(List<Boat> boats, Color color) =>
+      boats.map((boat) =>
+        Positioned(
+            child: boat.asWidget(tileSize, color),
+            left: tileSize * boat.pivot.column,
+            top: tileSize * boat.pivot.row));
+  
+  
+    
+  
+  Iterable<Widget> _getShoots() {
+    return shoots.map((shoot) {
+      return Positioned(
+      left: tileSize * shoot.point.column,
+        top: tileSize * shoot.point.row,
+      child: Container(
+        child: SizedBox(
+            height: tileSize,
+            width: tileSize,
+            child: Padding(
+              padding: EdgeInsets.all(tileSize * 0.2),
+              child: Container(
+                color: shoot.boatShoot ? Colors.green : Colors.blueGrey,
+              ),
+            )),
+      ),
+    );});
   }
 }
 
@@ -141,9 +178,9 @@ extension BoatView on Boat {
         ));
   }
 
-  Widget asWidget(double tileSize) {
+  Widget asWidget(double tileSize, Color color) {
     return Container(
-      child: getBox(tileSize, Colors.red),
+      child: getBox(tileSize, color),
     );
   }
 }

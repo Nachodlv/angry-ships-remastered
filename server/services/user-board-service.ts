@@ -43,18 +43,21 @@ export class UserBoardService {
     
     makeShoot(roomId: string, userId: string, shoot: Point): ShootResult {
         const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
+        let shootResult = new ShootResult(false, shoot);
         for (let userBoard of userBoards) {
-            if(userBoard.userId != userId) return userBoard.addShoot(shoot);
+            if(userBoard.userId != userId) shootResult = userBoard.addShoot(shoot);
             else if(userBoard.turnTimeout) clearTimeout(userBoard.turnTimeout);
         }
-        return new ShootResult(false, shoot);
+        return shootResult;
     }
     
-    makeRandomShoot(userId: string): ShootResult {
-        const userBoard = this.userBoarProvider.getUserBoardByUserId(userId);
-        if(userBoard) {
-            return userBoard.addRandomShoot();
+    makeRandomShoot(roomId: string, userId: string): ShootResult {
+        const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
+        let shootResult = new ShootResult(false, new Point(0, 0));
+        for (let userBoard of userBoards) {
+            if(userBoard.userId != userId) shootResult = userBoard.addRandomShoot();
+            else if(userBoard.turnTimeout) clearTimeout(userBoard.turnTimeout);
         }
-        return new ShootResult(false, new Point(0, 0));
+        return shootResult;
     }
 }

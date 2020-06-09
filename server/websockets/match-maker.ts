@@ -2,7 +2,7 @@
 import {WsConnection} from "./ws-connection";
 import {RoomService} from "../services/room-service";
 import {UserBoardService} from "../services/user-board-service";
-import {Room} from "../models/websocket/room";
+import {RoomState} from "../models/websocket/room";
 
 export class MatchMaker {
     
@@ -29,6 +29,7 @@ export class MatchMaker {
             if(room.started || room.users.length == 0) {
                 if(room.started) this.userBoardService.deleteUserBoardsByRoomId(room.id);
                 io.to(room.id).emit('room closed');
+                room.roomState = RoomState.END;
                 this.roomService.deleteRoom(room.id);
                 console.log(`Room ${room.id} closed`);
             }

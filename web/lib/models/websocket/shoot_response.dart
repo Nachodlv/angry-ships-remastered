@@ -7,16 +7,18 @@ class ShootResponse {
 //  public isValid: boolean, public boatShoot: Boat | undefined = undefined
 
   final bool isValid;
-  final Option<Boat> boatShoot;
+  final bool boatShoot;
   final Point point;
+  final Option<Boat> boatSunken;
 
-  ShootResponse({@required this.isValid, @required this.point, this.boatShoot});
+  ShootResponse({@required this.isValid, @required this.point, this.boatShoot, this.boatSunken});
 
   factory ShootResponse.fromJson(Map<String, dynamic> json) {
-    final boatShoot = json['boatShoot'];
+    final boatSunken = json['boatSunken'];
     return ShootResponse(
         isValid: json['isValid'],
         point: Point.fromJson(json['point']),
-        boatShoot: boatShoot != null ? Some(Boat.fromJson(boatShoot)) : None());
+        boatShoot: json['boatShoot'],
+        boatSunken:  boatSunken != null ? Some(Boat.fromJson(boatSunken)) : None());
   }
 }

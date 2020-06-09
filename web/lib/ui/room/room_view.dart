@@ -47,10 +47,12 @@ class RoomView extends StatelessWidget {
                       child: 
                           model.boatsPlaced ?
                               ShootView(arguments: ShootViewArguments(
+                                  boats: model.boats,
                                   socket: model.socket, 
                                   firstTurn: model.firstTurn)) :
                               BoatPlacementView(boatPlacementArgument: 
                                 BoatPlacementArgument(
+                                    finishPlacingBoats: model.finishPlacingBoats,
                                     socket: model.socket),
                                 ),
                     ),

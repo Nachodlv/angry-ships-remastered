@@ -6,6 +6,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
+import 'package:web/models/boat.dart';
 import 'package:web/models/message.dart';
 import 'package:web/models/room.dart';
 import 'package:web/models/websocket/room_ready_response.dart';
@@ -30,6 +31,7 @@ class RoomViewModel extends ChangeNotifier {
   Room room;
   bool boatsPlaced = false;
   bool firstTurn = false;
+  List<Boat> boats = new List();
   
   StreamSubscription<void> onRoomClosedSub;
   StreamSubscription<String> onErrorSocketSub;
@@ -101,6 +103,11 @@ class RoomViewModel extends ChangeNotifier {
     _chatWsService.sendMessage(socket, message);
     messages.add(message);
     textInputController.clear();
+    notifyListeners();
+  }
+  
+  finishPlacingBoats(List<Boat> boats) {
+    this.boats = boats;
     notifyListeners();
   }
   

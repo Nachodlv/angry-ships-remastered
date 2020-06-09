@@ -1,15 +1,17 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
+import 'package:web/models/boat.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_viewmodel.dart';
 import 'package:web/ui/room/grid_view.dart';
 
 @immutable
 class BoatPlacementArgument {
   final Socket socket;
+  final Function(List<Boat>) finishPlacingBoats;
 
   BoatPlacementArgument(
-      {@required this.socket});
+      {@required this.socket, @required this.finishPlacingBoats});
 }
 
 class BoatPlacementView extends StatelessWidget {
@@ -21,7 +23,8 @@ class BoatPlacementView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<BoatPlacementViewModel>.reactive(
         viewModelBuilder: () => BoatPlacementViewModel(
-            socket: this.boatPlacementArgument.socket),
+            socket: this.boatPlacementArgument.socket, 
+            finishPlacingBoats: this.boatPlacementArgument.finishPlacingBoats),
         onModelReady: (model) => model.init(),
         builder: (context, model, child) => 
             Column(

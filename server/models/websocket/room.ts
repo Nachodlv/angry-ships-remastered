@@ -27,6 +27,7 @@ export class UserInRoom {
 export enum RoomState {
     PLACING_BOATS,
     PLAYING,
-    ENDING
+    ENDING,
+    END
 }
 

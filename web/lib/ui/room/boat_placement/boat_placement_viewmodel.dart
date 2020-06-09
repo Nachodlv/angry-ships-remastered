@@ -13,7 +13,8 @@ import 'package:web/widgets/boat_draggable.dart';
 
 class BoatPlacementViewModel extends ChangeNotifier{
   final Socket socket;
-
+  final Function(List<Boat>) finishPlacingBoats;
+  
   BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
   
   StreamSubscription<void> _onOpponentPlacedBoats;
@@ -24,13 +25,12 @@ class BoatPlacementViewModel extends ChangeNotifier{
   List<Boat> userBoats;
   List<BoatDraggableController> controllers;
   
-  BoatPlacementViewModel({@required this.socket}) {
+  BoatPlacementViewModel({@required this.socket, @required this.finishPlacingBoats}) {
     userBoats = RoomService.startingBoats;
     controllers = userBoats.map((_) => BoatDraggableController()).toList();
   }
   
   init() {
-    if(socket == null) return; // TODO remove
     _boatPlacementWsService.startListeningToOpponentPlaced(socket);
     _setOpponentReadyData(RemoteData.loading());
 
@@ -53,6 +53,7 @@ class BoatPlacementViewModel extends ChangeNotifier{
     boatsPlacedData = RemoteData.loading();
     _boatPlacementWsService.placeBoats(placedBoats, socket).then((boats) {
       if(boats.length == 0) {
+        finishPlacingBoats(placedBoats);
         boatsPlacedData = RemoteData.success(unit);
       }
       else {
@@ -100,6 +101,7 @@ class BoatPlacementViewModel extends ChangeNotifier{
       placedBoats.addAll(res.boats);
       userBoats = [];
       boatsPlacedData = RemoteData.success(unit);
+      finishPlacingBoats(placedBoats);
       notifyListeners();
     }).catchError((errorMessage) {
       boatsPlacedData = RemoteData.error(errorMessage);

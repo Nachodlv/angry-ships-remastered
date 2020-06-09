@@ -55,7 +55,6 @@ class _CountdownState extends State<Countdown> {
     final interval = Duration(seconds: 1);
     _timer = Timer.periodic(interval, (timer) {
       int deltaTime = DateTime.now().microsecondsSinceEpoch - lastCall;
-      print('Last call: $lastCall, Delta time: $deltaTime');
       _currentDuration -= interval;
       if(_currentDuration.inSeconds <= 0) {
         timer.cancel();

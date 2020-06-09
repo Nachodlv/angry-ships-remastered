@@ -57,7 +57,7 @@ export class UserBoard {
         this.shoots.push(point);
         for (const boat of this.boats) {
             if (UserBoard.isBoatShoot(boat, point))
-                return new ShootResult(true, point, boat);
+                return new ShootResult(true, point, true, boat.sunken ? boat : undefined);
         }
         return new ShootResult(true, point);
     }
@@ -105,7 +105,8 @@ export class UserBoard {
 }
 
 export class ShootResult {
-    constructor(public isValid: boolean, public point: Point, public boatShoot: Boat | undefined = undefined) {
+    constructor(public isValid: boolean, public point: Point, public boatShoot: boolean = false, 
+                public boatSunken: Boat | undefined = undefined) {
     }
 
     toString(): string {

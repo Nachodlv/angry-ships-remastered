@@ -3,6 +3,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/data_structures/remote_data.dart';
+import 'package:web/models/boat.dart';
 import 'package:web/models/point.dart';
 import 'package:web/models/websocket/shoot_response.dart';
 import 'package:web/services/websockets/shoot_ws_service.dart';
@@ -16,10 +17,14 @@ class ShootViewModel extends ChangeNotifier {
   final CountDownController countdownController = CountDownController();
   
   bool myTurn = false;
+  List<ShootResponse> selfShoots = new List();
+  List<ShootResponse> opponentShoots = new List();
+  List<Boat> selfSunkenBoats = new List();
+  List<Boat> opponentSunkenBoats = new List();
   
   ShootWsService _shootWsService = locator<ShootWsService>();
 
-  StreamSubscription<Point> onOpponentShoot;
+  StreamSubscription<ShootResponse> onOpponentShoot;
   StreamSubscription<void> onTurnStart;
   StreamSubscription<ShootResponse> onTurnTimeout;
 
@@ -34,7 +39,11 @@ class ShootViewModel extends ChangeNotifier {
     _shootWsService.startListeningToTurnTimeOut(socket);
 
     onOpponentShoot = _shootWsService.onOpponentShoot
-        .listen((point) => print('Opponent shot at ${point.toString()}'));
+        .listen((response) {
+          opponentShoots.add(response);
+          response.boatSunken.map((boat) => selfSunkenBoats.add(boat));
+          notifyListeners();
+        });
 
     onTurnStart =
         _shootWsService.onTurnStart.listen((_) {
@@ -67,6 +76,8 @@ class ShootViewModel extends ChangeNotifier {
   _handleShootResponse(ShootResponse response) {
     if (response.isValid) {
       onShoot = RemoteData.success(response.point);
+      selfShoots.add(response);
+      response.boatSunken.map((boat) => opponentSunkenBoats.add(boat));
       myTurn = false;
     } else
       onShoot = RemoteData.error("Shoot point not valid");
@@ -85,4 +96,5 @@ class ShootViewModel extends ChangeNotifier {
     onTurnTimeout.cancel();
     super.dispose();
   }
+  
 }
