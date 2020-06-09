@@ -1,106 +1,98 @@
+import 'dart:async';
+
 import 'package:extended_math/extended_math.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:web/global.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/models/point.dart';
-import 'package:web/utils.dart';
+import 'package:web/widgets/boat_draggable.dart';
 
-
-class Grid extends StatelessWidget {
-  final List<Boat> userBoats;
-  final List<Boat> placedBoats;
+class BoatBucket extends StatelessWidget {
   final bool Function(Boat) isBoatAcceptableInBucket;
-  final bool Function(Boat) isBoatAcceptableInGrid;
+  final List<Boat> userBoats;
   final Function(Boat boat) onAcceptBoatInBucket;
-  final Function(Boat, Point) onAcceptBoatInGrid;
-  
-  Grid({
-    this.userBoats = const [], 
-    this.placedBoats = const [], 
-    @required this.isBoatAcceptableInBucket,
-    @required this.isBoatAcceptableInGrid,
-    @required this.onAcceptBoatInBucket,
-    @required this.onAcceptBoatInGrid});
+  final double tileSize;
+  final FocusNode _focusNode = FocusNode();
+  final List<BoatDraggableController> controllers;
 
+  BoatBucket({
+    @required this.isBoatAcceptableInBucket, 
+    this.userBoats = const [], 
+    @required this.controllers,
+    @required this.onAcceptBoatInBucket,
+    @required this.tileSize});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(color: Colors.green),
-      child: Row(
-        children: [
-          Expanded(
-              flex: 2,
-              child: _paintBoatBucket(context,
-                  userBoats,
-                  onAcceptBoatInBucket, isBoatAcceptableInBucket)
-          ),
-          Expanded(
-              flex: 8,
-              child: _paintGrid(context,
-                  placedBoats,
-                  onAcceptBoatInGrid, isBoatAcceptableInGrid)
-          ),
-        ],
-      ),
-    );
-  }
-  
-  _paintBoatBucket(BuildContext context, List<Boat> userBoats,
-      void Function(Boat) onAcceptBoatInBucket,
-      bool Function(Boat) isBoatAcceptableInBucket) {
-  
-    final contextSize = MediaQuery.of(context).size;
-    final tileSide = calculateTileSide(contextSize);
-  
+    FocusScope.of(context).requestFocus(_focusNode);
+
     return Card(
-      child: Container(
-          height: double.infinity,
+        child: Container(
+      height: double.infinity,
+      child: RawKeyboardListener(
+          onKey: (keyEvent) {
+            if (keyEvent.runtimeType.toString() != 'RawKeyDownEvent') return;
+            if (keyEvent.data.physicalKey.debugName == "Key R")
+              controllers.forEach((element) => element.rotate());
+          },
+          focusNode: _focusNode,
           child: DragTarget<Boat>(
             builder: (context, candidateData, rejectedData) => GridView.count(
-              crossAxisCount: 2,
-              mainAxisSpacing: 2.0,
-              crossAxisSpacing: 2.0,
-              padding: const EdgeInsets.all(5.0),
-              children:
-              userBoats.map((e) => e.asDraggable(tileSide)).toList()
-              ,
-            ),
+                crossAxisCount: 2,
+                mainAxisSpacing: 2.0,
+                crossAxisSpacing: 2.0,
+                padding: const EdgeInsets.all(5.0),
+                children: userBoats.map((boat) {
+                  final index = userBoats.indexOf(boat);
+                  return BoatDraggable(
+                    boat,
+                    tileSize,
+                    key: ValueKey(boat.id),
+                    controller: controllers[index],
+                  );
+                }).toList()),
             onAccept: onAcceptBoatInBucket,
             onWillAccept: isBoatAcceptableInBucket,
-          )
-      ),
-    );
+          )),
+    ));
   }
+}
 
-  _paintGrid(BuildContext context,
-      List<Boat> placedBoats,
-      void Function(Boat, Point) onAcceptBoatInGrid,
-      bool Function(Boat) isBoatAcceptableInGrid) {
+class Grid extends StatelessWidget {
+  final List<Boat> placedBoats;
+  final bool Function(Boat, Point) isBoatAcceptableInGrid;
+  final Function(Boat, Point) onAcceptBoatInGrid;
+  final double tileSize;
+  final double gridSize;
 
-    final contextSize = MediaQuery.of(context).size;
-    final tileSide = calculateTileSide(contextSize);
-    final gridSide = tileSide * kTilesPerRow;
+  Grid(
+      {this.placedBoats = const [],
+      @required this.tileSize,
+      @required this.isBoatAcceptableInGrid,
+      @required this.onAcceptBoatInGrid})
+      : gridSize = tileSize * kTilesPerRow;
 
+  @override
+  Widget build(BuildContext context) {
     final dragTargetFromPoint = (Point point) => DragTarget<Boat>(
-        builder: (context, candidateData, rejectedData) => Container(
-          decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 1,
-              ),
-              color: Colors.blue
+          builder: (context, candidateData, rejectedData) => Container(
+            decoration: BoxDecoration(
+                border: Border.all(
+                  color: Colors.black,
+                  width: 1,
+                ),
+                color: Colors.blue),
           ),
-        ),
-        onAccept: (Boat boat) => onAcceptBoatInGrid(boat, point),
-        onWillAccept: isBoatAcceptableInGrid
-    );
+          onAccept: (boat) => onAcceptBoatInGrid(boat, point),
+          onWillAccept: (boat) => isBoatAcceptableInGrid(boat, point),
+        );
 
     // Obviously doesn't belongs here
     List<DragTarget> targets = [];
-    for(int i = 0; i < kTilesPerRow; i++) {
-      for(int j = 0; j < kTilesPerRow; j++) {
+    for (int i = 0; i < kTilesPerRow; i++) {
+      for (int j = 0; j < kTilesPerRow; j++) {
         targets.add(dragTargetFromPoint(Point(i, j)));
       }
     }
@@ -111,65 +103,47 @@ class Grid extends StatelessWidget {
     );
 
     final placedBoatsLayer = placedBoats.map((boat) {
-      final coordinatesToDistance = {
-        'left': tileSide * boat.pivot.column,
-        'top': tileSide * boat.pivot.row,
-      };
-
       return Positioned(
-          child: boat.asWidget(tileSide),
-          left: coordinatesToDistance['left'],
-          top: coordinatesToDistance['top']
-      );
+          child: boat.asWidget(tileSize),
+          left: tileSize * boat.pivot.column,
+          top: tileSize * boat.pivot.row);
     });
 
     return Padding(
-      padding: EdgeInsets.all(30),
-      child: Container(
-        height: gridSide,
-        width: gridSide,
-        child: Stack(
-          children: [
-            dragTargetsLayer,
-            ...placedBoatsLayer,
-            // TODO Paint to-be-placed boats
-          ],
-        ),
-      ),
-    );
+        padding: EdgeInsets.all(30),
+        child: Container(
+          height: gridSize,
+          width: gridSize,
+          child: Stack(
+            children: [
+              Container(
+                  height: gridSize, width: gridSize, child: dragTargetsLayer),
+              ...placedBoatsLayer,
+              // TODO Paint to-be-placed boats
+            ],
+          ),
+        ));
   }
-
 }
 
 
-
 extension BoatView on Boat {
-  Widget asDraggable(double tileSide) {
-    final box = (Color a) => SizedBox(
-      height: tileSide,
-      width: tileSide,
-      child: Container(color: a,)
-    );
-
-    return Draggable<Boat>(
-      data: this,
-      feedback: box(Colors.blue),
-      child: Column(
-        children: 
-          this.points.map((p) => box(Colors.amber)).toList()
-      ),
-    );
+  Widget asDraggable(double tileSize) {
+    return BoatDraggable(this, tileSize);
   }
 
-  Widget asWidget(double tileSide){
-    final box = (Color a) => SizedBox(
-      height: tileSide,
-      width: tileSide,
-      child: Container(color: a,)
-    );
+  Widget getBox(double tileSize, Color color) {
+    return SizedBox(
+        height: rotationIndex == 0 ? tileSize * points.length : tileSize,
+        width: rotationIndex == 1 ? tileSize * points.length : tileSize,
+        child: Container(
+          color: color,
+        ));
+  }
 
+  Widget asWidget(double tileSize) {
     return Container(
-      child: box(Colors.red),
+      child: getBox(tileSize, Colors.red),
     );
   }
 }

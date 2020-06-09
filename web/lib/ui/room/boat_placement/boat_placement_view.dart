@@ -28,13 +28,30 @@ class BoatPlacementView extends StatelessWidget {
               children: [
                 Container(
                   height: MediaQuery.of(context).size.height * 0.6, 
-                  child: Grid(
-                    isBoatAcceptableInBucket: model.isBoatAcceptableInBucket, 
-                    isBoatAcceptableInGrid: model.isBoatAcceptableInGrid, 
-                    onAcceptBoatInBucket: model.onAcceptBoatInBucket, 
-                    onAcceptBoatInGrid: model.onAcceptBoatInGrid,
-                    userBoats: model.userBoats, 
-                    placedBoats: model.placedBoats,),
+                  child: Container(
+                    decoration: BoxDecoration(color: Colors.green),
+                    child: Row(
+                      children: [
+                        Expanded(
+                            flex: 2,
+                            child: BoatBucket(
+                              isBoatAcceptableInBucket: model.isBoatAcceptableInBucket, 
+                              onAcceptBoatInBucket: model.onAcceptBoatInBucket, 
+                              tileSize: 50, 
+                              controllers: model.controllers,
+                              userBoats: model.userBoats,)
+                        ),
+                        Expanded(
+                            flex: 8,
+                            child: Grid(
+                              onAcceptBoatInGrid: model.onAcceptBoatInGrid, 
+                              isBoatAcceptableInGrid: model.isBoatAcceptableInGrid, 
+                              tileSize: 50, 
+                              placedBoats: model.placedBoats,)
+                        ),
+                      ],
+                    ),
+                  )
                 ),
                 _placeBoatsSection(model, context)
               ],
@@ -69,7 +86,7 @@ class BoatPlacementView extends StatelessWidget {
 
 
   Widget _placeBoatsButton(Function placeBoats) =>
-      _button("Place buttons", placeBoats);
+      _button("Place boats", placeBoats);
 
   Widget _placeBoatsRandomly(Function randomBoats) =>
       _button("Place boats randomly", randomBoats);

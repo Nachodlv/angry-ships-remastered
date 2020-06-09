@@ -33,9 +33,8 @@ export class UserBoardService {
     }
     
     placeRandomBoats(userBoard: UserBoard): Boat[] {
-        const boats = new RandomBoatGenerator().getRandomBoats(userBoard);
-        boats.forEach(boat => userBoard.boats.push(boat));
-        return boats;
+        new RandomBoatGenerator().assignRandomBoats(userBoard);
+        return userBoard.boats;
     }
     
     areAllUserBoardsReady(roomId: string): boolean {

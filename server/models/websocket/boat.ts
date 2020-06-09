@@ -29,7 +29,9 @@ export class Boat {
     }
     
     getGlobalPoints(): Point[] {
-        return this.points.map(point => point.add(this.pivot));
+        if(this.rotationIndex == 0) return this.points.map(point => point.add(this.pivot));
+        else return this.points.map(point => 
+            new Point(this.pivot.row + point.column, this.pivot.column + point.row));
     }
 }
 

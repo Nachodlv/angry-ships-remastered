@@ -8,9 +8,9 @@ class Boat {
 
   final String id;
   final int shoots;
-  final int rotationIndex;
+  int rotationIndex;
+  Point pivot;
   final bool sunken;
-  final Point pivot;
   final List<Point> points;
   final BoatType boatType;
 
@@ -50,24 +50,11 @@ class Boat {
         'points': points.map((e) => e.toJson()).toList(),
         'boatType': boatType.index
       };
-
-  Boat copyWith({
-    String id,
-    int rotationIndex,
-    Point pivot,
-    BoatType boatType,
-    List<Point> shoots,
-    bool sunken,
-    List<Point> points,
-  }) {
-    return Boat(id: id ?? this.id,
-        rotationIndex: rotationIndex ?? this.rotationIndex,
-        pivot: pivot ?? this.pivot,
-        boatType: boatType ?? this.boatType,
-        shoots: shoots ?? this.shoots,
-        sunken: sunken ?? this.sunken,
-        points: points ?? this.points);
+  
+  List<Point> globalPoints({Point point})  {
+    final pointParam = point ?? pivot;
+    if(rotationIndex == 0) return points.map((p) => p + pointParam).toList();
+    else return points.map((p) => Point(pointParam.row + p.column, pointParam.column + p.row)).toList();
   }
-
 }
 enum BoatType { SMALL, NORMAL, BIG, EXTRA_BIG }

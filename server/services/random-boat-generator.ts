@@ -5,8 +5,7 @@ import {Point} from "../models/websocket/point";
 
 export class RandomBoatGenerator {
     
-    public getRandomBoats(userBoard: UserBoard): Boat[] {
-        const boats: Boat[] = [];
+    public assignRandomBoats(userBoard: UserBoard){
         for (let boatType of BoatChecker.quantitiesOfBoatType) {
             const boatsPlaced = userBoard.boats.filter(boat => boat.boatType == boatType[0]).length;
             for (let i = 0; i < boatType[1].quantity - boatsPlaced; i++) {
@@ -19,11 +18,10 @@ export class RandomBoatGenerator {
                     neighbours = result.points;
                     rotation = result.rotationIndex;
                 }
-                boats.push(new Boat(this.randomRange(0, 100000).toString(), point, neighbours, rotation, boatType[0]))
+                userBoard.boats.push(new Boat(this.randomRange(0, 100000).toString(), point, neighbours, rotation, boatType[0]))
             }
             
         }
-        return boats;
     }
 
     getValidRandomPoint(userBoard: UserBoard): Point {
@@ -35,7 +33,7 @@ export class RandomBoatGenerator {
     }
 
     getValidNeighbourPoints(point: Point, quantity: number, userBoard: UserBoard): {points: Point[], rotationIndex: number} {
-        const rotations = [0, 1, 2, 3];
+        const rotations = [0, 1];
         rotations.sort(() => Math.random() - 0.5);
         let points: Point[] = [];
         for (let rotation of rotations) {
@@ -48,24 +46,17 @@ export class RandomBoatGenerator {
     generatePoints(pivot: Point, quantity: number, userBoard: UserBoard, rotation: number): Point[] {
         let points: Point[] = [];
         for(let i = 0; i <= quantity; i++) {
-            let newPoint: Point = new Point(0,0);
-            switch (rotation) {
-                case 0:
-                    newPoint = new Point(i, 0);
-                    break;
-                case 1:
-                    newPoint = new Point(0,   i);
-                    break;
-                case 2:
-                    newPoint = new Point(-i, 0);
-                    break;
-                case 3:
-                    newPoint = new Point(0, - i);
-                    break;
+            const newPoint: Point = new Point(i,0);
+            let globalPoint: Point;
+            if(rotation == 0) {
+                globalPoint = newPoint.add(pivot);
+            } else {
+                globalPoint = new Point(pivot.row + newPoint.column, pivot.column + newPoint.row);
             }
-            if(userBoard.isPointOutsideBoard(newPoint.add(pivot)) || userBoard.isPointOverlappingAnotherShip(newPoint.add(pivot))) {
+            if(userBoard.isPointOutsideBoard(globalPoint) || userBoard.isPointOverlappingAnotherShip(globalPoint)) {
                 return [];
             }
+            
             points.push(newPoint);
         }
         return points;

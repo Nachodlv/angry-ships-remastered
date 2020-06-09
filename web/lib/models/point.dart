@@ -13,4 +13,16 @@
         'row': row,
         'column': column
       };
+  Point operator + (Point point) {
+    return Point(row + point.row, column + point.column);
+  }
+  
+  bool operator ==(dynamic point) {
+    if(!(point is Point)) return false;
+    return row == point.row && column == point.column;
+  }
+
+  @override
+  int get hashCode => super.hashCode;
+
 }

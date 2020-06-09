@@ -9,6 +9,7 @@ import 'package:web/models/boat.dart';
 import 'package:web/models/point.dart';
 import 'package:web/services/room/room_service.dart';
 import 'package:web/services/websockets/boat_placement_ws_service.dart';
+import 'package:web/widgets/boat_draggable.dart';
 
 class BoatPlacementViewModel extends ChangeNotifier{
   final Socket socket;
@@ -20,11 +21,16 @@ class BoatPlacementViewModel extends ChangeNotifier{
   RemoteData<String, Unit> opponentReadyData = RemoteData.notAsked();
   RemoteData<String, Unit> boatsPlacedData = RemoteData.notAsked();
   List<Boat> placedBoats = [];
-  List<Boat> userBoats = RoomService.startingBoats;
+  List<Boat> userBoats;
+  List<BoatDraggableController> controllers;
   
-  BoatPlacementViewModel({@required this.socket});
+  BoatPlacementViewModel({@required this.socket}) {
+    userBoats = RoomService.startingBoats;
+    controllers = userBoats.map((_) => BoatDraggableController()).toList();
+  }
   
   init() {
+    if(socket == null) return; // TODO remove
     _boatPlacementWsService.startListeningToOpponentPlaced(socket);
     _setOpponentReadyData(RemoteData.loading());
 
@@ -51,7 +57,7 @@ class BoatPlacementViewModel extends ChangeNotifier{
       }
       else {
         boatsPlacedData = RemoteData.error("Boats not placed correctly");
-        boats.forEach((boat) { placedBoats.removeWhere((element) => boat.id == element.id); });
+        boats.forEach((boat) => placedBoats.remove(boat));
         userBoats.addAll(boats);
       }
       notifyListeners();
@@ -63,34 +69,34 @@ class BoatPlacementViewModel extends ChangeNotifier{
   }
 
   void onAcceptBoatInGrid(Boat boat, Point point) {
-    final placedBoat = boat.copyWith(pivot: point);
-    placedBoats.add(placedBoat);
-    userBoats.removeWhere((b) => b.id == boat.id);
-    print('On ${point.row}, ${point.column}: Placed $boat!!!!!!');
+    boat.pivot = point;
+    placedBoats.add(boat);
+    userBoats.remove(boat);
     notifyListeners();
   }
 
   void onAcceptBoatInBucket(Boat boat) {
-    placedBoats.removeWhere((b) => b.id == boat.id);
-    userBoats.add(
-        boat.copyWith(
-            pivot: Point(0,0)
-        )
-    );
+    placedBoats.remove(boat);
+    userBoats.add(boat);
     notifyListeners();
   }
 
   bool isBoatAcceptableInBucket(Boat boat) =>
       placedBoats.where((b) => b.id == boat.id).isNotEmpty;
 
-  bool isBoatAcceptableInGrid(Boat boat) =>
-      userBoats.where((b) => b.id == boat.id).isNotEmpty;
-
+  bool isBoatAcceptableInGrid(Boat boat, Point point) {
+    if(boat.rotationIndex == 0 && point.row + boat.points.length > kTilesPerRow) return false;
+    if(boat.rotationIndex == 1 && point.column + boat.points.length > kTilesPerRow) return false;
+    if(_isOverlapping(boat, point)) return false;
+    return userBoats
+        .where((b) => b.id == boat.id)
+        .isNotEmpty;
+  }
 
   void placeBoatsRandomly() {
     boatsPlacedData = RemoteData.loading();
     _boatPlacementWsService.placeBoatsRandomly(placedBoats, socket).then((res) {
-      res.boatsWithErrors.forEach((boat) => placedBoats.removeWhere((element) => element.id == boat.id));
+      res.boatsWithErrors.forEach((boat) => placedBoats.remove(boat));
       placedBoats.addAll(res.boats);
       userBoats = [];
       boatsPlacedData = RemoteData.success(unit);
@@ -109,4 +115,15 @@ class BoatPlacementViewModel extends ChangeNotifier{
     super.dispose();
   }
 
+  bool _isOverlapping(Boat boat, Point pivot) {
+    for (var placeBoat in placedBoats) {
+      for (var point in placeBoat.globalPoints()) {
+        print('Placed boat point: (${point.row}, ${point.column})');
+        for (var possiblePoint in boat.globalPoints(point: pivot)) {
+          if(point == possiblePoint) return true;
+        }
+      }
+    }
+    return false;
+  }
 }
