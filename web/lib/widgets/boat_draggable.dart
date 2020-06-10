@@ -44,15 +44,12 @@ class _BoatDraggableState extends State<BoatDraggable> {
   @override
   Widget build(BuildContext context) {
     return Draggable<Boat>(
+      dragAnchor: DragAnchor.pointer,
       data: widget.boat,
-      onDragStarted: () {
-        dragging = true;
-        print('Start dragging');
-      },
-      onDragEnd: (_) {
-        dragging = false;
-        print('Stop dragging');
-      },
+      onDragStarted: () => dragging = true,
+      onDragEnd: (_) => dragging = false,
+      onDraggableCanceled: (_, __) => dragging = false,
+      onDragCompleted: () => dragging = false,
       feedback: StreamBuilder<Boat>(
           stream: _boatStream.stream,
           initialData: widget.boat,
@@ -60,6 +57,7 @@ class _BoatDraggableState extends State<BoatDraggable> {
               ? snapshot.data.getBox(widget.tileSize, Colors.red)
               : Container()),
       child: widget.boat.getBox(widget.tileSize, Colors.amber),
+      childWhenDragging: widget.boat.getBox(widget.tileSize, Colors.transparent),
     );
   }
 

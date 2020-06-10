@@ -1,6 +1,7 @@
 ﻿import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
+import 'package:web/global.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_viewmodel.dart';
 import 'package:web/ui/room/grid_view.dart';
@@ -21,6 +22,9 @@ class BoatPlacementView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final windowWidth = MediaQuery.of(context).size.width;
+    final windowHeight = MediaQuery.of(context).size.height;
+
     return ViewModelBuilder<BoatPlacementViewModel>.reactive(
         viewModelBuilder: () => BoatPlacementViewModel(
             socket: this.boatPlacementArgument.socket, 
@@ -30,28 +34,24 @@ class BoatPlacementView extends StatelessWidget {
             Column(
               children: [
                 Container(
-                  height: MediaQuery.of(context).size.height * 0.6, 
-                  child: Container(
-                    decoration: BoxDecoration(color: Colors.green),
+                  height: windowHeight * 0.7, 
+                  child: Expanded(
                     child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Expanded(
-                            flex: 2,
-                            child: BoatBucket(
+                        BoatBucket(
                               isBoatAcceptableInBucket: model.isBoatAcceptableInBucket, 
                               onAcceptBoatInBucket: model.onAcceptBoatInBucket, 
-                              tileSize: 50, 
+                              tileSize: (windowWidth * 0.35) / kTilesPerRow, 
                               controllers: model.controllers,
-                              userBoats: model.userBoats,)
-                        ),
-                        Expanded(
-                            flex: 8,
-                            child: Grid(
+                              userBoats: model.userBoats,),
+                        Grid(
                               onAcceptBoatInGrid: model.onAcceptBoatInGrid, 
                               isBoatAcceptableInGrid: model.isBoatAcceptableInGrid, 
-                              tileSize: 50, 
+                              tileSize: (windowWidth * 0.35) / kTilesPerRow, 
                               placedBoats: model.placedBoats,)
-                        ),
+                        
                       ],
                     ),
                   )
