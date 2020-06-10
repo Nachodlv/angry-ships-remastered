@@ -3,16 +3,22 @@ import {UserBoardService} from "../services/user-board-service";
 import {WsConnection} from "./ws-connection";
 import {ShootResult} from "../models/websocket/user-board";
 import {Point} from "../models/websocket/point";
-import {Room, RoomState, UserInRoom} from "../models/websocket/room";
+import {Room, RoomState} from "../models/websocket/room";
 import {io} from "../server/server";
+import {WsRoom} from "./ws-room";
+import {UserService} from "../services/user-service";
 
 export class WsShoot {
     roomService: RoomService;
     userBoardService: UserBoardService;
+    userService: UserService;
+    wsRoom: WsRoom;
 
-    constructor(roomService: RoomService, userBoardService: UserBoardService, socket: any) {
+    constructor(roomService: RoomService, userBoardService: UserBoardService, userService: UserService, wsRoom: WsRoom, socket: any) {
         this.roomService = roomService;
         this.userBoardService = userBoardService;
+        this.wsRoom = wsRoom;
+        this.userService = userService;
         this.onShootMade(socket);
         this.onRandomShootMade(socket);
     }
@@ -47,22 +53,24 @@ export class WsShoot {
         });
     }
     
-    emitTurn( room: Room, user: UserInRoom) {
-        const userBoard = this.userBoardService.getUserBoardByUserId(user.userId);
-        if(userBoard) {
-            userBoard.turnTimeout = setTimeout(() => this.turnTimeOut(room, user), Room.SECONDS_PER_TURN * 1000)
+    emitTurn( room: Room, userId: string) {
+        const userBoard = this.userBoardService.getUserBoardByUserId(userId);
+        const socketId = this.userService.getSocketId(userId);
+        if(userBoard && socketId) {
+            userBoard.turnTimeout = setTimeout(() => this.turnTimeOut(room, userId, socketId), Room.SECONDS_PER_TURN * 1000);
+            console.log(`User ${userId} turn`)
+            io.to(socketId).emit('start turn');
         }
-        console.log(`User ${user.userId} turn`)
-        io.to(user.socketId).emit('start turn');
+        
     }
     
-    private turnTimeOut(room: Room, user: UserInRoom) {
+    private turnTimeOut(room: Room, userId: string, socketId: string) {
         if(room.roomState != RoomState.PLAYING) return;
-        const shootResult = this.makeRandomShoot(room, user.userId);
+        const shootResult = this.makeRandomShoot(room, userId);
         if(shootResult) {
-            console.log(`User ${user.userId} turn timeout`)
-            io.to(user.socketId).emit('turn timeout', shootResult);
-            this.makeShoot(room, user.userId, shootResult, (_)=>{});
+            console.log(`User ${userId} turn timeout`)
+            io.to(socketId).emit('turn timeout', shootResult);
+            this.makeShoot(room, userId, shootResult, (_)=>{});
         }
     }
     
@@ -80,8 +88,13 @@ export class WsShoot {
             const user = this.roomService.nextTurn(room);
             this.emitTurn(room, user);
             room.users.forEach(user => {
-                if(user.userId != userId) io.to(user.socketId).emit('opponent shoot', shootResult);
+                if(user != userId) {
+                    const socketId = this.userService.getSocketId(user);
+                    io.to(socketId).emit('opponent shoot', shootResult);
+                }
             });
+            const victoryBoard = this.userBoardService.getVictoryBoard(room.id);
+            if(victoryBoard) this.wsRoom.emitGameOver(room, victoryBoard.userId);
         }
         if(ack) ack(shootResult);
     }

@@ -1,4 +1,4 @@
-﻿import {Room, UserInRoom} from "../models/websocket/room";
+﻿import {Room} from "../models/websocket/room";
 
 const { v4: uuidv4 } = require('uuid');
 
@@ -9,8 +9,8 @@ export class RoomProvider{
         return this.getRoom(room => !room.isFull());
     }
     
-    createRoom(user: string, socketId: string): Room {
-        const room = new Room(uuidv4(), [new UserInRoom(user, socketId)]);
+    createRoom(user: string): Room {
+        const room = new Room(uuidv4(), [user]);
         this.rooms.push(room);
         return room;
     }
@@ -30,7 +30,7 @@ export class RoomProvider{
     }
     
     getRoomByUserId(userId: string): Room | undefined {
-        return this.getRoom(room => room.users.some(user => user.userId == userId));
+        return this.getRoom(room => room.users.some(user => user == userId));
     }
     
     

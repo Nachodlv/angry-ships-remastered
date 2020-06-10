@@ -1,4 +1,4 @@
-﻿import {Room, RoomState, UserInRoom} from "../models/websocket/room";
+﻿import {Room, RoomState} from "../models/websocket/room";
 import {RoomProvider} from "../providers/room-provider";
 
 export class RoomService {
@@ -16,20 +16,22 @@ export class RoomService {
         return this.roomProvider.getRoomByUserId(userId);
     }
     
-    getUserARoom(userId: string, socketId: string): Room {
+    getUserARoom(userId: string, isPrivate: boolean = false): Room {
         let room = this.roomProvider.getAvailableRoom();
-        if(room) {
-            room.users.push(new UserInRoom(userId, socketId));
+        if(room && !isPrivate) {
+            room.users.push(userId);
             return room;
         } else {
-            return this.roomProvider.createRoom(userId, socketId);
+            const room = this.roomProvider.createRoom(userId);
+            room.private = isPrivate;
+            return room;
         }
     }
     
     removeUserFromRoom(userId: string): Room | undefined {
         const room = this.roomProvider.getRoomByUserId(userId);
         if(room) {
-            room.users = room.users.filter(user => user.userId != userId);
+            room.users = room.users.filter(user => user != userId);
         }
         return room;
     }
@@ -49,10 +51,10 @@ export class RoomService {
     }
     
     isUserTurn(room: Room, userId: string): boolean {
-        return room.roomState == RoomState.PLAYING &&  room.users[room.currentTurn].userId == userId;
+        return room.roomState == RoomState.PLAYING &&  room.users[room.currentTurn] == userId;
     }
     
-    nextTurn(room: Room): UserInRoom {
+    nextTurn(room: Room): string {
         room.currentTurn = (room.currentTurn + 1) % room.users.length;
         return room.users[room.currentTurn];
     }

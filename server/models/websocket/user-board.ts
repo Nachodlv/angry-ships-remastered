@@ -52,7 +52,11 @@ export class UserBoard {
         return point.column < 0 || point.column >= UserBoard.MAX_COLUMNS ||
             point.row < 0 || point.row >= UserBoard.MAX_ROWS
     }
-    
+
+    areAllBoatsSunken(): boolean {
+        return this.boats.every(boat => boat.sunken)
+    }
+
     private addValidShoot(point: Point): ShootResult {
         this.shoots.push(point);
         for (const boat of this.boats) {

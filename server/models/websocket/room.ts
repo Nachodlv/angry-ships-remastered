@@ -5,10 +5,11 @@ export class Room {
     static SECONDS_PER_TURN: number = 5;
     
     public currentTurn: number = 0;
+    public private: boolean = false;
     
     constructor(
         public id: string,
-        public users: UserInRoom[],
+        public users: string[],
         public messages: Message[] = [],
         public started = false,
         public roomState: RoomState = RoomState.PLACING_BOATS) {
@@ -19,10 +20,6 @@ export class Room {
     }
 }
 
-export class UserInRoom {
-    constructor(public userId: string, public socketId: string) {
-    }
-}
 
 export enum RoomState {
     PLACING_BOATS,

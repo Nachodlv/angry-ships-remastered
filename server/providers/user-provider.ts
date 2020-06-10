@@ -3,6 +3,7 @@
 export class UserProvider {
     
     usersWithNoRooms: string[] = [];
+    usersWithSockets: Map<string, string> = new Map();
     
     getUserById(id: string): Promise<DatabaseUser> {
         return DatabaseUser.findByPk(id);
@@ -10,6 +11,18 @@ export class UserProvider {
     
     createUser(user: DatabaseUser): Promise<DatabaseUser> {
         return user.save();
+    }
+    
+    addSocketIdToUser(userId: string, socketId: string) {
+        this.usersWithSockets.set(userId, socketId);
+    } 
+    
+    getSocketId(userId: string): string | undefined {
+        return this.usersWithSockets.get(userId);
+    }
+    
+    deleteSocketId(userId: string) {
+        this.usersWithSockets.delete(userId);
     }
     
     updateUser(user: DatabaseUser): Promise<DatabaseUser> {

@@ -22,4 +22,16 @@ export class UserService {
             )
         );
     }
+    
+    setSocketId(userId: string, socketId: string) {
+        this.userProvider.addSocketIdToUser(userId, socketId);
+    }
+    
+    getSocketId(userId: string): string | undefined {
+        return this.userProvider.getSocketId(userId);
+    }
+    
+    deleteSocketId(userId: string) {
+        this.userProvider.deleteSocketId(userId);
+    }
 }

@@ -65,7 +65,7 @@ export class WsBoatPlacement {
     private initializeRoom(roomId: string) {
         const room = this.roomService.markRoomAsPlaying(roomId);
         if(!room) return;
-        io.to(roomId).emit('room ready', {firstUser: room.users[0].userId});
+        io.to(roomId).emit('room ready', {firstUser: room.users[0]});
         this.wsShoot.emitTurn(room, room.users[0]);
         console.log(`Room ${roomId} started playing`);
     }

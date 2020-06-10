@@ -60,4 +60,16 @@ export class UserBoardService {
         }
         return shootResult;
     }
+    
+    getVictoryBoard(roomId: string): UserBoard | undefined {
+        const userBoards = this.userBoarProvider.getUserBoardsByRoomId(roomId);
+        let victoryBoard: UserBoard | undefined = undefined;
+        for (let userBoard of userBoards) {
+            if(!userBoard.areAllBoatsSunken()) {
+                if(victoryBoard) return undefined;
+                victoryBoard = userBoard;
+            }
+        }
+        return victoryBoard;
+    }
 }

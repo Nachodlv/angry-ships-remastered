@@ -1,6 +1,6 @@
 ﻿import {UserController} from "../controllers/user-controller";
 import {HealthController} from "../controllers/health-controller";
-import {MatchMaker} from "../websockets/match-maker";
+import {WsRoom} from "../websockets/ws-room";
 import {RoomController} from "../controllers/room-controller";
 import {WsConnection} from "../websockets/ws-connection";
 import {WsChat} from "../websockets/ws-chat";
@@ -26,11 +26,11 @@ export const initialize = () => {
     const userBoardService = new UserBoardService(userBoardProvider);
 
     // Websockets
-    const wsConnection = new WsConnection();
+    const wsConnection = new WsConnection(userService);
     wsConnection.connect(socket => {
-        new MatchMaker(roomService, userBoardService, socket);
+        const wsRoom = new WsRoom(roomService, userBoardService, userService, socket);
         new WsChat(roomService, socket);
-        const wsShoot = new WsShoot(roomService, userBoardService, socket);
+        const wsShoot = new WsShoot(roomService, userBoardService, userService, wsRoom, socket);
         new WsBoatPlacement(userBoardService, roomService, wsShoot, socket);
     })
 
