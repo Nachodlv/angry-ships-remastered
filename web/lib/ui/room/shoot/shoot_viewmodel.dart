@@ -17,6 +17,7 @@ class ShootViewModel extends ChangeNotifier {
   final CountDownController countdownController = CountDownController();
   
   bool myTurn = false;
+  bool autoPlay = false;
   List<ShootResponse> selfShoots = new List();
   List<ShootResponse> opponentShoots = new List();
   List<Boat> selfSunkenBoats = new List();
@@ -34,10 +35,6 @@ class ShootViewModel extends ChangeNotifier {
         myTurn = firstTurn;
   
   init() {
-    _shootWsService.startListeningToOpponentShoots(socket);
-    _shootWsService.startListeningToTurnStart(socket);
-    _shootWsService.startListeningToTurnTimeOut(socket);
-
     onOpponentShoot = _shootWsService.onOpponentShoot
         .listen((response) {
           opponentShoots.add(response);
@@ -49,7 +46,8 @@ class ShootViewModel extends ChangeNotifier {
         _shootWsService.onTurnStart.listen((_) {
           myTurn = true;
           countdownController.resetCountdown();
-          notifyListeners();
+          if(autoPlay) randomShoot();
+          else notifyListeners();
         });
     
     onTurnTimeout = _shootWsService.onTimeoutTurn.listen(_handleShootResponse);
@@ -71,6 +69,12 @@ class ShootViewModel extends ChangeNotifier {
         .then(_handleShootResponse)
         .catchError(_handleOnShootError);
     notifyListeners();
+  }
+  
+  autoPlayToggled(bool value) {
+    autoPlay = value;
+    notifyListeners();
+    if(myTurn && value) randomShoot();
   }
 
   _handleShootResponse(ShootResponse response) {

@@ -9,6 +9,7 @@ import 'package:web/models/auth.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/models/message.dart';
 import 'package:web/models/room.dart';
+import 'package:web/models/websocket/game_over_response.dart';
 import 'package:web/models/websocket/room_ready_response.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
@@ -17,14 +18,14 @@ import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
+import 'package:web/ui/game_over/game_over_view.dart';
 import 'package:web/ui/home/home_view.dart';
-
 
 class RoomViewModel extends ChangeNotifier {
   final String roomId;
   final Credentials credentials;
   final String userId;
-  
+
   User user;
   User opponent;
   Socket socket;
@@ -32,56 +33,57 @@ class RoomViewModel extends ChangeNotifier {
   bool boatsPlaced = false;
   bool firstTurn = false;
   List<Boat> boats = new List();
-  
+
   StreamSubscription<void> onRoomClosedSub;
   StreamSubscription<String> onErrorSocketSub;
   StreamSubscription<Message> onMessageSub;
   StreamSubscription<RoomReadyResponse> onRoomReadySub;
+  StreamSubscription<GameOverResponse> onGameOverSub;
   TextEditingController textInputController;
 
   List<Message> messages = [];
- 
+
   NavigationService _navigationService = locator<NavigationService>();
   RoomService _roomService = locator<RoomService>();
   UserService _userService = locator<UserService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   ChatWsService _chatWsService = locator<ChatWsService>();
   SocketManager _socketManager = locator<SocketManager>();
-  
+
   RoomViewModel({this.socket, this.roomId, this.credentials, this.userId}) {
     textInputController = TextEditingController();
   }
-  
+
   init() async {
-    if(credentials == null || userId == null) {
-      SchedulerBinding.instance.addPostFrameCallback((_) => _navigationService.navigateTo(Routes.LOAD));
+    if (credentials == null || userId == null) {
+      SchedulerBinding.instance.addPostFrameCallback(
+          (_) => _navigationService.navigateTo(Routes.LOAD));
       return;
-    }
-    else if(socket == null || roomId == null) {
-      _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(
-          userCredentials: credentials, userId: userId));
+    } else if (socket == null || roomId == null) {
+      _navigationService.navigateTo(Routes.HOME,
+          arguments:
+              HomeViewArguments(userCredentials: credentials, userId: userId));
       return;
     }
 
-    onRoomClosedSub = _roomWsService.onRoomClosed.listen(
-      (_) async {
-        await onRoomClosedSub.cancel();
-        _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: credentials, userId: userId));
-      }
-    );
+    onRoomClosedSub = _roomWsService.onRoomClosed.listen((_) async {
+      await onRoomClosedSub.cancel();
+      _navigationService.navigateTo(Routes.HOME,
+          arguments:
+              HomeViewArguments(userCredentials: credentials, userId: userId));
+    });
 
     onErrorSocketSub = _socketManager.onError.listen((errorMsg) {
       print('Oops! $errorMsg');
     });
 
     room = await _roomService.getRoomById(roomId, credentials.token);
-    messages = room.messages; // Initial messages; Is this info always duplicated? What's the purpose of this field in room?
+    messages = room
+        .messages; // Initial messages; Is this info always duplicated? What's the purpose of this field in room?
 
     user = await _userService.getUser(userId, credentials.token);
     final opponentId = room.users.firstWhere((id) => id != userId);
     opponent = await _userService.getUser(opponentId, credentials.token);
-    
-    _chatWsService.startListeningToMessages(socket);
 
     onMessageSub = _chatWsService.onMessage.listen((message) {
       messages.add(message);
@@ -93,8 +95,17 @@ class RoomViewModel extends ChangeNotifier {
       firstTurn = roomReady.firstUser == userId;
       notifyListeners();
     });
+
+    onGameOverSub = _roomWsService.onGameOver.listen((response) {
+      _navigationService.navigateTo(Routes.GAME_OVER,
+          arguments: GameOverArguments(
+              socket: socket,
+              userCredentials: credentials,
+              userId: userId,
+              gameOverResponse: response));
+    });
   }
-    
+
   isMessageFromUser(Message msg) => userId == msg.userId;
 
   void sendMessage() {
@@ -105,18 +116,19 @@ class RoomViewModel extends ChangeNotifier {
     textInputController.clear();
     notifyListeners();
   }
-  
+
   finishPlacingBoats(List<Boat> boats) {
     this.boats = boats;
     notifyListeners();
   }
-  
+
   @override
   void dispose() {
     onRoomClosedSub.cancel();
     onErrorSocketSub.cancel();
     onMessageSub.cancel();
+    onRoomReadySub.cancel();
+    onGameOverSub.cancel();
     super.dispose();
   }
-
 }

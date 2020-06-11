@@ -32,7 +32,7 @@ class BoatBucket extends StatelessWidget {
     FocusScope.of(context).requestFocus(_focusNode);
 
     return Container(
-        width: 3 * tileSize,
+        width: 3.5 * tileSize,
         child: Card(
           child: RawKeyboardListener(
               onKey: (keyEvent) {

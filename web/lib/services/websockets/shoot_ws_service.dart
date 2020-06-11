@@ -14,16 +14,22 @@ class ShootWsService {
         _startTurnController = StreamController.broadcast(), 
         _timeoutTurnController = StreamController.broadcast();
 
-  void startListeningToOpponentShoots(IO.Socket socket) {
+  void subscribe(IO.Socket socket) {
+    _startListeningToOpponentShoots(socket);
+    _startListeningToTurnStart(socket);
+    _startListeningToTurnTimeOut(socket);
+  }
+  
+  void _startListeningToOpponentShoots(IO.Socket socket) {
     socket.on('opponent shoot',
         (shoot) => _opponentShootController.add(ShootResponse.fromJson(shoot)));
   }
 
-  void startListeningToTurnStart(IO.Socket socket) {
+  void _startListeningToTurnStart(IO.Socket socket) {
     socket.on('start turn', (_) => _startTurnController.add('Turn started'));
   }
   
-  void startListeningToTurnTimeOut(IO.Socket socket) {
+  void _startListeningToTurnTimeOut(IO.Socket socket) {
     socket.on('turn timeout', (response) => 
         _timeoutTurnController.add(ShootResponse.fromJson(response)));
   }

@@ -31,7 +31,6 @@ class BoatPlacementViewModel extends ChangeNotifier{
   }
   
   init() {
-    _boatPlacementWsService.startListeningToOpponentPlaced(socket);
     _setOpponentReadyData(RemoteData.loading());
 
     _onOpponentPlacedBoats = _boatPlacementWsService.onOpponentPlacedBoats.listen((_) {

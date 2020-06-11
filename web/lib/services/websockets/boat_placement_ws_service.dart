@@ -10,7 +10,11 @@ class BoatPlacementWsService {
   BoatPlacementWsService()
       : _opponentPlacedController = StreamController.broadcast();
 
-  void startListeningToOpponentPlaced(IO.Socket socket) {
+  void subscribe(IO.Socket socket) {
+    _startListeningToOpponentPlaced(socket);
+  }
+  
+  void _startListeningToOpponentPlaced(IO.Socket socket) {
     socket.on('opponent placed boats', (_) {
       _opponentPlacedController.add('Opponent placed boats');
     });

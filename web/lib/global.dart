@@ -7,6 +7,7 @@ import 'package:web/services/room/room_service.dart';
 import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/boat_placement_ws_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
+import 'package:web/services/websockets/room_invite_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
 import 'package:web/services/websockets/shoot_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
@@ -34,6 +35,7 @@ Future<void> setupLocator() async {
   locator.registerSingleton<RoomWsService>(RoomWsService());
   locator.registerSingleton<BoatPlacementWsService>(BoatPlacementWsService());
   locator.registerSingleton<ShootWsService>(ShootWsService());
+  locator.registerSingleton<RoomInviteWsService>(RoomInviteWsService());
 }
 
 const int kTilesPerRow = 10;

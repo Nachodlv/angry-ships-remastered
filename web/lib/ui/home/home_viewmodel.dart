@@ -9,7 +9,11 @@ import 'package:web/models/auth.dart';
 import 'package:web/services/auth/auth_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
+import 'package:web/services/websockets/boat_placement_ws_service.dart';
+import 'package:web/services/websockets/chat_ws_service.dart';
+import 'package:web/services/websockets/room_invite_ws_service.dart';
 import 'package:web/services/websockets/room_ws_service.dart';
+import 'package:web/services/websockets/shoot_ws_service.dart';
 import 'package:web/services/websockets/socket_manager.dart';
 import 'package:web/ui/room/room_view.dart';
 import 'package:flutter/scheduler.dart';
@@ -18,72 +22,106 @@ import 'package:flutter/scheduler.dart';
 class HomeViewModel extends ChangeNotifier {
   final Credentials credentials;
   final String userId;
+  final String rematchOpponentId;
 
-  HomeViewModel({this.credentials, this.userId});
+  HomeViewModel(
+      {@required this.credentials, @required this.userId, this.socket, this.rematchOpponentId}); 
 
   Socket socket;
 
   StreamSubscription<String> _onRoomOpenedSub;
   StreamSubscription<String> _onErrorSub;
-  
+  StreamSubscription<void> _onRoomClosedSub;
+
   NavigationService _navigationService = locator<NavigationService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   SocketManager _socketManager = locator<SocketManager>();
-  AuthenticationService _authenticationService = locator<AuthenticationService>();
+  AuthenticationService _authenticationService = locator<
+      AuthenticationService>();
   RemoteData<String, Unit> roomData = RemoteData.notAsked();
 
   init() async {
-
-    if(this.credentials == null || this.userId == null) {
-        SchedulerBinding.instance.addPostFrameCallback((_) => _navigationService.navigateTo(Routes.LOAD));
-        return;
-    } 
-    socket = await _socketManager.connect(credentials.token);
+    if (this.credentials == null || this.userId == null) {
+      SchedulerBinding.instance.addPostFrameCallback((_) =>
+          _navigationService.navigateTo(Routes.LOAD));
+      return;
+    }
+    await _subscribeToSocket();
+    print("Opponent id: $rematchOpponentId");
+    if(rematchOpponentId != null) _rematch();
 
     _onRoomOpenedSub = _roomWsService.onRoomOpened.listen(
             (roomId) async {
-              await _onRoomOpenedSub.cancel();
-              _setRoomData(RemoteData.success(unit));
-              _navigationService.navigateTo(Routes.ROOM, arguments: RoomViewArguments(socket: socket, id: roomId, userCredentials: this.credentials, userId: this.userId));
+          await _onRoomOpenedSub.cancel();
+          _setRoomData(RemoteData.success(unit));
+          _navigationService.navigateTo(Routes.ROOM,
+              arguments: RoomViewArguments(socket: socket,
+                  id: roomId,
+                  userCredentials: this.credentials,
+                  userId: this.userId));
         }
     );
 
+    _onRoomClosedSub = _roomWsService.onRoomClosed.listen((_) {
+      _setRoomData(RemoteData.notAsked());
+    });
+    
     _onErrorSub = _socketManager.onError.listen((errorMsg) {
       _setRoomData(RemoteData.error(errorMsg));
       print('Oops! $errorMsg');
     });
   }
-  
-  navigateToLoad() async {
-  }
 
   play() {
     _setRoomData(RemoteData.loading());
     _roomWsService.findRoom(socket).then((response) {
-      if(!response.startFinding) _setRoomData(RemoteData.error(response.message));
+      if (!response.startFinding) _setRoomData(
+          RemoteData.error(response.message));
     });
   }
-  
+
   signOut() {
     try {
       _setRoomData(RemoteData.loading());
       _authenticationService.signOut()
           .then((_) => _navigationService.navigateTo(Routes.LOGIN))
-          .catchError(() => _setRoomData(RemoteData.error("Couldn't sign out")));
-    }catch (e) {
+          .catchError(() =>
+          _setRoomData(RemoteData.error("Couldn't sign out")));
+    } catch (e) {
       print(e);
     }
   }
-  
+
   _setRoomData(RemoteData<String, Unit> data) {
     roomData = data;
     notifyListeners();
   }
-  
+
+  _subscribeToSocket() async {
+    if (socket != null) return;
+    socket = await _socketManager.connect(credentials.token);
+    locator<ChatWsService>().subscribe(socket);
+    locator<RoomWsService>().subscribe(socket);
+    locator<ShootWsService>().subscribe(socket);
+    locator<BoatPlacementWsService>().subscribe(socket);
+    locator<RoomInviteWsService>().subscribe(socket);
+    notifyListeners();
+  }
+
+  _rematch() {
+    print("Rematching");
+    _setRoomData(RemoteData.loading());
+    _roomWsService.findPrivateRoom(socket, rematchOpponentId).then((response) {
+      if (!response.startFinding) _setRoomData(
+          RemoteData.error(response.message));
+    });
+  }
+
   @override
   void dispose() {
     _onRoomOpenedSub.cancel();
     _onErrorSub.cancel();
+    _onRoomClosedSub.cancel();
     super.dispose();
   }
 }

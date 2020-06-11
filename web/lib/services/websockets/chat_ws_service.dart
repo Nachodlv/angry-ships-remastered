@@ -11,7 +11,11 @@ class ChatWsService {
     _messageController = StreamController.broadcast();
   }
 
-  void startListeningToMessages(IO.Socket socket) {
+  void subscribe(IO.Socket socket) {
+    _startListeningToMessages(socket);
+  }
+  
+  void _startListeningToMessages(IO.Socket socket) {
     socket.on('message', (message) => _messageController.add(Message.fromJson(message)));
   }
 

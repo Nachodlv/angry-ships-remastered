@@ -52,12 +52,20 @@ class ShootView extends StatelessWidget {
                           shoots: model.opponentShoots, placedBoats: arguments.boats,)
                       ],
                     )),
+                Row(
+                  children: [
+                    Text("Auto play"),
+                    Switch(
+                      value: model.autoPlay,
+                      onChanged: model.autoPlayToggled,),
+                  ],
+                ),
                 if (model.myTurn) ...[
                   Countdown(
                     duration: ShootViewModel.TURN_DURATION,
                     controller: model.countdownController,
                   ),
-                  _randomShootSection(model)
+                  _randomShootSection(model),
                 ]
               ],
             )));
