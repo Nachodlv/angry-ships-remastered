@@ -54,7 +54,8 @@ export class WsRoom {
                     if (socketId) {
                         this.userService.getUserById(userId).then(user => {
                             console.log(`User ${userId} invited ${userInvited} to a private room`);
-                            io.to(socketId).emit('invite', {name: user.name, roomId: response.roomId});
+                            io.to(socketId).emit('invite', {name: user.name, roomId: response.roomId, 
+                                profilePicture: user.imageUrl});
                             if (ack) ack(response);
                         })
                     } else response.message = "User not connected";

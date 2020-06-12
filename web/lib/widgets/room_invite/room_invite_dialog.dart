@@ -19,8 +19,8 @@ class RoomInviteDialog extends StatelessWidget {
     );
   }
 
-  Widget getDialog(context, String name, RoomInviteDialogModel model) {
-    final dialog = (bool loading, {String error}) => _customDialog(name, model, loading, error);
+  Widget getDialog(context, String name, String profilePicture, RoomInviteDialogModel model) {
+    final dialog = (bool loading, {String error}) => _customDialog(name, profilePicture, model, loading, error);
     return model.acceptInviteData.map(
         success: (_) => dialog(false),
         error: (result) => dialog(false, error: result.error),
@@ -29,7 +29,7 @@ class RoomInviteDialog extends StatelessWidget {
   }
 
 
-  Widget _customDialog(String name, RoomInviteDialogModel model,
+  Widget _customDialog(String name, String profilePicture, RoomInviteDialogModel model,
       bool loading, String error) =>
       CustomDialog(
         title: "Game Invite",
@@ -38,6 +38,7 @@ class RoomInviteDialog extends StatelessWidget {
         cancelText: "Cancel",
         onAccept: model.acceptInvite,
         onCancel: model.cancelInvite,
+        profilePicture: profilePicture,
         loading: loading,
         error: error,
       );

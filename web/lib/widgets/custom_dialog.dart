@@ -8,6 +8,7 @@ class CustomDialog extends StatelessWidget {
   final Function onCancel;
   final bool loading;
   final String error;
+  final String profilePicture;
 
   CustomDialog({
     @required this.title,
@@ -16,6 +17,7 @@ class CustomDialog extends StatelessWidget {
     @required this.cancelText,
     Function onAccept,
     Function onCancel,
+    this.profilePicture,
     this.loading = false,
     this.error,
     this.image,
@@ -90,6 +92,7 @@ class CustomDialog extends StatelessWidget {
           right: 16,
           child: CircleAvatar(
             backgroundColor: Colors.blueAccent,
+            backgroundImage: NetworkImage(profilePicture),
             radius: 66,
           ),
         ),

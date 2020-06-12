@@ -67,10 +67,9 @@ class RoomViewModel extends ChangeNotifier {
     }
 
     onRoomClosedSub = _roomWsService.onRoomClosed.listen((_) async {
-      await onRoomClosedSub.cancel();
       _navigationService.navigateTo(Routes.HOME,
           arguments:
-              HomeViewArguments(userCredentials: credentials, userId: userId));
+              HomeViewArguments(userCredentials: credentials, userId: userId, socket: socket));
     });
 
     onErrorSocketSub = _socketManager.onError.listen((errorMsg) {
