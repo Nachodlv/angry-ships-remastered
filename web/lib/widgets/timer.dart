@@ -1,6 +1,7 @@
 ﻿import 'dart:async';
 
 import 'package:flutter/cupertino.dart';
+import 'package:web/widgets/title_text.dart';
 
 class CountDownController {
   _CountdownState countdownState;
@@ -42,7 +43,7 @@ class _CountdownState extends State<Countdown> {
   
   @override
   Widget build(BuildContext context) {
-    return Text(_currentDuration.inSeconds.toString());
+    return TitleText(_currentDuration.inSeconds.toString(), textSize: 20,);
   }
   
   resetCountdown() {

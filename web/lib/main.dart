@@ -3,6 +3,9 @@ import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:web/services/navigation/router.dart';
+import 'package:web/ui/room/boat_placement/boat_placement_view.dart';
+import 'package:web/ui/room/shoot/shoot_view.dart';
+
 void main() async {
   await setupLocator();
   runApp(App());
@@ -24,8 +27,12 @@ class App extends StatelessWidget {
         onGenerateRoute: RoutesGenerator.onGenerateRoute,
         initialRoute: Routes.LOAD,
         theme: angryShipsTheme(context));
-//  return MaterialApp(builder: (_, __) => BoatPlacementView(boatPlacementArgument: BoatPlacementArgument(socket: null, finishPlacingBoats: null)),);
+//    return MaterialApp(
+//      builder: (_, __) => Scaffold(
+//        backgroundColor: Colors.blue[300],
+//          body: ShootView(
+//              arguments: ShootViewArguments(
+//                  socket: null, firstTurn: true, boats: []))),
+//    );
   }
 }
-
-

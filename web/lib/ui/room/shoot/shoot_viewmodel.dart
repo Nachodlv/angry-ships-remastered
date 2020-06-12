@@ -18,6 +18,7 @@ class ShootViewModel extends ChangeNotifier {
   
   bool myTurn = false;
   bool autoPlay = false;
+  ShootResponse lastShootResponse;
   List<ShootResponse> selfShoots = new List();
   List<ShootResponse> opponentShoots = new List();
   List<Boat> selfSunkenBoats = new List();
@@ -81,6 +82,7 @@ class ShootViewModel extends ChangeNotifier {
     if (response.isValid) {
       onShoot = RemoteData.success(response.point);
       selfShoots.add(response);
+      lastShootResponse = response;
       response.boatSunken.map((boat) => opponentSunkenBoats.add(boat));
       myTurn = false;
     } else

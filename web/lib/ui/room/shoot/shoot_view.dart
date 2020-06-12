@@ -7,6 +7,7 @@ import 'package:web/ui/room/grid_view.dart';
 import 'package:web/ui/room/shoot/shoot_viewmodel.dart';
 import 'package:web/widgets/error_text.dart';
 import 'package:web/widgets/timer.dart';
+import 'package:web/widgets/title_text.dart';
 
 import '../../../global.dart';
 
@@ -15,7 +16,8 @@ class ShootViewArguments {
   final bool firstTurn;
   final List<Boat> boats;
 
-  ShootViewArguments({@required this.socket, @required this.firstTurn, @required this.boats});
+  ShootViewArguments(
+      {@required this.socket, @required this.firstTurn, @required this.boats});
 }
 
 class ShootView extends StatelessWidget {
@@ -29,44 +31,104 @@ class ShootView extends StatelessWidget {
     final windowWidth = MediaQuery.of(context).size.width;
     return ViewModelBuilder<ShootViewModel>.reactive(
         viewModelBuilder: () => ShootViewModel(
-            socket: arguments.socket, 
-            firstTurn: arguments.firstTurn),
+            socket: arguments.socket, firstTurn: arguments.firstTurn),
         onModelReady: (model) => model.init(),
         builder: (context, model, child) => Container(
             alignment: Alignment.center,
             child: Column(
               children: [
-                Text("Time to shoot!"),
+                Container(
+                    height: windowHeight * 0.1,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          TitleText(model.myTurn
+                              ? "Time to shoot"
+                              : "Your opponent is shooting"),
+                          if(model.lastShootResponse != null)
+                            if(model.lastShootResponse.boatSunken.isSome()) TitleText('You sink an enemy ship!')
+                            else if(model.lastShootResponse.boatShoot) TitleText('You hit an enemy ship!')
+                            else TitleText('You missed!')
+                        ],
+                      ),
+                    )),
                 Container(
                     height: windowHeight * 0.7,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: [
-                        Grid(
-                            tileSize: (windowWidth * 0.35) / kTilesPerRow, shoots: model.selfShoots,
-                        sunkenBoats: model.opponentSunkenBoats,
-                        onGridClicked: model.shoot,),
-                        Grid(
-                          tileSize: (windowWidth * 0.35) / kTilesPerRow,
-                          sunkenBoats: model.selfSunkenBoats,
-                          shoots: model.opponentShoots, placedBoats: arguments.boats,)
+                        Column(
+                          children: [
+                            Container(
+                              height: windowHeight * 0.05,
+                              child: model.myTurn
+                                  ? TitleText(
+                                      'Click a tile to shoot',
+                                      textSize: 20,
+                                    )
+                                  : null,
+                            ),
+                            Grid(
+                              tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                              shoots: model.selfShoots,
+                              sunkenBoats: model.opponentSunkenBoats,
+                              onGridClicked: model.shoot,
+                            ),
+                          ],
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              height: windowHeight * 0.05,
+                            ),
+                            Grid(
+                              tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                              sunkenBoats: model.selfSunkenBoats,
+                              shoots: model.opponentShoots,
+                              placedBoats: arguments.boats,
+                            ),
+                          ],
+                        )
                       ],
                     )),
-                Row(
-                  children: [
-                    Text("Auto play"),
-                    Switch(
-                      value: model.autoPlay,
-                      onChanged: model.autoPlayToggled,),
-                  ],
-                ),
-                if (model.myTurn) ...[
-                  Countdown(
-                    duration: ShootViewModel.TURN_DURATION,
-                    controller: model.countdownController,
+                Container(
+                  width: windowWidth * 0.7,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      Row(
+                        children: [
+                          TitleText(
+                            "Auto play",
+                            textSize: 20,
+                          ),
+                          Switch(
+                            value: model.autoPlay,
+                            onChanged: model.autoPlayToggled,
+                          ),
+                        ],
+                      ),
+                      if (model.myTurn) ...[
+                        Row(
+                          children: [
+                            TitleText(
+                              'Time left:',
+                              textSize: 20,
+                            ),
+                            SizedBox(width: 5),
+                            Countdown(
+                              duration: ShootViewModel.TURN_DURATION,
+                              controller: model.countdownController,
+                            ),
+                          ],
+                        ),
+                        _randomShootSection(model),
+                      ]
+                    ],
                   ),
-                  _randomShootSection(model),
-                ]
+                ),
               ],
             )));
   }
@@ -87,7 +149,10 @@ class ShootView extends StatelessWidget {
   Widget _randomShootButton(Function randomShoot, bool myTurn) {
     return RaisedButton(
       onPressed: myTurn ? randomShoot : null,
-      child: Text(myTurn ? 'Random shoot' : 'Waiting for the opponent'),
+      child: Text(
+        myTurn ? 'Random shoot' : 'Waiting for the opponent',
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+      ),
     );
   }
 }
