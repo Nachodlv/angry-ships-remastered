@@ -5,6 +5,7 @@ import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/models/websocket/game_over_response.dart';
 import 'package:web/ui/game_over/game_over_viewmodel.dart';
+import 'package:web/widgets/custom_button.dart';
 import 'package:web/widgets/room_invite/room_invite_dialog.dart';
 
 class GameOverArguments {
@@ -36,14 +37,46 @@ class GameOverView extends StatelessWidget {
             ),
         onModelReady: (model) => model.init(),
         builder: (context, model, child) => Scaffold(
-              body: Center(child: Column(
-                children: [
-                  RoomInviteDialog(model.socket),
-                  Text(model.userWon ? 'You win!' : 'You lose!'),
-                  RaisedButton(onPressed: model.rematch, child: Text("Rematch"),),
-                  RaisedButton(onPressed: model.goHome, child: Text("Home"),),
-                ],
-              )),
+              backgroundColor: Colors.blue[300],
+              body: Center(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                      horizontal: MediaQuery.of(context).size.width * 0.4),
+                  child: Card(
+                    elevation: 2,
+                    child: Padding(
+                      padding: const EdgeInsets.all(25),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          RoomInviteDialog(model.socket),
+                          Padding(
+                            padding: const EdgeInsets.only(bottom: 20),
+                            child: Text(
+                              model.userWon ? 'You won!' : 'You lost!',
+                              style: TextStyle(
+                                  fontSize: 30,
+                                  fontWeight: FontWeight.bold,
+                                  color: model.userWon
+                                      ? Colors.yellow[900]
+                                      : Colors.red[700]),
+                            ),
+                          ),
+                          CustomButton(
+                            "Rematch",
+                            onPressed: model.rematch,
+                          ),
+                          CustomButton(
+                            "Home",
+                            onPressed: model.goHome,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ));
   }
 }
