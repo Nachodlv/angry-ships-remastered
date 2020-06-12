@@ -34,10 +34,12 @@ class BoatBucket extends StatelessWidget {
     return Container(
         width: 3.5 * tileSize,
         child: Card(
+          elevation: 3,
           child: RawKeyboardListener(
               onKey: (keyEvent) {
                 if (keyEvent.runtimeType.toString() != 'RawKeyDownEvent')
                   return;
+                print(keyEvent.data.physicalKey.debugName);
                 if (keyEvent.data.physicalKey.debugName == "Key R")
                   controllers.forEach((element) => element.rotate());
               },
@@ -97,7 +99,7 @@ class Grid extends StatelessWidget {
             child: Container(
               decoration: BoxDecoration(
                   border: Border.all(
-                    color: Colors.black,
+                    color: Colors.blue[900],
                     width: 1,
                   ),
                   color: Colors.blue),
@@ -126,7 +128,7 @@ class Grid extends StatelessWidget {
       child: Stack(
         children: [
           Container(height: gridSize, width: gridSize, child: dragTargetsLayer),
-          ..._getPlacedBoats(placedBoats, Colors.red),
+          ..._getPlacedBoats(placedBoats, Colors.grey[600]),
           ..._getPlacedBoats(sunkenBoats, Colors.red[900]),
           ..._getShoots()
         ],

@@ -38,33 +38,31 @@ class RoomView extends StatelessWidget {
             userId: this.arguments.userId),
             onModelReady: (model) => model.init(),
             builder: (context, model, child) => Scaffold(
-              body: Container(
-                padding: EdgeInsets.all(20.0),
-                child:  Row(
-                  children: [
-                    Expanded(
-                    flex: 9,
-                      child: 
-                          model.boatsPlaced ?
-                              ShootView(arguments: ShootViewArguments(
-                                  boats: model.boats,
-                                  socket: model.socket, 
-                                  firstTurn: model.firstTurn)) :
-                              BoatPlacementView(boatPlacementArgument: 
-                                BoatPlacementArgument(
-                                    finishPlacingBoats: model.finishPlacingBoats,
-                                    socket: model.socket),
-                                ),
+              backgroundColor: Colors.blue[300],
+              body: Row(
+                children: [
+                  Expanded(
+                  flex: 9,
+                    child: 
+                        model.boatsPlaced ?
+                            ShootView(arguments: ShootViewArguments(
+                                boats: model.boats,
+                                socket: model.socket, 
+                                firstTurn: model.firstTurn)) :
+                            BoatPlacementView(boatPlacementArgument: 
+                              BoatPlacementArgument(
+                                  finishPlacingBoats: model.finishPlacingBoats,
+                                  socket: model.socket),
+                              ),
+                  ),
+                  Expanded(
+                    flex: 1,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: chat(model),
                     ),
-                    Expanded(
-                      flex: 1,
-                      child: Padding(
-                        padding: const EdgeInsets.all(8.0),
-                        child: chat(model),
-                      ),
-                    )
-                  ],
-                ),
+                  )
+                ],
               ),
             )
     );

@@ -54,9 +54,9 @@ class _BoatDraggableState extends State<BoatDraggable> {
           stream: _boatStream.stream,
           initialData: widget.boat,
           builder: (context, snapshot) => snapshot.hasData
-              ? snapshot.data.getBox(widget.tileSize, Colors.red)
+              ? snapshot.data.getBox(widget.tileSize, Colors.grey[600])
               : Container()),
-      child: widget.boat.getBox(widget.tileSize, Colors.amber),
+      child: widget.boat.getBox(widget.tileSize, Colors.blue[500]),
       childWhenDragging: widget.boat.getBox(widget.tileSize, Colors.transparent),
     );
   }
