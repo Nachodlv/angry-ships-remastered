@@ -85,7 +85,7 @@ export class WsShoot {
     private makeShoot(room: Room, userId: string, shootResult: ShootResult, ack: (shootResult: ShootResult) => void) {
         console.log(`User ${userId} shoot at ${shootResult.point.toString()}. ${shootResult.toString()}`)
         if(shootResult.isValid) {
-            const user = this.roomService.nextTurn(room);
+            const user = shootResult.boatShoot? userId : this.roomService.nextTurn(room);
             this.emitTurn(room, user);
             room.users.forEach(user => {
                 if(user != userId) {

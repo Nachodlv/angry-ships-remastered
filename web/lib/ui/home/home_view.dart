@@ -17,7 +17,7 @@ class HomeViewArguments {
       {@required this.userCredentials,
       @required this.userId,
       this.socket,
-      this.rematchOpponentId});
+      this.rematchOpponentId = "suwP4nh3n5eksHHO5QBEA4Tn6ik1"});
 }
 
 class HomeView extends StatelessWidget {

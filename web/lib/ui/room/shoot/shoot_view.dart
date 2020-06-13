@@ -27,6 +27,7 @@ class ShootView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    //TODO add borders https://pub.dev/packages/outline_gradient_button
     final windowHeight = MediaQuery.of(context).size.height;
     final windowWidth = MediaQuery.of(context).size.width;
     return ViewModelBuilder<ShootViewModel>.reactive(

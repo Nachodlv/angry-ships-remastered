@@ -48,6 +48,10 @@ export class WsRoom {
     onJoinPrivateRoom(socket: any) {
         socket.on('private room', (userInvited: string, ack: (response: RoomResponse) => void) => {
             const userId = WsConnection.getUserId(socket);
+            if(userInvited == userId) {
+                if(ack) ack(new RoomResponse(false, 'You can\'t invite yourself'));
+                return;
+            }
             this.findRoom(socket, (response => {
                 if (response.startFinding) {
                     const socketId = this.userService.getSocketId(userInvited);

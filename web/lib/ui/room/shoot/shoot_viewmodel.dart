@@ -45,17 +45,25 @@ class ShootViewModel extends ChangeNotifier {
 
     onTurnStart =
         _shootWsService.onTurnStart.listen((_) {
+          if(autoPlay) {
+            randomShoot();
+            return;
+          }
           myTurn = true;
           countdownController.resetCountdown();
-          if(autoPlay) randomShoot();
-          else notifyListeners();
+          notifyListeners();
         });
     
-    onTurnTimeout = _shootWsService.onTimeoutTurn.listen(_handleShootResponse);
+    onTurnTimeout = _shootWsService.onTimeoutTurn.listen((response) {
+      myTurn = false;
+      countdownController.resetCountdown();
+      _handleShootResponse(response);
+    });
   }
 
   randomShoot() {
     onShoot = RemoteData.loading();
+    myTurn = false;
     _shootWsService
         .makeShootRandomly(socket)
         .then(_handleShootResponse)
@@ -65,6 +73,7 @@ class ShootViewModel extends ChangeNotifier {
 
   shoot(Point point) {
     onShoot = RemoteData.loading();
+    myTurn = false;
     _shootWsService
         .makeShoot(socket, point)
         .then(_handleShootResponse)
@@ -84,7 +93,6 @@ class ShootViewModel extends ChangeNotifier {
       selfShoots.add(response);
       lastShootResponse = response;
       response.boatSunken.map((boat) => opponentSunkenBoats.add(boat));
-      myTurn = false;
     } else
       onShoot = RemoteData.error("Shoot point not valid");
     notifyListeners();
@@ -92,6 +100,7 @@ class ShootViewModel extends ChangeNotifier {
 
   _handleOnShootError(String error) {
     onShoot = RemoteData.error(error);
+    myTurn = true;
     notifyListeners();
   }
 

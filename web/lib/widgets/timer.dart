@@ -16,8 +16,8 @@ class Countdown extends StatefulWidget {
   final Function onFinish;
   final CountDownController controller;
   
-  Countdown({@required this.duration, this.onFinish, CountDownController controller}): 
-        controller = controller ?? CountDownController();
+  Countdown({@required this.duration, this.onFinish, CountDownController controller, Key key}): 
+        controller = controller ?? CountDownController(), super(key: key);
   
   @override
   State<StatefulWidget> createState() {
@@ -47,6 +47,7 @@ class _CountdownState extends State<Countdown> {
   }
   
   resetCountdown() {
+    if(_timer != null) _timer.cancel();
     _startCountdown();
   }
   
