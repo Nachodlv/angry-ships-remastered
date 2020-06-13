@@ -30,6 +30,7 @@ class RoomInviteDialogModel extends ChangeNotifier {
       roomId = response.roomId;
       _roomInviteData = RemoteData.success(response);
       showDialog(
+          barrierDismissible: false,
           context: context,
           builder: (context) => getDialog(context, response.name,
               response.profilePicture.getOrElse(() => null), this));

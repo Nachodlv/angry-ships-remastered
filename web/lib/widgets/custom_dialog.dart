@@ -40,6 +40,7 @@ class CustomDialog extends StatelessWidget {
 
   dialogContent(BuildContext context) {
     return Stack(
+      alignment: Alignment.center,
       children: <Widget>[
         Container(
           padding: EdgeInsets.only(
@@ -87,23 +88,23 @@ class CustomDialog extends StatelessWidget {
             ],
           ),
         ),
-        Positioned(
-          left: 16,
-          right: 16,
+        Padding(
+          padding: const EdgeInsets.only(bottom: 130),
           child: CircleAvatar(
             backgroundColor: Colors.blueAccent,
-            backgroundImage: NetworkImage(profilePicture),
-            radius: 66,
+            backgroundImage:
+                profilePicture != null ? NetworkImage(profilePicture) : null,
+            radius: 40,
           ),
         ),
-        //...top circlular image part,
       ],
     );
   }
-  
+
   Widget _getBottomLine(context) {
-    if(loading) return CircularProgressIndicator();
-    else if(error != null) return ErrorText(error);
+    if (loading)
+      return CircularProgressIndicator();
+    else if (error != null) return ErrorText(error);
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       mainAxisSize: MainAxisSize.min,
