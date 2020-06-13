@@ -4,6 +4,8 @@ import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/ui/home/home_viewmodel.dart';
+import 'package:web/widgets/custom_spinner.dart';
+import 'package:web/widgets/game_title.dart';
 import 'package:web/widgets/room_invite/room_invite_dialog.dart';
 
 @immutable
@@ -17,7 +19,7 @@ class HomeViewArguments {
       {@required this.userCredentials,
       @required this.userId,
       this.socket,
-      this.rematchOpponentId = "suwP4nh3n5eksHHO5QBEA4Tn6ik1"});
+      this.rematchOpponentId});
 }
 
 class HomeView extends StatelessWidget {
@@ -35,47 +37,79 @@ class HomeView extends StatelessWidget {
           rematchOpponentId: arguments.rematchOpponentId),
       onModelReady: (model) => model.init(),
       builder: (context, model, child) => Scaffold(
-        body: Container(
-          child: Center(
-              child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
+        backgroundColor: Colors.blue[300],
+        body: Stack(children: [
+          Container(
+            child: Center(
+                child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(children: [
                 if (model.socket != null) RoomInviteDialog(model.socket),
+                GameTitle(
+                  fontSize: 100,
+                ),
+                SizedBox(
+                  height: 100,
+                ),
                 model.roomData.when(
                     success: (_) => Container(),
-                    error: (err) =>
-                        Column(children: [playButton(model.play), Text(err)]),
-                    loading: () => Center(child: CircularProgressIndicator()),
-                    notAsked: () => Column(children: [
-                          playButton(model.play),
-                          _logoutButton(model.signOut)
-                        ]))
-              ])),
-        ),
+                    error: (err) => _buttonsColumn(model, error: err),
+                    loading: () => Column(
+                      children: [
+                        Center(
+                                child: CustomSpinner()),
+                        SizedBox(height: 15,),
+                        Text("Looking for an opponent...", 
+                          textAlign: TextAlign.center,
+                          style: TextStyle(color: Colors.white, fontSize: 30),)
+                      ],
+                    ),
+                    notAsked: () => _buttonsColumn(model))
+              ]),
+            )),
+          ),
+          model.userNameData.when(
+              success: (userName) => Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Padding(
+                      padding: const EdgeInsets.all(10),
+                      child: Text(
+                        'Signed in as $userName',
+                        style: TextStyle(color: Colors.white, fontSize: 25),
+                      ),
+                    ),
+                  ),
+              error: (_) => Container(),
+              loading: () => Container(),
+              notAsked: () => Container())
+        ]),
       ),
     );
   }
 
-  Widget _logoutButton(Function signOut) => RaisedButton(
-        padding: EdgeInsets.all(8),
-        child: Text(
-          'Sign Out',
-          style: TextStyle(fontSize: 20),
+  Widget _buttonsColumn(HomeViewModel model, {String error}) =>
+      Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+        _button(model.play, "Play!"),
+        if (error != null) Text(error),
+        SizedBox(
+          height: 30,
         ),
-        onPressed: signOut,
-      );
+        _button(model.signOut, "Sign out", fontSize: 25)
+      ]);
 
-  Widget playButton(Function play) => RaisedButton(
+  Widget _button(Function onPress, String text, {double fontSize = 35}) =>
+      RaisedButton(
+        elevation: 3,
         padding: EdgeInsets.all(8),
-        color: Colors.yellow,
+        color: Colors.white,
         child: Text(
-          'Play!',
+          text,
           style: TextStyle(
-            fontSize: 30,
+            fontSize: fontSize,
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
-        onPressed: play,
+        onPressed: onPress,
       );
 }

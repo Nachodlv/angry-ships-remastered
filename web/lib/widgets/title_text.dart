@@ -4,7 +4,7 @@ class TitleText extends StatelessWidget {
   final String text;
   final double textSize;
 
-  TitleText(this.text, {this.textSize = 30});
+  TitleText(this.text, {this.textSize = 40});
 
   @override
   Widget build(BuildContext context) {

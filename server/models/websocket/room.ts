@@ -2,7 +2,7 @@
 
 export class Room {
     static MAXIMUM_USERS: number = 2;
-    static SECONDS_PER_TURN: number = 5;
+    static SECONDS_PER_TURN: number = 30;
     
     public currentTurn: number = 0;
     public private: boolean = false;

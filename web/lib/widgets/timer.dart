@@ -43,7 +43,7 @@ class _CountdownState extends State<Countdown> {
   
   @override
   Widget build(BuildContext context) {
-    return TitleText(_currentDuration.inSeconds.toString(), textSize: 20,);
+    return TitleText(_currentDuration.inSeconds.toString(), textSize: 25,);
   }
   
   resetCountdown() {
@@ -56,7 +56,6 @@ class _CountdownState extends State<Countdown> {
     int lastCall = DateTime.now().microsecondsSinceEpoch;
     final interval = Duration(seconds: 1);
     _timer = Timer.periodic(interval, (timer) {
-      int deltaTime = DateTime.now().microsecondsSinceEpoch - lastCall;
       _currentDuration -= interval;
       if(_currentDuration.inSeconds <= 0) {
         timer.cancel();

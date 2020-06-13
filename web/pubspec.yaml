@@ -32,6 +32,15 @@ flutter:
   assets:
    - assets/images/
 
+  fonts:
+    - family: Teko
+      fonts:
+        - asset: assets/fonts/teko/Teko-Bold.ttf
+        - asset: assets/fonts/teko/Teko-Light.ttf
+        - asset: assets/fonts/teko/Teko-Medium.ttf
+        - asset: assets/fonts/teko/Teko-Regular.ttf
+        - asset: assets/fonts/teko/Teko-SemiBold.ttf
+    
   # fonts:
   #   - family: Schyler
   #     fonts:

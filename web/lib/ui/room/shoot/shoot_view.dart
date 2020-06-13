@@ -5,6 +5,7 @@ import 'package:stacked/stacked.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/ui/room/grid_view.dart';
 import 'package:web/ui/room/shoot/shoot_viewmodel.dart';
+import 'package:web/widgets/custom_spinner.dart';
 import 'package:web/widgets/error_text.dart';
 import 'package:web/widgets/timer.dart';
 import 'package:web/widgets/title_text.dart';
@@ -39,10 +40,10 @@ class ShootView extends StatelessWidget {
             child: Column(
               children: [
                 Container(
-                    height: windowHeight * 0.1,
+                    height: windowHeight * 0.15,
                     child: Center(
                       child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.start,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           TitleText(model.myTurn
@@ -67,15 +68,18 @@ class ShootView extends StatelessWidget {
                               child: model.myTurn
                                   ? TitleText(
                                       'Click a tile to shoot',
-                                      textSize: 20,
+                                      textSize: 25,
                                     )
                                   : null,
                             ),
-                            Grid(
-                              tileSize: (windowWidth * 0.30) / kTilesPerRow,
-                              shoots: model.selfShoots,
-                              sunkenBoats: model.opponentSunkenBoats,
-                              onGridClicked: model.shoot,
+                            Container(
+                              decoration: BoxDecoration(border: Border.all(color: Colors.red, width: 5)),
+                              child: Grid(
+                                tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                                shoots: model.selfShoots,
+                                sunkenBoats: model.opponentSunkenBoats,
+                                onGridClicked: model.shoot,
+                              ),
                             ),
                           ],
                         ),
@@ -84,11 +88,14 @@ class ShootView extends StatelessWidget {
                             Container(
                               height: windowHeight * 0.05,
                             ),
-                            Grid(
-                              tileSize: (windowWidth * 0.30) / kTilesPerRow,
-                              sunkenBoats: model.selfSunkenBoats,
-                              shoots: model.opponentShoots,
-                              placedBoats: arguments.boats,
+                            Container(
+                              decoration: BoxDecoration(border: Border.all(color: Colors.green, width: 5)),
+                              child: Grid(
+                                tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                                sunkenBoats: model.selfSunkenBoats,
+                                shoots: model.opponentShoots,
+                                placedBoats: arguments.boats,
+                              ),
                             ),
                           ],
                         )
@@ -103,7 +110,7 @@ class ShootView extends StatelessWidget {
                         children: [
                           TitleText(
                             "Auto play",
-                            textSize: 20,
+                            textSize: 25,
                           ),
                           Switch(
                             value: model.autoPlay,
@@ -116,7 +123,7 @@ class ShootView extends StatelessWidget {
                           children: [
                             TitleText(
                               'Time left:',
-                              textSize: 20,
+                              textSize: 25,
                             ),
                             SizedBox(width: 5),
                             Countdown(
@@ -143,16 +150,17 @@ class ShootView extends StatelessWidget {
                 ErrorText(error)
               ],
             ),
-        loading: () => CircularProgressIndicator(),
+        loading: () => CustomSpinner(),
         notAsked: () => _randomShootButton(model.randomShoot, model.myTurn));
   }
 
   Widget _randomShootButton(Function randomShoot, bool myTurn) {
     return RaisedButton(
+      color: Colors.white,
       onPressed: myTurn ? randomShoot : null,
       child: Text(
         myTurn ? 'Random shoot' : 'Waiting for the opponent',
-        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25),
       ),
     );
   }

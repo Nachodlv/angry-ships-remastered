@@ -13,7 +13,7 @@ void main() async {
 
 ThemeData angryShipsTheme(BuildContext context) => ThemeData(
       textTheme: Theme.of(context).textTheme.apply(
-            fontFamily: 'Poppins',
+            fontFamily: 'Teko',
           ),
     );
 

@@ -9,6 +9,7 @@ import 'package:web/models/auth.dart';
 import 'package:web/services/auth/auth_service.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
+import 'package:web/services/user/user_service.dart';
 import 'package:web/services/websockets/boat_placement_ws_service.dart';
 import 'package:web/services/websockets/chat_ws_service.dart';
 import 'package:web/services/websockets/room_invite_ws_service.dart';
@@ -38,9 +39,11 @@ class HomeViewModel extends ChangeNotifier {
   NavigationService _navigationService = locator<NavigationService>();
   RoomWsService _roomWsService = locator<RoomWsService>();
   SocketManager _socketManager = locator<SocketManager>();
+  UserService _userService = locator<UserService>();
   AuthenticationService _authenticationService =
       locator<AuthenticationService>();
   RemoteData<String, Unit> roomData = RemoteData.notAsked();
+  RemoteData<String, String> userNameData = RemoteData.notAsked();
 
   init() async {
     if (this.credentials == null || this.userId == null) {
@@ -52,6 +55,13 @@ class HomeViewModel extends ChangeNotifier {
       if (rematchOpponentId != null) _rematch();
     });
 
+    _userService.getUser(userId, credentials.token).then((user) {
+      userNameData = RemoteData.success(user.name);
+      notifyListeners();
+    }).catchError(() {
+      userNameData = RemoteData.error('Couldn\'t retrieve the user');
+      notifyListeners();
+  });
     _onRoomOpenedSub = _roomWsService.onRoomOpened.listen((roomId) async {
       _setRoomData(RemoteData.success(unit));
       _navigationService.navigateTo(Routes.ROOM,

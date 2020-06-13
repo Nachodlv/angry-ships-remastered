@@ -12,7 +12,7 @@ import 'package:web/widgets/timer.dart';
 import '../../../global.dart';
 
 class ShootViewModel extends ChangeNotifier {
-  static const TURN_DURATION = Duration(seconds: 5);
+  static const TURN_DURATION = Duration(seconds: 30);
   final Socket socket;
   final CountDownController countdownController = CountDownController();
   
