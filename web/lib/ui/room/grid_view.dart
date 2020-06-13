@@ -151,11 +151,8 @@ class Grid extends StatelessWidget {
           child: SizedBox(
               height: tileSize,
               width: tileSize,
-              child: Padding(
-                padding: EdgeInsets.all(tileSize * 0.2),
-                child: Container(
-                  color: shoot.boatShoot ? Colors.green : Colors.blueGrey,
-                ),
+              child: Icon(
+                shoot.boatShoot ? Icons.clear : Icons.radio_button_unchecked,
               )),
         ),
       );
