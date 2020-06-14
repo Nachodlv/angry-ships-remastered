@@ -9,7 +9,7 @@ class LoadView extends StatelessWidget {
   Widget build(BuildContext context) {
     return ViewModelBuilder<LoadViewModel>.reactive(
       viewModelBuilder: () => LoadViewModel(),
-      onModelReady: (model) => model.init(),
+      onModelReady: (model) => model.init(context),
       builder: (context, model, child) => Scaffold(
         backgroundColor: Colors.blue[300],
         body: Center(

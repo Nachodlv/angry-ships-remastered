@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
@@ -16,11 +17,10 @@ class LoadViewModel extends ChangeNotifier {
   StreamSubscription<RemoteData<String, SignInState>> onUserStateChange;
   
   NavigationService _navigationService = locator<NavigationService>();
-  AuthenticationService _authenticationService =
-      locator<AuthenticationService>();
+  AuthenticationService _authenticationService = locator<AuthenticationService>();
   UserService _userService = locator<UserService>();
 
-  init() {
+  init(BuildContext context) async {
     onUserStateChange = _authenticationService.userStateChangeStream.listen((data) {
       _setUserState(data);
       data.maybeWhen(

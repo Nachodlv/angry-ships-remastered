@@ -7,8 +7,7 @@ import 'package:web/ui/room/boat_placement/boat_placement_view.dart';
 import 'package:web/ui/room/shoot/shoot_view.dart';
 
 void main() async {
-  await setupLocator();
-  runApp(App());
+  runApp(Locator());
 }
 
 ThemeData angryShipsTheme(BuildContext context) => ThemeData(
@@ -16,6 +15,19 @@ ThemeData angryShipsTheme(BuildContext context) => ThemeData(
             fontFamily: 'Teko',
           ),
     );
+
+class Locator extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return FutureBuilder(
+      future: setupLocator(context),
+      builder: (context, snapshot) {
+        print('Has data: ${snapshot.hasData}, data: ${snapshot.data}');
+        return snapshot.hasData ? App() : Container();
+      },
+    );
+  }
+}
 
 class App extends StatelessWidget {
   @override
