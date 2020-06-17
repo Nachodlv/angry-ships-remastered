@@ -17,9 +17,10 @@ class BoatDraggable extends StatefulWidget {
   final Boat boat;
   final double tileSize;
   final BoatDraggableController controller;
+  final FocusNode focusNode;
 
   BoatDraggable(this.boat, this.tileSize,
-      {Key key, BoatDraggableController controller})
+      {Key key, BoatDraggableController controller, this.focusNode})
       : this.controller = controller ?? BoatDraggableController(),
         super(key: key);
 
@@ -46,7 +47,10 @@ class _BoatDraggableState extends State<BoatDraggable> {
     return Draggable<Boat>(
       dragAnchor: DragAnchor.pointer,
       data: widget.boat,
-      onDragStarted: () => dragging = true,
+      onDragStarted: () {
+        dragging = true;
+        FocusScope.of(context).requestFocus(widget.focusNode);
+      },
       onDragEnd: (_) => dragging = false,
       onDraggableCanceled: (_, __) => dragging = false,
       onDragCompleted: () => dragging = false,
@@ -57,7 +61,8 @@ class _BoatDraggableState extends State<BoatDraggable> {
               ? snapshot.data.getBox(widget.tileSize, Colors.grey[600])
               : Container()),
       child: widget.boat.getBox(widget.tileSize, Colors.blue[500]),
-      childWhenDragging: widget.boat.getBox(widget.tileSize, Colors.transparent),
+      childWhenDragging:
+          widget.boat.getBox(widget.tileSize, Colors.transparent),
     );
   }
 

@@ -5,6 +5,7 @@ import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/ui/home/home_viewmodel.dart';
 import 'package:web/widgets/custom_spinner.dart';
+import 'package:web/widgets/error_text.dart';
 import 'package:web/widgets/game_title.dart';
 import 'package:web/widgets/room_invite/room_invite_dialog.dart';
 
@@ -90,7 +91,7 @@ class HomeView extends StatelessWidget {
   Widget _buttonsColumn(HomeViewModel model, {String error}) =>
       Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         _button(model.play, "Play!"),
-        if (error != null) Text(error),
+        if (error != null) ErrorText(error),
         SizedBox(
           height: 30,
         ),

@@ -62,6 +62,7 @@ class BoatPlacementView extends StatelessWidget {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         BoatBucket(
+                          focusNode: model.focusNode,
                           isBoatAcceptableInBucket:
                               model.isBoatAcceptableInBucket,
                           onAcceptBoatInBucket: model.onAcceptBoatInBucket,

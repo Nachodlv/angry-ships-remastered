@@ -9,7 +9,7 @@ class ErrorText extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(text, 
       style: TextStyle(
-          color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),);
+          color: Colors.red, fontSize: 25, fontWeight: FontWeight.bold),);
   }
   
 }

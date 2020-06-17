@@ -14,6 +14,7 @@ import 'package:web/widgets/boat_draggable.dart';
 class BoatPlacementViewModel extends ChangeNotifier{
   final Socket socket;
   final Function(List<Boat>) finishPlacingBoats;
+  final FocusNode focusNode = FocusNode();
   
   BoatPlacementWsService _boatPlacementWsService = locator<BoatPlacementWsService>();
   

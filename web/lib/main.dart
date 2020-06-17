@@ -1,8 +1,10 @@
 import 'package:web/global.dart';
+import 'package:web/models/websocket/game_over_response.dart';
 import 'package:web/services/navigation/navigation_routes.dart';
 import 'package:web/services/navigation/navigation_service.dart';
 import 'package:flutter/material.dart';
 import 'package:web/services/navigation/router.dart';
+import 'package:web/ui/game_over/game_over_view.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_view.dart';
 import 'package:web/ui/room/shoot/shoot_view.dart';
 
@@ -21,10 +23,7 @@ class Locator extends StatelessWidget {
   Widget build(BuildContext context) {
     return FutureBuilder(
       future: setupLocator(context),
-      builder: (context, snapshot) {
-        print('Has data: ${snapshot.hasData}, data: ${snapshot.data}');
-        return snapshot.hasData ? App() : Container();
-      },
+      builder: (context, snapshot)  => snapshot.hasData ? App() : Container(),
     );
   }
 }
@@ -42,9 +41,8 @@ class App extends StatelessWidget {
 //    return MaterialApp(
 //      builder: (_, __) => Scaffold(
 //        backgroundColor: Colors.blue[300],
-//          body: ShootView(
-//              arguments: ShootViewArguments(
-//                  socket: null, firstTurn: true, boats: []))),
+//          body: GameOverView(
+//              GameOverArguments(socket: null, userId: null, userCredentials: null, gameOverResponse: GameOverResponse('123', '123')))),
 //    );
   }
 }

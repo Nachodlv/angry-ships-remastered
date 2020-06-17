@@ -36,23 +36,16 @@ class RoomViewModel extends ChangeNotifier {
 
   StreamSubscription<void> onRoomClosedSub;
   StreamSubscription<String> onErrorSocketSub;
-  StreamSubscription<Message> onMessageSub;
   StreamSubscription<RoomReadyResponse> onRoomReadySub;
   StreamSubscription<GameOverResponse> onGameOverSub;
-  TextEditingController textInputController;
 
-  List<Message> messages = [];
+  final NavigationService _navigationService = locator<NavigationService>();
+  final RoomService _roomService = locator<RoomService>();
+  final UserService _userService = locator<UserService>();
+  final RoomWsService _roomWsService = locator<RoomWsService>();
+  final SocketManager _socketManager = locator<SocketManager>();
 
-  NavigationService _navigationService = locator<NavigationService>();
-  RoomService _roomService = locator<RoomService>();
-  UserService _userService = locator<UserService>();
-  RoomWsService _roomWsService = locator<RoomWsService>();
-  ChatWsService _chatWsService = locator<ChatWsService>();
-  SocketManager _socketManager = locator<SocketManager>();
-
-  RoomViewModel({this.socket, this.roomId, this.credentials, this.userId}) {
-    textInputController = TextEditingController();
-  }
+  RoomViewModel({this.socket, this.roomId, this.credentials, this.userId});
 
   init() async {
     if (credentials == null || userId == null) {
@@ -77,17 +70,10 @@ class RoomViewModel extends ChangeNotifier {
     });
 
     room = await _roomService.getRoomById(roomId, credentials.token);
-    messages = room
-        .messages; // Initial messages; Is this info always duplicated? What's the purpose of this field in room?
 
     user = await _userService.getUser(userId, credentials.token);
     final opponentId = room.users.firstWhere((id) => id != userId);
     opponent = await _userService.getUser(opponentId, credentials.token);
-
-    onMessageSub = _chatWsService.onMessage.listen((message) {
-      messages.add(message);
-      notifyListeners();
-    });
 
     onRoomReadySub = _roomWsService.onRoomReady.listen((roomReady) {
       boatsPlaced = true;
@@ -103,18 +89,9 @@ class RoomViewModel extends ChangeNotifier {
               userId: userId,
               gameOverResponse: response));
     });
-  }
-
-  isMessageFromUser(Message msg) => userId == msg.userId;
-
-  void sendMessage() {
-    final input = textInputController.text;
-    final message = Message(text: input, userId: user.id.id);
-    _chatWsService.sendMessage(socket, message);
-    messages.add(message);
-    textInputController.clear();
     notifyListeners();
   }
+
 
   finishPlacingBoats(List<Boat> boats) {
     this.boats = boats;
@@ -125,7 +102,6 @@ class RoomViewModel extends ChangeNotifier {
   void dispose() {
     onRoomClosedSub.cancel();
     onErrorSocketSub.cancel();
-    onMessageSub.cancel();
     onRoomReadySub.cancel();
     onGameOverSub.cancel();
     super.dispose();

@@ -32,7 +32,7 @@ class CustomDialog extends StatelessWidget {
       ),
       elevation: 0.0,
       insetPadding: EdgeInsets.symmetric(
-          horizontal: MediaQuery.of(context).size.width * 0.2),
+          horizontal: MediaQuery.of(context).size.width * 0.25),
       backgroundColor: Colors.transparent,
       child: dialogContent(context),
     );
@@ -68,7 +68,7 @@ class CustomDialog extends StatelessWidget {
               Text(
                 title,
                 style: TextStyle(
-                  fontSize: 24.0,
+                  fontSize: 35.0,
                   fontWeight: FontWeight.w700,
                 ),
               ),
@@ -77,7 +77,7 @@ class CustomDialog extends StatelessWidget {
                 description,
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontSize: 16.0,
+                  fontSize: 25.0,
                 ),
               ),
               SizedBox(height: 24.0),
@@ -89,12 +89,12 @@ class CustomDialog extends StatelessWidget {
           ),
         ),
         Padding(
-          padding: const EdgeInsets.only(bottom: 130),
+          padding: const EdgeInsets.only(bottom: 170),
           child: CircleAvatar(
             backgroundColor: Colors.blueAccent,
             backgroundImage:
                 profilePicture != null ? NetworkImage(profilePicture) : null,
-            radius: 40,
+            radius: 50,
           ),
         ),
       ],
@@ -106,20 +106,30 @@ class CustomDialog extends StatelessWidget {
       return CircularProgressIndicator();
     else if (error != null) return ErrorText(error);
     return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
         FlatButton(
           onPressed: () {
             Navigator.of(context).pop();
             onCancel();
           },
-          child: Text(cancelText),
+          child: Text(
+            cancelText,
+            style: TextStyle(fontSize: 25),
+          ),
+          hoverColor: Colors.red[400],
         ),
         FlatButton(
-          onPressed: onAccept,
-          child: Text(acceptText),
-        ),
+          onPressed: () {
+            Navigator.of(context).pop();
+            onAccept();
+          },
+          child: Text(
+            acceptText,
+            style: TextStyle(fontSize: 25),
+          ),
+          hoverColor: Colors.blue[400],
+        )
       ],
     );
   }

@@ -17,11 +17,12 @@ class BoatBucket extends StatelessWidget {
   final List<Boat> userBoats;
   final Function(Boat boat) onAcceptBoatInBucket;
   final double tileSize;
-  final FocusNode _focusNode = FocusNode();
   final List<BoatDraggableController> controllers;
+  final FocusNode focusNode;
 
   BoatBucket(
       {@required this.isBoatAcceptableInBucket,
+        @required this.focusNode,
       this.userBoats = const [],
       @required this.controllers,
       @required this.onAcceptBoatInBucket,
@@ -29,8 +30,6 @@ class BoatBucket extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    FocusScope.of(context).requestFocus(_focusNode);
-
     return Container(
         width: 3.5 * tileSize,
         child: Card(
@@ -43,7 +42,7 @@ class BoatBucket extends StatelessWidget {
                 if (keyEvent.data.physicalKey.debugName == "Key R")
                   controllers.forEach((element) => element.rotate());
               },
-              focusNode: _focusNode,
+              focusNode: focusNode,
               child: DragTarget<Boat>(
                 builder: (context, candidateData, rejectedData) =>
                     StaggeredGridView.countBuilder(
@@ -55,6 +54,7 @@ class BoatBucket extends StatelessWidget {
                   itemBuilder: (context, index) => BoatDraggable(
                     userBoats[index],
                     tileSize,
+                    focusNode: focusNode,
                     key: ValueKey(userBoats[index].id),
                     controller: controllers[index],
                   ),
