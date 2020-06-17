@@ -2,13 +2,17 @@
 import express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fs = require('fs');
 export const app: express.Application = express();
-const http = require('http').createServer(app);
+const https = require('https').createServer({
+    key: fs.readFileSync('credentials/server.key'),
+    cert: fs.readFileSync('credentials/server.cert'),
+}, app);
 app.use(bodyParser.json());
 app.use(cors());
 
 // Socket.io
-export const io = require('socket.io')(http, {origin: "localhost:* chrome-extension://*"});
+export const io = require('socket.io')(https, {origin: "localhost:* chrome-extension://*"});
 import {authenticateWebSocket} from "./ws-middleware";
 io.use(authenticateWebSocket)
 
@@ -23,7 +27,7 @@ import {initialize} from "./initializer";
 require('./http-middleware').authenticateRoutes();
 
 const startServer = () => {
-    http.listen(3000, function () {
+    https.listen(3000, function () {
         console.log('App is listening on port 3000!');
     });
 };
