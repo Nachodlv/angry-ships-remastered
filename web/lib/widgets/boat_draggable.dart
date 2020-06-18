@@ -8,7 +8,6 @@ class BoatDraggableController {
   _BoatDraggableState _state;
 
   rotate() {
-    print('State: $_state');
     _state?.rotate();
   }
 }
@@ -67,7 +66,6 @@ class _BoatDraggableState extends State<BoatDraggable> {
   }
 
   rotate() {
-    print('Dragging: $dragging');
     if (!dragging) return;
     widget.boat.rotationIndex = widget.boat.rotationIndex == 0 ? 1 : 0;
     _boatStream.add(widget.boat);

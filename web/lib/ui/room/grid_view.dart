@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:extended_math/extended_math.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:web/global.dart';
 import 'package:web/models/boat.dart';
@@ -36,8 +37,9 @@ class BoatBucket extends StatelessWidget {
           elevation: 3,
           child: RawKeyboardListener(
               onKey: (keyEvent) {
-                if (keyEvent.runtimeType.toString() != 'RawKeyDownEvent')
+                if (keyEvent.runtimeType != RawKeyDownEvent)
                   return;
+                print(keyEvent.data.keyLabel);
                 if (keyEvent.data.keyLabel == "r")
                   controllers.forEach((element) => element.rotate());
               },

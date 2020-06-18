@@ -120,7 +120,6 @@ class BoatPlacementViewModel extends ChangeNotifier{
   bool _isOverlapping(Boat boat, Point pivot) {
     for (var placeBoat in placedBoats) {
       for (var point in placeBoat.globalPoints()) {
-        print('Placed boat point: (${point.row}, ${point.column})');
         for (var possiblePoint in boat.globalPoints(point: pivot)) {
           if(point == possiblePoint) return true;
         }

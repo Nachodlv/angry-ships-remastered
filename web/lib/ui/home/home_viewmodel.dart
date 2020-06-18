@@ -84,7 +84,6 @@ class HomeViewModel extends ChangeNotifier {
   play() {
     _setRoomData(RemoteData.loading());
     _roomWsService.findRoom(socket).then((response) {
-      print('Searching for a room ...');
       if (!response.startFinding)
         _setRoomData(RemoteData.error(response.message));
     });

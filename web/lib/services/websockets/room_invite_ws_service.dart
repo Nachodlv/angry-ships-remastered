@@ -27,7 +27,6 @@ class RoomInviteWsService {
 
   _subscribeToGameInvites(Socket socket) {
     socket.on('invite', (data) {
-      print('Invited!!');
       _roomInviteController.add(RoomInviteResponse.fromJson(data));
     });
   }
