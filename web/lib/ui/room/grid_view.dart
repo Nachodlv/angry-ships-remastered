@@ -38,8 +38,7 @@ class BoatBucket extends StatelessWidget {
               onKey: (keyEvent) {
                 if (keyEvent.runtimeType.toString() != 'RawKeyDownEvent')
                   return;
-                print(keyEvent.data.physicalKey.debugName);
-                if (keyEvent.data.physicalKey.debugName == "Key R")
+                if (keyEvent.data.keyLabel == "r")
                   controllers.forEach((element) => element.rotate());
               },
               focusNode: focusNode,
