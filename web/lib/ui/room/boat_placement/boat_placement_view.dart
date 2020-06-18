@@ -36,7 +36,7 @@ class BoatPlacementView extends StatelessWidget {
       builder: (context, model, child) => Column(
         children: [
           Container(
-            height: windowHeight * 0.1,
+            height: windowHeight * 0.15,
             child: Center(
                 child: Column(
               mainAxisAlignment: MainAxisAlignment.center,

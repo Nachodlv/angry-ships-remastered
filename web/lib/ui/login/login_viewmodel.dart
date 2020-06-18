@@ -13,6 +13,7 @@ import 'package:web/ui/home/home_view.dart';
 class LoginViewModel extends ChangeNotifier {
   RemoteData<String, SignInState> userState = RemoteData.notAsked();
 
+  bool logged = false;
   StreamSubscription<RemoteData<String, SignInState>> userStateSub;
   NavigationService _navigationService = locator<NavigationService>();
   AuthenticationService _authenticationService = locator<AuthenticationService>();
@@ -46,6 +47,8 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   _retrieveUser(UserSession session) async {
+    if(logged) return;
+    logged = true;
     userStateSub.cancel();
     userState = RemoteData.loading();
     notifyListeners();
@@ -56,6 +59,7 @@ class LoginViewModel extends ChangeNotifier {
     }
 
     final user = await _userService.getUser(session.user.id.id, session.credentials.token);
+    print('Going home');
     _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: session.credentials, userId: user.id.id));
   }
   
