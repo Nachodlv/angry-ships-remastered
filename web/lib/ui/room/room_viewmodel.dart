@@ -76,6 +76,7 @@ class RoomViewModel extends ChangeNotifier {
     opponent = await _userService.getUser(opponentId, credentials.token);
 
     onRoomReadySub = _roomWsService.onRoomReady.listen((roomReady) {
+      print('Room Ready!');
       boatsPlaced = true;
       firstTurn = roomReady.firstUser == userId;
       notifyListeners();

@@ -21,11 +21,11 @@ class RoomInviteDialog extends StatelessWidget {
 
   Widget getDialog(context, String name, String profilePicture, RoomInviteDialogModel model) {
     final dialog = (bool loading, {String error}) => _customDialog(name, profilePicture, model, loading, error);
-    return model.acceptInviteData.map(
+    return model.acceptInviteData.when(
         success: (_) => dialog(false),
-        error: (result) => dialog(false, error: result.error),
-        loading: (_) => dialog(true),
-        notAsked: (_) => dialog(false));
+        error: (result) => dialog(false, error: result),
+        loading: () => dialog(true),
+        notAsked: () => dialog(false));
   }
 
 

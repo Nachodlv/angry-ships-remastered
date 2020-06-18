@@ -101,6 +101,11 @@ class HomeViewModel extends ChangeNotifier {
       print(e);
     }
   }
+  
+  cancelFindRoom() {
+    _setRoomData(RemoteData.notAsked());
+    _roomWsService.cancelFindRoom(socket);
+  }
 
   _setRoomData(RemoteData<String, Unit> data) {
     roomData = data;

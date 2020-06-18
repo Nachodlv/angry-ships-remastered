@@ -4,8 +4,8 @@ import 'package:web/widgets/error_text.dart';
 class CustomDialog extends StatelessWidget {
   final String title, description, acceptText, cancelText;
   final Image image;
-  final Function onAccept;
-  final Function onCancel;
+  final Function(BuildContext) onAccept;
+  final Function(BuildContext) onCancel;
   final bool loading;
   final String error;
   final String profilePicture;
@@ -15,14 +15,16 @@ class CustomDialog extends StatelessWidget {
     @required this.description,
     @required this.acceptText,
     @required this.cancelText,
-    Function onAccept,
-    Function onCancel,
+    Function(BuildContext) onAccept,
+    Function(BuildContext) onCancel,
     this.profilePicture,
     this.loading = false,
     this.error,
     this.image,
   })  : onAccept = onAccept ?? (() {}),
-        onCancel = onCancel ?? (() {});
+        onCancel = onCancel ?? (() {}) {
+    print('error received: $error');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -104,33 +106,28 @@ class CustomDialog extends StatelessWidget {
   Widget _getBottomLine(context) {
     if (loading)
       return CircularProgressIndicator();
-    else if (error != null) return ErrorText(error);
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
+    return Column(
       children: [
-        FlatButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            onCancel();
-          },
-          child: Text(
-            cancelText,
-            style: TextStyle(fontSize: 25),
-          ),
-          hoverColor: Colors.red[400],
+        if (error != null) ErrorText(error),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceAround,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _button(context, cancelText, onCancel, Colors.red[400]),
+            _button(context, acceptText, onAccept, Colors.blue[400])
+          ],
         ),
-        FlatButton(
-          onPressed: () {
-            Navigator.of(context).pop();
-            onAccept();
-          },
-          child: Text(
-            acceptText,
-            style: TextStyle(fontSize: 25),
-          ),
-          hoverColor: Colors.blue[400],
-        )
       ],
     );
   }
+  
+  
+  Widget _button(BuildContext context, String text, Function(BuildContext) onPressed, Color hoverColor) =>FlatButton(
+    onPressed: () => onPressed(context),
+    child: Text(
+      text,
+      style: TextStyle(fontSize: 25),
+    ),
+    hoverColor: hoverColor,
+  );
 }

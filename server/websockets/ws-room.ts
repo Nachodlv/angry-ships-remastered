@@ -20,6 +20,7 @@ export class WsRoom {
         this.onJoinPrivateRoom(socket);
         this.onAcceptRoomInvite(socket);
         this.onCancelRoomInvite(socket);
+        this.onCancelFindRoom(socket);
     }
 
     onDisconnect(socket: any) {
@@ -28,13 +29,7 @@ export class WsRoom {
 
             const userId = WsConnection.getUserId(socket);
             console.log(`User ${userId} disconnected`)
-
-            const room = this.roomService.removeUserFromRoom(userId);
-            if (!room) return;
-            if (room.started || room.users.length == 0) {
-                this.emitRoomClosed(room)
-;                console.log(`Room ${room.id} closed`);
-            }
+            this.removeUserFromRoom(userId);
             this.userService.deleteSocketId(userId);
         })
     }
@@ -84,7 +79,7 @@ export class WsRoom {
                 room.users.push(userId);
                 this.joinRoom(socket, room, userId);
             }
-            if(ack) ack(new RoomResponse(false, 'No room found with that id'));
+            if(ack) ack(new RoomResponse(false, 'Invite expired'));
         });
     }
     
@@ -96,6 +91,12 @@ export class WsRoom {
                 this.emitRoomClosed(room);
             }
         })
+    }
+    
+    onCancelFindRoom(socket: any) {
+        socket.on('cancel find room', () => {
+            this.removeUserFromRoom(WsConnection.getUserId(socket));
+        });
     }
     
     emitGameOver(room: Room, winnerId: string) {
@@ -140,6 +141,15 @@ export class WsRoom {
     private emitRoomClosed(room: Room) {
         io.to(room.id).emit('room closed');
         this.deleteRoom(room);
+    }
+    
+    private removeUserFromRoom(userId: string) {
+        const room = this.roomService.removeUserFromRoom(userId);
+        if (!room) return;
+        if (room.started || room.users.length == 0) {
+            this.emitRoomClosed(room);
+            console.log(`Room ${room.id} closed`);
+        }
     }
     
     private deleteRoom(room: Room) {

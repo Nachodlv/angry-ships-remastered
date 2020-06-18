@@ -33,6 +33,10 @@ class RoomWsService {
     return findRoom(socket, private: true, opponentId: opponentId);
   }
   
+  void cancelFindRoom(IO.Socket socket) {
+    return socket.emit('cancel find room');
+  }
+  
   void subscribe(IO.Socket socket) {
     _subscribeToSocket(socket);
   }

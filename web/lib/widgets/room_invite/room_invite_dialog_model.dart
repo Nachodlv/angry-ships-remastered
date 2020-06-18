@@ -37,21 +37,25 @@ class RoomInviteDialogModel extends ChangeNotifier {
     });
   }
 
-  acceptInvite() {
+  acceptInvite(BuildContext context) {
     if (roomId == null) return;
     acceptInviteData = RemoteData.loading();
     this._roomInviteWsService.acceptInvite(socket, roomId).then((value) {
       if (!value.startFinding) {
+        print('Error: ${value.message}');
         acceptInviteData = RemoteData.error(value.message);
         notifyListeners();
       }
     });
+    Navigator.of(context).pop();
+
     notifyListeners();
   }
 
-  cancelInvite() {
+  cancelInvite(BuildContext context) {
     if (roomId == null) return;
     _roomInviteWsService.cancelInvite(socket, roomId);
+    Navigator.of(context).pop();
   }
 
   @override

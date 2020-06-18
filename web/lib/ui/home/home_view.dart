@@ -62,7 +62,9 @@ class HomeView extends StatelessWidget {
                         SizedBox(height: 15,),
                         Text("Looking for an opponent...", 
                           textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white, fontSize: 30),)
+                          style: TextStyle(color: Colors.white, fontSize: 30),),
+                        SizedBox(height: 15,),
+                        _button(model.cancelFindRoom, 'Cancel', fontSize: 30)
                       ],
                     ),
                     notAsked: () => _buttonsColumn(model))
