@@ -52,36 +52,35 @@ class BoatPlacementView extends StatelessWidget {
           ),
           Container(
               height: windowHeight * 0.70,
-              child: Expanded(
-                child: Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(30),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        BoatBucket(
-                          focusNode: model.focusNode,
-                          isBoatAcceptableInBucket:
-                              model.isBoatAcceptableInBucket,
-                          onAcceptBoatInBucket: model.onAcceptBoatInBucket,
-                          tileSize: (windowWidth * 0.30) / kTilesPerRow,
-                          controllers: model.controllers,
-                          userBoats: model.userBoats,
-                        ),
-                        SizedBox(width: 50),
-                        Grid(
-                          onAcceptBoatInGrid: model.onAcceptBoatInGrid,
-                          isBoatAcceptableInGrid: model.isBoatAcceptableInGrid,
-                          tileSize: (windowWidth * 0.30) / kTilesPerRow,
-                          placedBoats: model.placedBoats,
-                        )
-                      ],
-                    ),
+              child: Card(
+                child: Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BoatBucket(
+                        focusNode: model.focusNode,
+                        isBoatAcceptableInBucket:
+                            model.isBoatAcceptableInBucket,
+                        onAcceptBoatInBucket: model.onAcceptBoatInBucket,
+                        tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                        controllers: model.controllers,
+                        userBoats: model.userBoats,
+                      ),
+                      SizedBox(width: 50),
+                      Grid(
+                        onAcceptBoatInGrid: model.onAcceptBoatInGrid,
+                        isBoatAcceptableInGrid: model.isBoatAcceptableInGrid,
+                        tileSize: (windowWidth * 0.30) / kTilesPerRow,
+                        placedBoats: model.placedBoats,
+                      )
+                    ],
                   ),
                 ),
-              )),
+              )
+          ),
           _placeBoatsSection(model, context)
         ],
       ),

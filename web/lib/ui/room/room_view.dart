@@ -33,6 +33,7 @@ class RoomView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final windowWidth = MediaQuery.of(context).size.width;
     return ViewModelBuilder<RoomViewModel>.reactive(
         viewModelBuilder: () => RoomViewModel(
             socket: this.arguments.socket,
@@ -44,8 +45,8 @@ class RoomView extends StatelessWidget {
               backgroundColor: Colors.blue[300],
               body: Row(
                 children: [
-                  Expanded(
-                    flex: 8,
+                  Container(
+                    width: windowWidth * 0.8,
                     child: model.boatsPlaced
                         ? ShootView(
                             arguments: ShootViewArguments(
@@ -58,8 +59,8 @@ class RoomView extends StatelessWidget {
                                 socket: model.socket),
                           ),
                   ),
-                  Expanded(
-                    flex: 2,
+                  Container(
+                    width: windowWidth * 0.2,
                     child: Padding(
                       padding: const EdgeInsets.all(8.0),
                       child: model.user != null &&
