@@ -71,7 +71,7 @@ class AuthenticationServiceFirebase implements AuthenticationService {
         _setUserState(RemoteData.notAsked());
         return SignInState.anonymous();
       }
-      else _setUserState(RemoteData.error('Google sign in exited.'));
+//      else _setUserState(RemoteData.error('Google sign in exited.'));
     }
 
     final GoogleSignInAuthentication googleSignInAuthentication =

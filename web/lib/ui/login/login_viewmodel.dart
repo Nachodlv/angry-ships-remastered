@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
 import 'package:web/models/auth.dart';
@@ -11,12 +13,13 @@ import 'package:web/ui/home/home_view.dart';
 class LoginViewModel extends ChangeNotifier {
   RemoteData<String, SignInState> userState = RemoteData.notAsked();
 
+  StreamSubscription<RemoteData<String, SignInState>> userStateSub;
   NavigationService _navigationService = locator<NavigationService>();
   AuthenticationService _authenticationService = locator<AuthenticationService>();
   UserService _userService = locator<UserService>();
 
   init() {
-    _authenticationService.userStateChangeStream
+    userStateSub = _authenticationService.userStateChangeStream
       .listen(
         (data) {
           _setUserState(data);
@@ -43,6 +46,9 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   _retrieveUser(UserSession session) async {
+    userStateSub.cancel();
+    userState = RemoteData.loading();
+    notifyListeners();
     try {
       await _userService.createUser(session.credentials.token);
     }  catch(e) {
@@ -51,5 +57,11 @@ class LoginViewModel extends ChangeNotifier {
 
     final user = await _userService.getUser(session.user.id.id, session.credentials.token);
     _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: session.credentials, userId: user.id.id));
+  }
+  
+  @override
+  void dispose() {
+    userStateSub.cancel();
+    super.dispose();
   }
 }
