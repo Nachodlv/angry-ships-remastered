@@ -52,6 +52,7 @@ export class WsRoom {
                 if(ack) ack(new RoomResponse(false, 'You can\'t invite yourself'));
                 return;
             }
+            if(this.checkIfAlreadyInRoom(userInvited, ack)) return;
             this.findRoom(socket, (response => {
                 if (response.startFinding) {
                     const socketId = this.userService.getSocketId(userInvited);
@@ -130,7 +131,7 @@ export class WsRoom {
     private checkIfAlreadyInRoom(userId: string, ack: (response: RoomResponse) => void): boolean {
         if (this.roomService.getRoomByUserId(userId)) {
             console.log(`User ${userId} already in a room`);
-            if (ack) ack({startFinding: false, message: "User already in a room", roomId: undefined});
+            if (ack) ack({startFinding: false, message: "User already playing", roomId: undefined});
             return true;
         }
         return false;
