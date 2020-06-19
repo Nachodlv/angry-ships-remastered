@@ -19,7 +19,7 @@ import 'package:web/services/websockets/socket_manager.dart';
 final locator = GetIt.instance;
 
 Future<Unit> setupLocator(BuildContext context) async {
-  final url = 'http://3.21.169.122:3000';
+  final url = 'http://3.128.103.8:3000';
   final json = jsonDecode(await DefaultAssetBundle.of(context).loadString('assets/credentials/firebase-credentials.json'));
   final app = await FirebaseApp.configure(
       name: "Angry Ships",
