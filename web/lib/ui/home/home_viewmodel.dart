@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:dartz/dartz.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:web/data_structures/remote_data.dart';
 import 'package:web/global.dart';
@@ -23,6 +24,9 @@ class HomeViewModel extends ChangeNotifier {
   final Credentials credentials;
   final String userId;
   final String rematchOpponentId;
+  final TextEditingController textInputController = TextEditingController();
+  final FocusNode focusNode = FocusNode();
+  final formKey = GlobalKey<FormState>();
 
   HomeViewModel(
       {@required this.credentials,
@@ -61,7 +65,7 @@ class HomeViewModel extends ChangeNotifier {
     }).catchError(() {
       userNameData = RemoteData.error('Couldn\'t retrieve the user');
       notifyListeners();
-  });
+    });
     _onRoomOpenedSub = _roomWsService.onRoomOpened.listen((roomId) async {
       _setRoomData(RemoteData.success(unit));
       _navigationService.navigateTo(Routes.ROOM,
@@ -101,10 +105,22 @@ class HomeViewModel extends ChangeNotifier {
       print(e);
     }
   }
-  
+
   cancelFindRoom() {
     _setRoomData(RemoteData.notAsked());
     _roomWsService.cancelFindRoom(socket);
+  }
+
+  inviteUserByEmail() {
+    final input = textInputController.text;
+    if (input.isEmpty) return;
+    _setRoomData(RemoteData.loading());
+    _roomWsService
+        .findRoom(socket, private: true, opponentEmail: input)
+        .then((value) {
+      if(!value.startFinding) _setRoomData(RemoteData.error(value.message));
+      else textInputController.clear();
+    });
   }
 
   _setRoomData(RemoteData<String, Unit> data) {

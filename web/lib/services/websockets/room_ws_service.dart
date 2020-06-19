@@ -19,9 +19,14 @@ class RoomWsService {
       _gameOverController = StreamController.broadcast();
   }
 
-  Future<FindRoomResponse> findRoom(IO.Socket socket, {bool private = false, String opponentId}) {
+  Future<FindRoomResponse> findRoom(IO.Socket socket, {bool private = false, String opponentId, String opponentEmail}) {
     final completer = Completer<FindRoomResponse>();
-    socket.emitWithAck(private ? 'private room' : 'find room', opponentId, ack: (response) {
+    String event;
+    if(!private) event = 'find room';
+    else if(opponentId != null) event = 'private room';
+    else event = 'private room email';
+    
+    socket.emitWithAck(event, opponentId ?? opponentEmail, ack: (response) {
       final findRoomResponse = FindRoomResponse.fromJson(response);
       completer.complete(findRoomResponse);
     });

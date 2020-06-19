@@ -26,6 +26,12 @@ class FirebaseAdmin {
             return UserFirebase.FromUserRecord(userRecord);
         })
     }
+    
+    getUserByEmail(email: string): Promise<UserFirebase> {
+        return this.app.auth().getUserByEmail(email).then(userRecord => {
+            return UserFirebase.FromUserRecord(userRecord);
+        });
+    }
 }
 
 export const firebaseAdmin = new FirebaseAdmin();

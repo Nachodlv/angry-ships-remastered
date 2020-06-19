@@ -21,6 +21,7 @@ export class WsRoom {
         this.onAcceptRoomInvite(socket);
         this.onCancelRoomInvite(socket);
         this.onCancelFindRoom(socket);
+        this.onJoinPrivateRoomByEmail(socket);
     }
 
     onDisconnect(socket: any) {
@@ -42,26 +43,17 @@ export class WsRoom {
 
     onJoinPrivateRoom(socket: any) {
         socket.on('private room', (userInvited: string, ack: (response: RoomResponse) => void) => {
-            const userId = WsConnection.getUserId(socket);
-            if(userInvited == userId) {
-                if(ack) ack(new RoomResponse(false, 'You can\'t invite yourself'));
-                return;
-            }
-            if(this.checkIfAlreadyInRoom(userInvited, ack)) return;
-            this.findRoom(socket, (response => {
-                if (response.startFinding) {
-                    const socketId = this.userService.getSocketId(userInvited);
-                    if (socketId) {
-                        this.userService.getUserById(userId).then(user => {
-                            console.log(`User ${userId} invited ${userInvited} to a private room`);
-                            io.to(socketId).emit('invite', {name: user.name, roomId: response.roomId, 
-                                profilePicture: user.imageUrl});
-                            if (ack) ack(response);
-                        })
-                    } else response.message = "User not connected";
-                }
-                if (ack) ack(response);
-            }), true);
+            this.inviteUser(userInvited, socket, ack);
+        });
+    }
+    
+    onJoinPrivateRoomByEmail(socket: any) {
+        socket.on('private room email', (email: string, ack: (response: RoomResponse) => void) => {
+            this.userService.getUserByEmail(email).then(user => {
+                this.inviteUser(user.id, socket, ack);
+            }).catch((_) => {
+                if(ack) ack(new RoomResponse(false, "User not found with that email"));
+            })
         });
     }
     
@@ -157,6 +149,33 @@ export class WsRoom {
         this.userBoardService.deleteUserBoardsByRoomId(room.id);
         this.roomService.deleteRoom(room.id);
     } 
+    
+    private inviteUser(userInvited: string, socket: any, ack: (response: RoomResponse) => void) {
+        const userId = WsConnection.getUserId(socket);
+        if(userInvited == userId) {
+            if(ack) ack(new RoomResponse(false, 'You can\'t invite yourself'));
+            return;
+        }
+        if(!this.userService.getSocketId(userInvited)) {
+            if(ack) ack(new RoomResponse(false, 'User not connected'));
+            return;
+        }
+        if(this.checkIfAlreadyInRoom(userInvited, ack)) return;
+        this.findRoom(socket, (response => {
+            if (response.startFinding) {
+                const socketId = this.userService.getSocketId(userInvited);
+                if (socketId) {
+                    this.userService.getUserById(userId).then(user => {
+                        console.log(`User ${userId} invited ${userInvited} to a private room`);
+                        io.to(socketId).emit('invite', {name: user.name, roomId: response.roomId,
+                            profilePicture: user.imageUrl});
+                        if (ack) ack(response);
+                    })
+                } else response.message = "User not connected";
+            }
+            if (ack) ack(response);
+        }), true);
+    }
 }
 
 class RoomResponse {

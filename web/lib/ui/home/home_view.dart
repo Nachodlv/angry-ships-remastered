@@ -54,20 +54,27 @@ class HomeView extends StatelessWidget {
                 ),
                 model.roomData.when(
                     success: (_) => Container(),
-                    error: (err) => _buttonsColumn(model, error: err),
+                    error: (err) => _buttonsColumn(model, context, error: err),
                     loading: () => Column(
-                      children: [
-                        Center(
-                                child: CustomSpinner()),
-                        SizedBox(height: 15,),
-                        Text("Looking for an opponent...", 
-                          textAlign: TextAlign.center,
-                          style: TextStyle(color: Colors.white, fontSize: 30),),
-                        SizedBox(height: 15,),
-                        _button(model.cancelFindRoom, 'Cancel', fontSize: 30)
-                      ],
-                    ),
-                    notAsked: () => _buttonsColumn(model))
+                          children: [
+                            Center(child: CustomSpinner()),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            Text(
+                              "Looking for an opponent...",
+                              textAlign: TextAlign.center,
+                              style:
+                                  TextStyle(color: Colors.white, fontSize: 30),
+                            ),
+                            SizedBox(
+                              height: 15,
+                            ),
+                            _button(model.cancelFindRoom, 'Cancel',
+                                fontSize: 30)
+                          ],
+                        ),
+                    notAsked: () => _buttonsColumn(model, context))
               ]),
             )),
           ),
@@ -90,12 +97,17 @@ class HomeView extends StatelessWidget {
     );
   }
 
-  Widget _buttonsColumn(HomeViewModel model, {String error}) =>
+  Widget _buttonsColumn(HomeViewModel model, BuildContext context,
+          {String error}) =>
       Column(mainAxisAlignment: MainAxisAlignment.center, children: [
         _button(model.play, "Play!"),
         if (error != null) ErrorText(error),
         SizedBox(
           height: 30,
+        ),
+        Container(width: 400, child: _emailInput(model, context)),
+        SizedBox(
+          height: 40,
         ),
         _button(model.signOut, "Sign out", fontSize: 25)
       ]);
@@ -114,5 +126,34 @@ class HomeView extends StatelessWidget {
           ),
         ),
         onPressed: onPress,
+      );
+
+  Widget _emailInput(HomeViewModel model, BuildContext context) => Form(
+        key: model.formKey,
+        child: Row(
+          children: [
+            Expanded(
+              child: TextFormField(
+                focusNode: model.focusNode,
+                decoration: InputDecoration(
+                    hintText: 'User email',
+                    hintStyle: TextStyle(color: Colors.white),
+                    enabledBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.blue[400])),
+                    focusedBorder: UnderlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white))),
+                cursorColor: Colors.white,
+                style: TextStyle(color: Colors.white, fontSize: 20),
+                controller: model.textInputController,
+                onFieldSubmitted: (_) {
+                  model.inviteUserByEmail();
+                  FocusScope.of(context).requestFocus(model.focusNode);
+                },
+              ),
+            ),
+            SizedBox(width: 10,),
+            _button(model.inviteUserByEmail, 'Invite user', fontSize: 25)
+          ],
+        ),
       );
 }

@@ -23,6 +23,11 @@ export class UserService {
         );
     }
     
+    getUserByEmail(email: string): Promise<User> {
+        return firebaseAdmin.getUserByEmail(email).then(firebaseUser => 
+            this.userProvider.getUserById(firebaseUser.id).then(user => User.FromFirebaseAndDatabase(firebaseUser, user)));
+    }
+    
     setSocketId(userId: string, socketId: string) {
         this.userProvider.addSocketIdToUser(userId, socketId);
     }
