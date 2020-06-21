@@ -16,21 +16,21 @@ class LoginViewModel extends ChangeNotifier {
   bool logged = false;
   StreamSubscription<RemoteData<String, SignInState>> userStateSub;
   NavigationService _navigationService = locator<NavigationService>();
-  AuthenticationService _authenticationService = locator<AuthenticationService>();
+  AuthenticationService _authenticationService =
+      locator<AuthenticationService>();
   UserService _userService = locator<UserService>();
 
   init() {
-    userStateSub = _authenticationService.userStateChangeStream
-      .listen(
-        (data) {
-          _setUserState(data);
-          data.maybeWhen(
-            success: (state) => state.maybeWhen(
-              (session) => _retrieveUser(session), 
-              orElse: () {}),
-            orElse: () {}
-          );
-        });
+    userStateSub = _authenticationService.userStateChangeStream.listen((data) {
+      _setUserState(data);
+      data.maybeWhen(
+          success: (state) => state.maybeWhen((session) {
+                if (logged) return;
+                logged = true;
+                _retrieveUser(session);
+              }, orElse: () {}),
+          orElse: () {});
+    });
   }
 
   signInWithGoogle() async {
@@ -47,22 +47,22 @@ class LoginViewModel extends ChangeNotifier {
   }
 
   _retrieveUser(UserSession session) async {
-    if(logged) return;
-    logged = true;
     userStateSub.cancel();
     userState = RemoteData.loading();
     notifyListeners();
     try {
       await _userService.createUser(session.credentials.token);
-    }  catch(e) {
-      print(e); // TODO Handle error
+    } catch (e) {
+      print(e);
     }
 
-    final user = await _userService.getUser(session.user.id.id, session.credentials.token);
-    print('Going home');
-    _navigationService.navigateTo(Routes.HOME, arguments: HomeViewArguments(userCredentials: session.credentials, userId: user.id.id));
+    final user = await _userService.getUser(
+        session.user.id.id, session.credentials.token);
+    await _navigationService.navigateTo(Routes.HOME,
+        arguments: HomeViewArguments(
+            userCredentials: session.credentials, userId: user.id.id));
   }
-  
+
   @override
   void dispose() {
     userStateSub.cancel();

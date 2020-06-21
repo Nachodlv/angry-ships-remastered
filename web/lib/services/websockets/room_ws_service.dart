@@ -10,7 +10,6 @@ class RoomWsService {
   StreamController<void> _roomClosedController;
   StreamController<RoomReadyResponse> _roomReadyController;
   StreamController<GameOverResponse> _gameOverController;
-  bool _subscribed = false;
   
   RoomWsService() {
       _roomOpenedController = StreamController.broadcast();
@@ -47,8 +46,6 @@ class RoomWsService {
   }
   
   void _subscribeToSocket(IO.Socket socket) {
-    if(_subscribed) return;
-    _subscribed = true;
     _subscribeOnRoomOpened(socket);
     _subscribeOnRoomClosed(socket);
     _subscribeOnRoomReady(socket);

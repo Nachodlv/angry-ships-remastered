@@ -58,7 +58,7 @@ class BoatPlacementViewModel extends ChangeNotifier{
       }
       else {
         boatsPlacedData = RemoteData.error("Boats not placed correctly");
-        boats.forEach((boat) => placedBoats.remove(boat));
+        boats.forEach((boat) => placedBoats.removeWhere((b) => b.id == boat.id));
         userBoats.addAll(boats);
       }
       notifyListeners();
@@ -72,12 +72,12 @@ class BoatPlacementViewModel extends ChangeNotifier{
   void onAcceptBoatInGrid(Boat boat, Point point) {
     boat.pivot = point;
     placedBoats.add(boat);
-    userBoats.remove(boat);
+    userBoats.removeWhere((b) => b.id == boat.id);
     notifyListeners();
   }
 
   void onAcceptBoatInBucket(Boat boat) {
-    placedBoats.remove(boat);
+    placedBoats.removeWhere((b) => b.id == boat.id);
     userBoats.add(boat);
     notifyListeners();
   }
@@ -97,7 +97,7 @@ class BoatPlacementViewModel extends ChangeNotifier{
   void placeBoatsRandomly() {
     boatsPlacedData = RemoteData.loading();
     _boatPlacementWsService.placeBoatsRandomly(placedBoats, socket).then((res) {
-      res.boatsWithErrors.forEach((boat) => placedBoats.remove(boat));
+      res.boatsWithErrors.forEach((boat) => placedBoats.removeWhere((b) => b.id == boat.id));
       placedBoats.addAll(res.boats);
       userBoats = [];
       boatsPlacedData = RemoteData.success(unit);
@@ -110,6 +110,11 @@ class BoatPlacementViewModel extends ChangeNotifier{
     notifyListeners();
   }
   
+  void reset() {
+    userBoats.addAll(placedBoats);
+    placedBoats = [];
+    notifyListeners();
+  }
 
   @override
   void dispose() {

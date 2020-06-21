@@ -4,9 +4,10 @@ import 'package:stacked/stacked.dart';
 import 'package:web/global.dart';
 import 'package:web/models/boat.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_viewmodel.dart';
-import 'package:web/ui/room/grid_view.dart';
+import 'package:web/widgets/boat_bucket.dart';
 import 'package:web/widgets/custom_button.dart';
 import 'package:web/widgets/error_text.dart';
+import 'package:web/widgets/grid.dart';
 import 'package:web/widgets/title_text.dart';
 
 @immutable
@@ -127,6 +128,9 @@ class BoatPlacementView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
+          CustomButton("Reset boats", onPressed: model.reset, 
+            disabled: model.placedBoats.length == 0,),
+          SizedBox(width: 30,),
           _placeBoatsButton(model.placeAllBoats, model.userBoats.length),
           SizedBox(
             width: 30,
@@ -144,18 +148,6 @@ class BoatPlacementView extends StatelessWidget {
 
   Widget _placeBoatsRandomly(Function randomBoats) =>
       CustomButton("Place boats randomly", onPressed: randomBoats);
-
-//  RaisedButton _button(String text, Function action) =>
-//      RaisedButton(
-//        padding: EdgeInsets.all(8),
-//        child: Text(text,
-//          style: TextStyle(
-//            fontSize: 20,
-//            color: Colors.black,
-//            fontWeight: FontWeight.bold,
-//          ),
-//        ),
-//        onPressed: action,
-//      );
+  
 
 }

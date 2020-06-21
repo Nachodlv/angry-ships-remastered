@@ -51,6 +51,7 @@ class HomeViewModel extends ChangeNotifier {
 
   init() async {
     if (this.credentials == null || this.userId == null) {
+      print('No credentials!');
       SchedulerBinding.instance.addPostFrameCallback(
           (_) => _navigationService.navigateTo(Routes.LOAD));
       return;
@@ -66,7 +67,7 @@ class HomeViewModel extends ChangeNotifier {
       userNameData = RemoteData.error('Couldn\'t retrieve the user');
       notifyListeners();
     });
-    _onRoomOpenedSub = _roomWsService.onRoomOpened.listen((roomId) async {
+    _onRoomOpenedSub = _roomWsService.onRoomOpened.listen((roomId) {
       _setRoomData(RemoteData.success(unit));
       _navigationService.navigateTo(Routes.ROOM,
           arguments: RoomViewArguments(

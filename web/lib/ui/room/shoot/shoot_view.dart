@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
 import 'package:web/models/boat.dart';
-import 'package:web/ui/room/grid_view.dart';
+import 'package:web/models/point.dart';
 import 'package:web/ui/room/shoot/shoot_viewmodel.dart';
 import 'package:web/widgets/custom_spinner.dart';
 import 'package:web/widgets/error_text.dart';
+import 'package:web/widgets/grid.dart';
 import 'package:web/widgets/timer.dart';
 import 'package:web/widgets/title_text.dart';
 
@@ -49,10 +50,13 @@ class ShootView extends StatelessWidget {
                           TitleText(model.myTurn
                               ? "Time to shoot"
                               : "Your opponent is shooting"),
-                          if(model.lastShootResponse != null)
-                            if(model.lastShootResponse.boatSunken.isSome()) TitleText('You sink an enemy ship!')
-                            else if(model.lastShootResponse.boatShoot) TitleText('You hit an enemy ship!')
-                            else TitleText('You missed!')
+                          if (model.selfShoots.length > 0 && !model.myTurn)
+                            if (model.selfShoots.last.boatSunken.isSome())
+                              TitleText('You sink an enemy ship!')
+                            else if (model.selfShoots.last.boatShoot)
+                              TitleText('You hit an enemy ship!')
+                            else
+                              TitleText('You missed!')
                         ],
                       ),
                     )),
@@ -73,7 +77,9 @@ class ShootView extends StatelessWidget {
                                   : null,
                             ),
                             Container(
-                              decoration: BoxDecoration(border: Border.all(color: Colors.red, width: 5)),
+                              decoration: BoxDecoration(
+                                  border:
+                                      Border.all(color: Colors.red, width: 5)),
                               child: Grid(
                                 tileSize: (windowWidth * 0.30) / kTilesPerRow,
                                 shoots: model.selfShoots,
@@ -89,7 +95,9 @@ class ShootView extends StatelessWidget {
                               height: windowHeight * 0.05,
                             ),
                             Container(
-                              decoration: BoxDecoration(border: Border.all(color: Colors.green, width: 5)),
+                              decoration: BoxDecoration(
+                                  border: Border.all(
+                                      color: Colors.green, width: 5)),
                               child: Grid(
                                 tileSize: (windowWidth * 0.30) / kTilesPerRow,
                                 sunkenBoats: model.selfSunkenBoats,

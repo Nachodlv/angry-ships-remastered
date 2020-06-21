@@ -2,7 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:web/models/boat.dart';
-import 'package:web/ui/room/grid_view.dart';
+import 'package:web/widgets/grid.dart';
 
 class BoatDraggableController {
   _BoatDraggableState _state;

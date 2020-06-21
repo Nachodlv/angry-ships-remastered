@@ -4,6 +4,7 @@ import 'package:stacked/stacked.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/ui/login/login_viewmodel.dart';
 import 'package:web/widgets/custom_spinner.dart';
+import 'package:web/widgets/error_text.dart';
 import 'package:web/widgets/game_title.dart';
 
 class LoginView extends StatelessWidget {
@@ -26,7 +27,7 @@ class LoginView extends StatelessWidget {
               SizedBox(
                 height: 20.0,
               ),
-              renderLoginBox(sizeLongestSide,
+              _renderLoginBox(sizeLongestSide,
                   signInWithGoogle: model.signInWithGoogle),
               SizedBox(
                 height: 20.0,
@@ -34,10 +35,11 @@ class LoginView extends StatelessWidget {
               model.userState.when(
                   success: (state) => state.when((UserSession session) {
                         return Container();
-                      }, anonymous: () => Text('Not logged in!')),
+                      }, 
+                  anonymous: () => Container()),
                   loading: () => Center(child: CustomSpinner()),
                   error: (err) =>
-                      Container(color: Colors.red, child: Text('¡Oops! $err')),
+                      ErrorText(err),
                   notAsked: () => Container())
             ],
           ),
@@ -46,37 +48,37 @@ class LoginView extends StatelessWidget {
     );
   }
 
- 
+  _renderLoginBox(double sizeLongestSide, {void Function() signInWithGoogle}) =>
+      RaisedButton(
+        color: Colors.white,
+        highlightColor: Colors.white,
+        splashColor: Colors.grey,
+        onPressed: signInWithGoogle,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
+        highlightElevation: 1,
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              Image(
+                  image: AssetImage("assets/images/google_logo.png"),
+                  height: 35.0),
+              Padding(
+                padding: const EdgeInsets.only(left: 10),
+                child: Text(
+                  'Sign in with Google',
+                  style: TextStyle(
+                    fontSize: 25,
+                    color: Colors.grey[600],
+                  ),
+                ),
+              )
+            ],
+          ),
+        ),
+      );
 }
 
-renderLoginBox(double sizeLongestSide, {void Function() signInWithGoogle}) =>
-    RaisedButton(
-      color: Colors.white,
-      highlightColor: Colors.white,
-      splashColor: Colors.grey,
-      onPressed: () => signInWithGoogle(),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(5)),
-      highlightElevation: 1,
-      child: Padding(
-        padding: const EdgeInsets.fromLTRB(0, 10, 0, 10),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Image(
-                image: AssetImage("assets/images/google_logo.png"),
-                height: 35.0),
-            Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Text(
-                'Sign in with Google',
-                style: TextStyle(
-                  fontSize: 25,
-                  color: Colors.grey[600],
-                ),
-              ),
-            )
-          ],
-        ),
-      ),
-    );
+

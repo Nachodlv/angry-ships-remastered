@@ -1,15 +1,10 @@
-import 'package:dartz/dartz.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 import 'package:socket_io_client/socket_io_client.dart';
 import 'package:stacked/stacked.dart';
-import 'package:web/data_structures/remote_data.dart';
 import 'package:web/models/auth.dart';
 import 'package:web/ui/room/boat_placement/boat_placement_view.dart';
-import 'package:web/ui/room/boat_placement/boat_placement_viewmodel.dart';
-import 'package:web/ui/room/grid_view.dart';
 import 'package:web/ui/room/room_viewmodel.dart';
 import 'package:web/ui/room/shoot/shoot_view.dart';
 import 'package:web/widgets/chat/chat_view.dart';

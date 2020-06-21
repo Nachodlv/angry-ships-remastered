@@ -14,24 +14,29 @@ import 'package:web/ui/home/home_view.dart';
 class LoadViewModel extends ChangeNotifier {
   RemoteData<String, SignInState> userState = RemoteData.notAsked();
 
+  bool loaded = false;
   StreamSubscription<RemoteData<String, SignInState>> onUserStateChange;
-  
+
   NavigationService _navigationService = locator<NavigationService>();
-  AuthenticationService _authenticationService = locator<AuthenticationService>();
+  AuthenticationService _authenticationService =
+      locator<AuthenticationService>();
   UserService _userService = locator<UserService>();
 
   init(BuildContext context) async {
-    onUserStateChange = _authenticationService.userStateChangeStream.listen((data) {
+    onUserStateChange =
+        _authenticationService.userStateChangeStream.listen((data) {
+          if(loaded) return;
       _setUserState(data);
       data.maybeWhen(
-          success: (state) =>
-              state.maybeWhen((session) => _retrieveUser(session), orElse: () {
-              }),
+          success: (state) {
+            loaded = true;
+            state.maybeWhen((session) => _retrieveUser(session), orElse: () {});
+          },
           notAsked: () {
+            loaded = true;
             _navigationService.navigateTo(Routes.LOGIN);
           },
-          orElse: () {
-          });
+          orElse: () {});
     });
     _signInWithGoogleSilently();
   }
@@ -62,7 +67,7 @@ class LoadViewModel extends ChangeNotifier {
         arguments: HomeViewArguments(
             userCredentials: session.credentials, userId: user.id.id));
   }
-  
+
   @override
   void dispose() {
     onUserStateChange.cancel();

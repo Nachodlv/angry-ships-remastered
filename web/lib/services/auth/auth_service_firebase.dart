@@ -67,11 +67,9 @@ class AuthenticationServiceFirebase implements AuthenticationService {
 
   Future<SignInState> _login(GoogleSignInAccount googleSignInAccount, {bool suppressErrors = false}) async {
     if (googleSignInAccount == null) {
-      if(suppressErrors) {
-        _setUserState(RemoteData.notAsked());
-        return SignInState.anonymous();
-      }
-//      else _setUserState(RemoteData.error('Google sign in exited.'));
+      if(suppressErrors) _setUserState(RemoteData.notAsked());
+      else _setUserState(RemoteData.error('Google sign in exited.'));
+      return SignInState.anonymous();
     }
 
     final GoogleSignInAuthentication googleSignInAuthentication =
@@ -82,22 +80,11 @@ class AuthenticationServiceFirebase implements AuthenticationService {
       idToken: googleSignInAuthentication.idToken,
     );
 
-    final AuthResult authResult = await _auth.signInWithCredential(credential);
-    final FirebaseUser user = authResult.user;
-
-    if (!user.isAnonymous) {
-      _setUserState(RemoteData.error('Tried logging user but got anonymous session.'));
-    }
+    await _auth.signInWithCredential(credential);
 
     final FirebaseUser currentUser = await _auth.currentUser();
-    if (user.uid != currentUser.uid) {
-      _setUserState(RemoteData.error('User uid mismatch.'));
-    }
 
     final tokenResult = await currentUser.getIdToken(refresh: true);
-    if (tokenResult != null) {
-      _setUserState(RemoteData.error('No id token received from logged user.'));
-    }
 
     final credentials = Credentials.bearerFromToken(tokenResult.token);
     final session = _makeUserSession(currentUser, credentials);
