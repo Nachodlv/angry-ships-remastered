@@ -110,9 +110,11 @@ class BoatPlacementViewModel extends ChangeNotifier{
     notifyListeners();
   }
   
-  void reset() {
-    userBoats.addAll(placedBoats);
-    placedBoats = [];
+  void undo() {
+    if(placedBoats.length == 0) return;
+    final boat = placedBoats.removeLast();
+    boat.rotationIndex = 0;
+    userBoats.add(boat);
     notifyListeners();
   }
 

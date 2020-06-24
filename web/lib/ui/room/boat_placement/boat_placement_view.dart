@@ -128,7 +128,7 @@ class BoatPlacementView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          CustomButton("Reset boats", onPressed: model.reset, 
+          CustomButton("Undo", onPressed: model.undo, 
             disabled: model.placedBoats.length == 0,),
           SizedBox(width: 30,),
           _placeBoatsButton(model.placeAllBoats, model.userBoats.length),

@@ -51,7 +51,10 @@ class _BoatDraggableState extends State<BoatDraggable> {
         FocusScope.of(context).requestFocus(widget.focusNode);
       },
       onDragEnd: (_) => dragging = false,
-      onDraggableCanceled: (_, __) => dragging = false,
+      onDraggableCanceled: (_, __) {
+        dragging = false; 
+        widget.boat.rotationIndex = 0;
+        },
       onDragCompleted: () => dragging = false,
       feedback: StreamBuilder<Boat>(
           stream: _boatStream.stream,
